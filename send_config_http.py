@@ -5,9 +5,29 @@ import json
 import base64
 import irma_db
 import datetime
+import os.path
 
+# Params
 today = datetime.datetime.today()
 dateFormatted = '{0:%Y-%m-%d}'.format(today)
+# Config file
+if not os.path.isfile(".config"):
+	print(".config not found in current dir")
+	exit(-1)
+
+config_file = open(".config", "r+b")
+
+#Kernel file
+possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+kernel_compiles = False;
+kernel_filename = ""
+kernel_size = 0
+for filename in possible_filenames:
+	if os.path.isfile(filename):
+		kernel_filename = filename
+		kernel_size = os.path.getsize(filename)
+		kernel_compiles = True;
+		break
 
 try:
 	conn_http = http.client.HTTPConnection(irma_db.addr)
@@ -35,15 +55,15 @@ try:
 	}
 
 	post_body = json.dumps({
-	  "boot": True,
-	  "boottime": 0,
-	  "compilationtime": 0,
-	  "compile": True,
-	  "configfile": (base64.b64encode(b"ceci est un test")).decode(),
+	  "boot": None,
+	  "boottime": None,
+	  "compilationtime": None,
+	  "compile": kernel_compiles,
+	  "configfile": (base64.b64encode(config_file.read())).decode(),
 	  "configfileContentType": "string",
-	  "coresize": 0,
+	  "coresize": kernel_size,
 	  "date": dateFormatted,
-	  "erreur": (base64.b64encode(b"ceci est un test")).decode(),
+	  "erreur": (base64.b64encode(b"")).decode(),
 	  "erreurContentType": "string",
 	})
 
