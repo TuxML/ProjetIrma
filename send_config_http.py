@@ -1,12 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import http.client
 import json
 import base64
-import irma_auth
+import irma_db
+import datetime
+
+today = datetime.datetime.today()
+dateFormatted = '{0:%Y-%m-%d}'.format(today)
 
 try:
-	conn_http = http.client.HTTPConnection("148.60.11.195:8080")
+	conn_http = http.client.HTTPConnection(irma_db.addr)
 
 	# Authentification
 	auth_header = {
@@ -14,7 +18,7 @@ try:
 		'Accept':'application/json'
 	}
 
-	auth_body = json.dumps(irma_auth.user)
+	auth_body = json.dumps(irma_db.user)
 
 	conn_http.request("POST", "/api/authenticate", auth_body, auth_header)
 	auth_response = conn_http.getresponse()
@@ -38,7 +42,7 @@ try:
 	  "configfile": (base64.b64encode(b"ceci est un test")).decode(),
 	  "configfileContentType": "string",
 	  "coresize": 0,
-	  "date": "2017-10-04",
+	  "date": dateFormatted,
 	  "erreur": (base64.b64encode(b"ceci est un test")).decode(),
 	  "erreurContentType": "string",
 	})
