@@ -27,6 +27,7 @@ def checking_dependencies():
 #   1
 def sending_data():
     print("[*] Sending config file to database")
+    print("Ceci est un test")
     # TODO
 
 
