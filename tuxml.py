@@ -67,7 +67,7 @@ def log_analysis():
 #   1 compilation has failed but the program was able to find the missing package(s)
 #   2 compilation has failed and the program wasn't able to find the missing package(s)
 #     (it means an unknow error)
-def compilation():
+def compile():
     print("[*] Waiting for compilation ending...");
 
     if not os.path.exists(PATH + LOG_DIR):
@@ -96,10 +96,10 @@ ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
 checking_dependencies()
 
-while compilation():
+while status = compile():
     pass
 
-if compilation == 0:
+if status == 0:
     sending_data()
 else:
     print("[-] Unable to compile using this .config file or another error append")
