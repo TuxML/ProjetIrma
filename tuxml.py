@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import sys
@@ -164,7 +164,7 @@ def compile():
         os.makedirs(PATH + LOG_DIR)
 
     with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", PATH, "-j"], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         print("[+] Compilation done")
