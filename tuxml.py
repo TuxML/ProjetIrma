@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import sys
@@ -23,6 +23,7 @@ import base64
 def check_dependencies():
     print("[*] Checking dependencies")
     # TODO
+
 
 # author : LE LURON Pierre
 #
@@ -64,10 +65,10 @@ def send_data(has_compiled):
     err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
-        # Initiate 
+        # Initiate HTTP connection 
         conn_http = http.client.HTTPConnection(irma_db.addr)
 
-        # Authentication
+        # JWT Authentication
         auth_header = {
             'Content-Type':'application/json',
             'Accept':'application/json'
@@ -83,6 +84,7 @@ def send_data(has_compiled):
             print("[-] db authentication failed : {}".format(auth_response.reason))
             return 0
 
+        # Add an entry
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -102,8 +104,8 @@ def send_data(has_compiled):
           "erreurContentType": "string",
         })
 
-        # Adds an entry
         conn_http.request("POST", "/api/i-rma-dbs", post_body, headers)
+        # Status check
         r1 = conn_http.getresponse()
         if r1.status == 201:
             print ("[+] Successfully sent info to db")
@@ -162,7 +164,7 @@ def compile():
         os.makedirs(PATH + LOG_DIR)
 
     with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", PATH, "-j"], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         print("[+] Compilation done")
@@ -193,5 +195,4 @@ if status == 0:
 else:
     print("[-] Unable to compile using this .config file or another error happened, sending data anyway")
 
-has_compiled = (status == 0)
-send_data(has_compiled)
+send_data(status == 0)
