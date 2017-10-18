@@ -34,10 +34,10 @@ def check_dependencies():
 def get_kernel_size():
     possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
     for filename in possible_filenames:
-        if os.path.isfile(PATH + "/" + filename):
-            return os.path.getsize(filename)
+        full_filename = PATH + "/" + filename
+        if os.path.isfile(full_filename):
+            return os.path.getsize(full_filename)
     return 0
-
 
 
 # author : LE LURON Pierre
@@ -61,7 +61,7 @@ def send_data(has_compiled):
     config_file = open(config_path, "r+b")
 
     # Error log
-    err_log = open(PATH+ERR_LOG_FILE, "r+b") if not has_compiled else b""
+    err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
         # Initiate 
@@ -98,7 +98,7 @@ def send_data(has_compiled):
           "configfileContentType": "string",
           "coresize": get_kernel_size(),
           "date": dateFormatted,
-          "erreur": (base64.b64encode(err_log.read())).decode(),
+          "erreur": (base64.b64encode(err_log)).decode(),
           "erreurContentType": "string",
         })
 
