@@ -64,10 +64,10 @@ def send_data(has_compiled):
     err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
-        # Initiate 
+        # Initiate HTTP connection 
         conn_http = http.client.HTTPConnection(irma_db.addr)
 
-        # Authentication
+        # JWT Authentication
         auth_header = {
             'Content-Type':'application/json',
             'Accept':'application/json'
@@ -83,6 +83,7 @@ def send_data(has_compiled):
             print("[-] db authentication failed : {}".format(auth_response.reason))
             return 0
 
+        # Add an entry
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -102,8 +103,8 @@ def send_data(has_compiled):
           "erreurContentType": "string",
         })
 
-        # Adds an entry
         conn_http.request("POST", "/api/i-rma-dbs", post_body, headers)
+        # Status check
         r1 = conn_http.getresponse()
         if r1.status == 201:
             print ("[+] Successfully sent info to db")
