@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
+# compile, log analysis & dependencies imports
 import os
 import sys
 import subprocess
 import re
+import shutil
 
 # send_data imports
 import irma_db
@@ -12,6 +14,19 @@ import datetime
 import json
 import base64
 
+# author : LEBRETON Mickael
+#
+# Get the package manager of the system
+#
+# return value :
+#   null package manager not supported by tuxml
+#   pm   the package manager
+def get_package_manager():
+    package_managers = ["pacman", "apt-get", "dnf"]
+    for pm in package_managers:
+        if shutil.which(pm):
+            package_manager = pm
+    return package_manager
 
 # author : LE FLEM Erwan, MERZOUK Fahim
 #
@@ -65,7 +80,7 @@ def send_data(has_compiled):
     err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
-        # Initiate HTTP connection 
+        # Initiate HTTP connection
         conn_http = http.client.HTTPConnection(irma_db.addr)
 
         # JWT Authentication
@@ -130,18 +145,33 @@ def send_data(has_compiled):
 def log_analysis():
     print("[*] Analyzing error log file")
 
+    # faire apt-file upgrade ou equivalent
+
+    # find missing files
     missing_files = []
     for line in open(PATH + ERR_LOG_FILE, "r"):
         if re.search("fatal error", line):
             missing_files.append(line.split(":")[4])
 
+    # find package
     if len(missing_files) > 0:
-        for f in missing_files:
-            # TODO faire apt-file search/pacman -Fo etc
-            # puis installer le paquet
-            print("\t--> Installing {}".format(f))
+        pm = get_package_manager()
+        if pm == "apt-get":
+            cmd = "apt-file search "
+        elif pm == "pacman":
+            cmd = "pacman -Fs "
+        else:
+            print("[-] Distro not supported by TuxML")
+            return 1
 
-        print("[+] Some missing packages were found and installed : restarting compilation")
+        missing_packages = []
+        for mf in missing_files:
+            output = subprocess.check_output([cmd + mf], shell=True)
+            for line in output.decode("utf-8").splitlines():
+                missing_packages.append(line.split(":")[0])
+
+        print("[+] Installing missing packages : " + " ".join(missing_packages))
+        print("[+] Restarting compilation")
         return 0
     else:
         print("[-] Unable to find the missing package(s)")
@@ -184,6 +214,9 @@ LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
+print("[*] Generating random config")
+# subprocess.call(["make", "-C", PATH, "randconfig"])
+
 check_dependencies()
 
 status = 1
@@ -191,8 +224,10 @@ while (status == 1):
     status = compile()
 
 if status == 0:
+    print("[+] Testing the kernel config")
     print("[+] Successfully compiled, sending data")
 else:
-    print("[-] Unable to compile using this .config file or another error happened, sending data anyway")
+    # status == 2
+    print("[-] Unable to compile using this config or another error happened, sending data anyway")
 
 send_data(status == 0)
