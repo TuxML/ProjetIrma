@@ -7,3 +7,14 @@ Envoie une entrée à la bdd jhipster, puis fait un select pour voir toutes les 
 
 ### tuxml.py
     ./tuxml.py path/to/kernel/sources
+    
+expected output :
+
+    [*] Checking dependencies
+    [*] Waiting for compilation ending...
+    [+] Compilation done
+    [+] Successfully compiled, sending data
+    [*] Sending config file and status to database
+    [+] Successfully sent info to db
+
+
