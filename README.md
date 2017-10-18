@@ -7,7 +7,8 @@ Envoie une entrée à la bdd jhipster, puis fait un select pour voir toutes les 
 
 ### tuxml.py
     ./tuxml.py path/to/kernel/sources
-    expected output :
+
+expected output :
 
     [*] Checking dependencies
     [*] Waiting for compilation ending...
