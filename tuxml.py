@@ -5,29 +5,117 @@ import sys
 import subprocess
 import re
 
+# send_data imports
+import irma_db
+import http.client
+import datetime
+import json
+import base64
+
 
 # author : LE FLEM Erwan, MERZOUK Fahim
 #
-# [checking_dependencies description]
+# [check_dependencies description]
 #
 # return value :
 #   0
 #   1
-def checking_dependencies():
+def check_dependencies():
     print("[*] Checking dependencies")
     # TODO
+
+# author : LE LURON Pierre
+#
+# Returns the size of the newly compiled kernel
+#
+# return value :
+#   0 - can't find kernel image
+#   x - size of kernel in bytes
+def get_kernel_size():
+    possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+    for filename in possible_filenames:
+        if os.path.isfile(PATH + "/" + filename):
+            return os.path.getsize(filename)
+    return 0
+
 
 
 # author : LE LURON Pierre
 #
-# [sending_data description]
+# Sends compilation results to the jhipster db
 #
 # return value :
-#   0
-#   1
-def sending_data():
-    print("[*] Sending config file to database")
-    # TODO
+#   0 - failed
+#   1 - success
+def send_data(has_compiled):
+    print("[*] Sending config file and status to database")
+    # date
+    today = datetime.datetime.today()
+    dateFormatted = '{0: %Y-%m-%d}'.format(today)
+    # Config file
+    config_path = PATH + "/.config"
+    if not os.path.isfile(config_path):
+        print("[-] .config not found")
+        return 0
+
+    config_file = open(config_path, "r+b")
+
+    # Error log
+    err_log = open(PATH+ERR_LOG_FILE, "r+b") if not has_compiled else b""
+
+    try:
+        # Initiate 
+        conn_http = http.client.HTTPConnection(irma_db.addr)
+
+        # Authentication
+        auth_header = {
+            'Content-Type':'application/json',
+            'Accept':'application/json'
+        }
+
+        auth_body = json.dumps(irma_db.user)
+
+        conn_http.request("POST", "/api/authenticate", auth_body, auth_header)
+        auth_response = conn_http.getresponse()
+        if auth_response.status == 200:
+            auth_id  = json.loads(auth_response.read().decode())['id_token']
+        else:
+            print("[-] db authentication failed : {}".format(auth_response.reason))
+            return 0
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + auth_id
+        }
+
+        post_body = json.dumps({
+          "boot": None,
+          "boottime": None,
+          "compilationtime": None,
+          "compile": has_compiled,
+          "configfile": (base64.b64encode(config_file.read())).decode(),
+          "configfileContentType": "string",
+          "coresize": get_kernel_size(),
+          "date": dateFormatted,
+          "erreur": (base64.b64encode(err_log.read())).decode(),
+          "erreurContentType": "string",
+        })
+
+        # Adds an entry
+        conn_http.request("POST", "/api/i-rma-dbs", post_body, headers)
+        r1 = conn_http.getresponse()
+        if r1.status == 201:
+            print ("[+] Successfully sent info to db")
+            return 1
+        else:
+            print  ("[-] Can't send info to db : {} - {}".format(r1.status, r1.reason))
+            return 0
+
+    except http.client.HTTPException as err:
+        if err == http.client.NotConnected: print("[-] Can't connect to db")
+        else: print("[-] Unknown db error : {}".format(err))
+        return 0
 
 
 # author : LEBRETON Mickael
@@ -94,12 +182,16 @@ LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
-checking_dependencies()
+check_dependencies()
 
-while status = compile():
-    pass
+status = 1
+while (status == 1):
+    status = compile()
 
 if status == 0:
-    sending_data()
+    print("[+] Successfully compiled, sending data")
 else:
-    print("[-] Unable to compile using this .config file or another error append")
+    print("[-] Unable to compile using this .config file or another error happened, sending data anyway")
+
+has_compiled = (status == 0)
+send_data(has_compiled)
