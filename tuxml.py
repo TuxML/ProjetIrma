@@ -97,8 +97,10 @@ ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
 checking_dependencies()
 
-while compilation() == 1:
+while compilation():
     pass
+
+print("test conflit github")
 
 if compilation == 0:
     sending_data()
