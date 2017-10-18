@@ -100,6 +100,10 @@ while compilation():
     pass
 
 print("test conflit github")
+print("test conflit github")
+print("test conflit github")
+print("test conflit github")
+print("test conflit github")
 
 if compilation == 0:
     sending_data()
