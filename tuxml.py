@@ -24,6 +24,7 @@ def check_dependencies():
     print("[*] Checking dependencies")
     # TODO
 
+
 # author : LE LURON Pierre
 #
 # Returns the size of the newly compiled kernel
@@ -64,7 +65,7 @@ def send_data(has_compiled):
     err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
-        # Initiate 
+        # Initiate
         conn_http = http.client.HTTPConnection(irma_db.addr)
 
         # Authentication
@@ -193,5 +194,4 @@ if status == 0:
 else:
     print("[-] Unable to compile using this .config file or another error happened, sending data anyway")
 
-has_compiled = (status == 0)
-send_data(has_compiled)
+send_data(status == 0)
