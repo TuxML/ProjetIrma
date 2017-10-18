@@ -24,6 +24,7 @@ def check_dependencies():
     print("[*] Checking dependencies")
     # TODO
 
+
 # author : LE LURON Pierre
 #
 # Returns the size of the newly compiled kernel
@@ -194,5 +195,4 @@ if status == 0:
 else:
     print("[-] Unable to compile using this .config file or another error happened, sending data anyway")
 
-has_compiled = (status == 0)
-send_data(has_compiled)
+send_data(status == 0)
