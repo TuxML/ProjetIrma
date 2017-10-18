@@ -18,7 +18,7 @@ def checking_dependencies():
     # TODO
 
 
-# author : LELURON Pierre
+# author : LE LURON Pierre
 #
 # [sending_data description]
 #
