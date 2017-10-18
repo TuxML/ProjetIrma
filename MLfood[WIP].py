@@ -2,10 +2,9 @@ import os;
 
 
 # Doit contenir la liste des différentes URL d'images systemes contenant le/les scripts tuxml d'execution.
-lurl = {"liste des urls d'images"}
+lurl = ["url1","url2","url3"]
 
 
-for 1 to 100 :
-
-    str = 'docker run -i -t {} /bin/bash'.format(url in lurl);
+for url in lurl :
+    str = 'docker run -i -t {} /bin/bash'.format(url);
     system(str);
