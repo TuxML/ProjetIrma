@@ -149,10 +149,11 @@ def send_data(has_compiled):
 #
 def install_missing_packages(distro, missing_files):
     # 0 Arch / 1 Debian / 2 RedHat
-    if distro != 2:
+    if distro != 1:
         print("[-] Distro not supported by TuxML")
         return 1
 
+    cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
     cmd_search = ["pacman -Fs ", "apt-file search "]
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
@@ -162,10 +163,10 @@ def install_missing_packages(distro, missing_files):
         line = output.decode("utf-8").splitlines()
         missing_packages.append(line[0].split(":")[0]) #debian way
 
-    # faire apt-file/get update avant l'exec des commandes (ou equivalent)
+    print("[*] Updating package database")
+    subprocess.call([cmd_update[distro]], shell=True)
 
-    print("[+] Installing missing packages : " + " ".join(missing_packages))
-
+    print("[*] Installing missing packages : " + " ".join(missing_packages))
     subprocess.call([cmd_install[distro] + " ".join(missing_packages)], shell=True)
 
 
@@ -223,8 +224,9 @@ def compile():
 
 
 # === MAIN FUNCTION ===
-if len(sys.argv) < 2:
+if len(sys.argv) < 2 or os.getuid() != 0:
     print("[!] USE : ./tuxml.py <path/to/the/linux/sources/directory>")
+    print("[!] Please run TuxML with root privileges")
     sys.exit(-1)
 
 PATH = sys.argv[1]
