@@ -19,14 +19,22 @@ import base64
 # Get the package manager of the system
 #
 # return value :
-#   null package manager not supported by tuxml
-#   pm   the package manager
-def get_package_manager():
+#  -1 Distro not supported
+#   0 Arch based distro
+#   1 Debian based distro
+#   2 RedHat based distro
+def get_distro():
     package_managers = ["pacman", "apt-get", "dnf"]
     for pm in package_managers:
-        if shutil.which(pm):
-            package_manager = pm
-    return package_manager
+        try:
+            distro = package_managers.index(shutil.which(pm).split("/")[3]) #/usr/bin/pacman --> pacman
+        except Exception as err:
+            distro = -1
+
+        if 0 <= distro and distro < len(package_managers):
+            return distro
+    return -1
+
 
 # author : LE FLEM Erwan, MERZOUK Fahim
 #
@@ -137,6 +145,32 @@ def send_data(has_compiled):
 
 # author : LEBRETON Mickael
 #
+# [install_missing_packages description]
+#
+def install_missing_packages(distro, missing_files):
+    # 0 Arch / 1 Debian / 2 RedHat
+    if distro != 2:
+        print("[-] Distro not supported by TuxML")
+        return 1
+
+    cmd_search = ["pacman -Fs ", "apt-file search "]
+    cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
+
+    missing_packages = []
+    for mf in missing_files:
+        output = subprocess.check_output([cmd_search[distro] + mf], shell=True)
+        line = output.decode("utf-8").splitlines()
+        missing_packages.append(line[0].split(":")[0]) #debian way
+
+    # faire apt-file/get update avant l'exec des commandes (ou equivalent)
+
+    print("[+] Installing missing packages : " + " ".join(missing_packages))
+
+    subprocess.call([cmd_install[distro] + " ".join(missing_packages)], shell=True)
+
+
+# author : LEBRETON Mickael
+#
 # [log_analysis description]
 #
 # return value :
@@ -144,8 +178,6 @@ def send_data(has_compiled):
 #   1 it wasn't able to find them
 def log_analysis():
     print("[*] Analyzing error log file")
-
-    # faire apt-file upgrade ou equivalent
 
     # find missing files
     missing_files = []
@@ -155,22 +187,7 @@ def log_analysis():
 
     # find package
     if len(missing_files) > 0:
-        pm = get_package_manager()
-        if pm == "apt-get":
-            cmd = "apt-file search "
-        elif pm == "pacman":
-            cmd = "pacman -Fs "
-        else:
-            print("[-] Distro not supported by TuxML")
-            return 1
-
-        missing_packages = []
-        for mf in missing_files:
-            output = subprocess.check_output([cmd + mf], shell=True)
-            for line in output.decode("utf-8").splitlines():
-                missing_packages.append(line.split(":")[0])
-
-        print("[+] Installing missing packages : " + " ".join(missing_packages))
+        install_missing_packages(get_distro(), missing_files)
         print("[+] Restarting compilation")
         return 0
     else:
@@ -188,13 +205,14 @@ def log_analysis():
 #   2 compilation has failed and the program wasn't able to find the missing package(s)
 #     (it means an unknow error)
 def compile():
-    print("[*] Waiting for compilation ending...");
+    print("[*] Compilation in progress");
+    # barre de chargement [ ##########-------------------- ] 33%
 
     if not os.path.exists(PATH + LOG_DIR):
         os.makedirs(PATH + LOG_DIR)
 
     with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", PATH, "-j"], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         print("[+] Compilation done")
