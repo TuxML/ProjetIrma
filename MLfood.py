@@ -11,7 +11,7 @@ if len(sys.argv) == 1:
 nb = int(sys.argv[1])
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["url1","url2","url3"]
+images = ["debian","debian","url3"]
 
 # The image list must not be empty.
 if len(images) == 0:
@@ -20,6 +20,8 @@ if len(images) == 0:
 
 # For each url in the url list "images", we run a new docker which run the TuxML command.
 for i in range(nb):
-    str = 'sudo docker run -i -t {} /bin/bash'.format(images[i % len(images)])
-    print("\n"+str)
-    os.system(str)
+	print("\n=============== Docker n°{} ===============".format(i+1))
+	str = 'sudo docker run -t {} /bin/ls'.format(images[i % len(images)])
+	print(str)
+	print("=========================================\n")
+	os.system(str)
