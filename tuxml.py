@@ -147,9 +147,12 @@ def send_data(has_compiled):
 #
 # [install_missing_packages description]
 #
+## return value :
+#   0 distro not supported by TuxML
+#   1 installation OK
 def install_missing_packages(distro, missing_files):
     # 0 Arch / 1 Debian / 2 RedHat
-    if distro != 1:
+    if distro > 2:
         print("[-] Distro not supported by TuxML")
         return 1
 
@@ -172,6 +175,8 @@ def install_missing_packages(distro, missing_files):
     print("[*] Installing missing packages : " + " ".join(missing_packages))
     subprocess.call([cmd_install[distro] + " ".join(missing_packages)], shell=True)
 
+    return 0
+
 
 # author : LEBRETON Mickael
 #
@@ -191,7 +196,7 @@ def log_analysis():
 
     # find package
     if len(missing_files) > 0:
-        install_missing_packages(get_distro(), missing_files)
+        install_missing_packages(get_distro(), missing_files) #TODO catch return value
         print("[+] Restarting compilation")
         return 0
     else:
@@ -238,7 +243,7 @@ STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
 print("[*] Generating random config")
-# subprocess.call(["make", "-C", PATH, "randconfig"])
+subprocess.call(["make", "-C", PATH, "randconfig"])
 
 check_dependencies()
 
