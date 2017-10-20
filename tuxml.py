@@ -154,14 +154,17 @@ def install_missing_packages(distro, missing_files):
         return 1
 
     cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
-    cmd_search = ["pacman -Fs ", "apt-file search "]
+    cmd_search = ["pkgfile -s {} | grep {}", "apt-file search {} | grep {}"]
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
     missing_packages = []
     for mf in missing_files:
-        output = subprocess.check_output([cmd_search[distro] + mf], shell=True)
+        # example : mf = "openssl/bio.h"
+        output = subprocess.check_output([cmd_search[distro].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
+
+        # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
-        missing_packages.append(line[0].split(":")[0]) #debian way
+        missing_packages.append(line[0].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
     subprocess.call([cmd_update[distro]], shell=True)
