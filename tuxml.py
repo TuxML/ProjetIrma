@@ -45,7 +45,7 @@ def get_distro():
 #   1
 def check_dependencies():
     print("[*] Checking dependencies")
-    # TODO
+    # TODO check_dependencies
 
 
 # author : LE LURON Pierre
@@ -163,6 +163,9 @@ def install_missing_packages(distro, missing_files):
     missing_packages = []
     for mf in missing_files:
         # example : mf = "openssl/bio.h"
+        if DEBUG:
+            print(mf)
+
         output = subprocess.check_output([cmd_search[distro].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
 
         # some times the output gives several packages, the program takes the first one (== first line)
@@ -233,8 +236,11 @@ def compile():
 
 # === MAIN FUNCTION ===
 if len(sys.argv) < 2 or os.getuid() != 0:
-    print("[!] USE : ./tuxml.py <path/to/the/linux/sources/directory>")
-    print("[!] Please run TuxML with root privileges")
+    print("[*] USE : ./tuxml.py <path/to/the/linux/sources/directory> [option1 option2 ...]")
+    print("[*] Please run TuxML with root privileges")
+    print("[*] Available options :")
+    print("\t--debug\t\t\tTuxML is more verbose")
+    print("\t--no-randconfing\tTuxML doesn't generate new random config file")
     sys.exit(-1)
 
 PATH = sys.argv[1]
@@ -242,8 +248,17 @@ LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
-print("[*] Generating random config")
-subprocess.call(["make", "-C", PATH, "randconfig"])
+# TODO temps de compile
+
+if len(sys.argv) > 2:
+    if "--debug" in sys.argv:
+        DEBUG = True
+    else:
+        DEBUG = False
+
+    if not "--no-randconfig" in sys.argv:
+        print("[*] Generating random config")
+        subprocess.call(["make", "-C", PATH, "randconfig"])
 
 check_dependencies()
 
