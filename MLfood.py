@@ -6,12 +6,12 @@ import sys
 if len(sys.argv) == 1:
     print("Veuillez préciser un nombre de compilation a lancer.")
     exit(1)
-    
+
 # Retrieves the number of compilation to run.
 nb = int(sys.argv[1])
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["debian","debian","url3"]
+images = ["tuxmfood"]
 
 # The image list must not be empty.
 if len(images) == 0:
