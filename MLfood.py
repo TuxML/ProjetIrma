@@ -4,19 +4,23 @@ import sys
 
 # Error if there is no argument "number" of compilation to run.
 if len(sys.argv) == 1:
-    print("Veuillez préciser un nombre de compilation a lancer.")
-    exit(1)
-    
+    print("Please specify a number of compilation to launch.")
+    exit()
+
 # Retrieves the number of compilation to run.
 nb = int(sys.argv[1])
 
+if nb <= 0:
+    print("Please enter a non-zero positive integer.")
+    exit()
+
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["debian","debian","url3"]
+images = ["debian","archlinux/base","url3"]
 
 # The image list must not be empty.
 if len(images) == 0:
-	print("Il n'a aucune images système\n")
-	exit(1)
+	print("There is no images.")
+	exit()
 
 # For each url in the url list "images", we run a new docker which run the TuxML command.
 for i in range(nb):
