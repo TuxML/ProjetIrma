@@ -151,7 +151,7 @@ def send_data(has_compiled):
 ## return value :
 #   -1 distro not supported by TuxML
 #    0 installation OK
-def install_missing_packages(distro, missing_files, missing_packages, counter):
+def install_missing_packages(distro, missing_files, missing_packages):
     # 0 Arch / 1 Debian / 2 RedHat
     if distro > 2:
         print("[-] Distro not supported by TuxML")
@@ -181,7 +181,7 @@ def install_missing_packages(distro, missing_files, missing_packages, counter):
 
         # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
-        missing_packages.append(line[counter].split(":")[0]) #debian and archway
+        missing_packages.append(line[COUNTER].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
     subprocess.call([cmd_update[distro]], shell=True)
@@ -199,25 +199,26 @@ def install_missing_packages(distro, missing_files, missing_packages, counter):
 # return value :
 #   -1 it wasn't able to find them
 #    0 the program was able to find the missing package(s)
-def log_analysis(counter):
+def log_analysis():
     print("[*] Analyzing error log file")
 
-    # find missing files
     missing_files = []
     missing_packages = []
-    for line in open(PATH + ERR_LOG_FILE, "r"):
-        if re.search("fatal error", line):
-            missing_files.append(line.split(":")[4])
-        if re.search("not found", line):
-            missing_packages.append(line.split(":")[2])
+    with open(PATH + ERR_LOG_FILE, "r") as err_logs:
+        for line in err_logs:
+            if re.search("fatal error", line):
+                missing_packages.append(line.split(":")[2]) # case TODO
+            elif re.search("command not found", line):
+                missing_packages.append(line.split(":")[1]) # case make[4]: <package> : command not found
+            elif re.search("not found", line):
+                missing_files.append(line.split(":")[4]) # case /bin/sh: 1: <package>: not found
 
-    # find package
-    if len(missing_files) > 0:
-        status = install_missing_packages(get_distro(), missing_files, missing_packages) #TODO catch return value
+    if len(missing_files) > 0 or len(missing_packages) > 0:
+        status = install_missing_packages(get_distro(), missing_files, missing_packages)
 
         if status == 0:
             print("[+] Restarting compilation")
-            counter += 1
+            COUNTER += 1
             return 0
         else:
             return -1
@@ -234,8 +235,8 @@ def log_analysis(counter):
 #   -1 compilation has failed but the program was able to find the missing package(s)
 #   -2 compilation has failed and the program wasn't able to find the missing package(s)
 #      (it means an unknow error)
-#   >0 no error
-def compile(counter):
+#   >0 no error (time to compile in seconds)
+def compile():
     print("[*] Compilation in progress");
     # barre de chargement [ ##########-------------------- ] 33%
 
@@ -247,30 +248,27 @@ def compile(counter):
         status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
         end_time = time.time()
 
-    compile_time = end_time - start_time
-
     if status == 0:
-        print("[+] Compilation done in {} sec".format(compile_time))
-        return compile_time
+        print("[+] Compilation done")
+        return end_time - start_time
     else:
         print("[-] Compilation failed, exit status : {}".format(status))
-        return log_analysis(counter) - 1
+        return log_analysis() - 1
 
 
 # === MAIN FUNCTION ===
 if len(sys.argv) < 2 or os.getuid() != 0:
     print("[*] USE : ./tuxml.py <path/to/the/linux/sources/directory> [option1 option2 ...]")
-    print("[*] Please run TuxML with root privileges")
+    print("[*] Please run TuxML as root")
     print("[*] Available options :")
-    print("\t--debug\t\t\tTuxML is more verbose")
+    print("\t--debug\t\tTuxML is more verbose and do not generate a new config file")
     sys.exit(-1)
 
 PATH = sys.argv[1]
 LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
-
-# TODO temps de compile
+COUNTER = 0 # number of time the program had to recompile
 
 if "--debug" in sys.argv:
     DEBUG = True
@@ -283,15 +281,16 @@ else:
 check_dependencies()
 
 status = -1
-counter = 0
 while (status == -1):
-    status = compile(0)
+    if DEBUG:
+        print("=== Counter : {}".format(COUNTER))
+    status = compile()
 
 if status >= 0:
     print("[+] Testing the kernel config")
-    print("[+] Successfully compiled in {} sec, sending data".format(status))
+    print("[+] Successfully compiled in " + time.strftime("%H:%M:%S", time.gmtime(status)) + ", sending data")
 else:
     # status == -2
     print("[-] Unable to compile using this config or another error happened, sending data anyway")
 
-send_data(status == 0)
+send_data(status >= 0)
