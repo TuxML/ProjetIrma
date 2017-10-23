@@ -6,6 +6,7 @@ import sys
 import subprocess
 import re
 import shutil
+import time
 
 # send_data imports
 import irma_db
@@ -148,29 +149,39 @@ def send_data(has_compiled):
 # [install_missing_packages description]
 #
 ## return value :
-#   0 distro not supported by TuxML
-#   1 installation OK
-def install_missing_packages(distro, missing_files):
+#   -1 distro not supported by TuxML
+#    0 installation OK
+def install_missing_packages(distro, missing_files, missing_packages, counter):
     # 0 Arch / 1 Debian / 2 RedHat
     if distro > 2:
         print("[-] Distro not supported by TuxML")
-        return 1
+        return -1
+
+    if DEBUG:
+        if distro == 0:
+            print("=== Arch based distro")
+        elif distro == 1:
+            print("=== Debian based distro")
+        elif distro == 2:
+            print("=== RedHat based distro")
 
     cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
     cmd_search = ["pkgfile -s {} | grep {}", "apt-file search {} | grep {}"]
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
-    missing_packages = []
+    if DEBUG:
+        print("=== Those files are missing :")
+
     for mf in missing_files:
         # example : mf = "openssl/bio.h"
         if DEBUG:
-            print(mf)
+            print("===" + mf)
 
         output = subprocess.check_output([cmd_search[distro].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
 
         # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
-        missing_packages.append(line[0].split(":")[0]) #debian and archway
+        missing_packages.append(line[counter].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
     subprocess.call([cmd_update[distro]], shell=True)
@@ -186,25 +197,33 @@ def install_missing_packages(distro, missing_files):
 # [log_analysis description]
 #
 # return value :
-#   0 the program was able to find the missing package(s)
-#   1 it wasn't able to find them
-def log_analysis():
+#   -1 it wasn't able to find them
+#    0 the program was able to find the missing package(s)
+def log_analysis(counter):
     print("[*] Analyzing error log file")
 
     # find missing files
     missing_files = []
+    missing_packages = []
     for line in open(PATH + ERR_LOG_FILE, "r"):
         if re.search("fatal error", line):
             missing_files.append(line.split(":")[4])
+        if re.search("not found", line):
+            missing_packages.append(line.split(":")[2])
 
     # find package
     if len(missing_files) > 0:
-        install_missing_packages(get_distro(), missing_files) #TODO catch return value
-        print("[+] Restarting compilation")
-        return 0
+        status = install_missing_packages(get_distro(), missing_files, missing_packages) #TODO catch return value
+
+        if status == 0:
+            print("[+] Restarting compilation")
+            counter += 1
+            return 0
+        else:
+            return -1
     else:
         print("[-] Unable to find the missing package(s)")
-        return 1
+        return -1
 
 
 # author : LEBRETON Mickael
@@ -212,11 +231,11 @@ def log_analysis():
 # [compilation description]
 #
 # return value :
-#   0 no error
-#   1 compilation has failed but the program was able to find the missing package(s)
-#   2 compilation has failed and the program wasn't able to find the missing package(s)
-#     (it means an unknow error)
-def compile():
+#   -1 compilation has failed but the program was able to find the missing package(s)
+#   -2 compilation has failed and the program wasn't able to find the missing package(s)
+#      (it means an unknow error)
+#   >0 no error
+def compile(counter):
     print("[*] Compilation in progress");
     # barre de chargement [ ##########-------------------- ] 33%
 
@@ -224,14 +243,18 @@ def compile():
         os.makedirs(PATH + LOG_DIR)
 
     with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
+        start_time = time.time()
         status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+        end_time = time.time()
+
+    compile_time = end_time - start_time
 
     if status == 0:
-        print("[+] Compilation done")
-        return 0
+        print("[+] Compilation done in {} sec".format(compile_time))
+        return compile_time
     else:
         print("[-] Compilation failed, exit status : {}".format(status))
-        return log_analysis() + 1
+        return log_analysis(counter) - 1
 
 
 # === MAIN FUNCTION ===
@@ -240,7 +263,6 @@ if len(sys.argv) < 2 or os.getuid() != 0:
     print("[*] Please run TuxML with root privileges")
     print("[*] Available options :")
     print("\t--debug\t\t\tTuxML is more verbose")
-    print("\t--no-randconfing\tTuxML doesn't generate new random config file")
     sys.exit(-1)
 
 PATH = sys.argv[1]
@@ -250,27 +272,26 @@ ERR_LOG_FILE = LOG_DIR + "/err.logs"
 
 # TODO temps de compile
 
-if len(sys.argv) > 2:
-    if "--debug" in sys.argv:
-        DEBUG = True
-    else:
-        DEBUG = False
-
-    if not "--no-randconfig" in sys.argv:
-        print("[*] Generating random config")
-        subprocess.call(["make", "-C", PATH, "randconfig"])
+if "--debug" in sys.argv:
+    DEBUG = True
+    print("=== Debug mode enabled")
+else:
+    DEBUG = False
+    print("[*] Generating random config")
+    subprocess.call(["make", "-C", PATH, "randconfig"])
 
 check_dependencies()
 
-status = 1
-while (status == 1):
-    status = compile()
+status = -1
+counter = 0
+while (status == -1):
+    status = compile(0)
 
-if status == 0:
+if status >= 0:
     print("[+] Testing the kernel config")
-    print("[+] Successfully compiled, sending data")
+    print("[+] Successfully compiled in {} sec, sending data".format(status))
 else:
-    # status == 2
+    # status == -2
     print("[-] Unable to compile using this config or another error happened, sending data anyway")
 
 send_data(status == 0)
