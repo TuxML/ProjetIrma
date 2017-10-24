@@ -226,13 +226,13 @@ def log_analysis():
         for line in err_logs:
             if re.search("fatal error", line):
                 # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
-                missing_packages.append(line.split(":")[4])
+                missing_files.append(line.split(":")[4])
             elif re.search("Command not found", line):
                 # case make[4]: <package> : command not found
                 missing_packages.append(line.split(":")[1])
             elif re.search("not found", line):
                 # case /bin/sh: 1: <package>: not found
-                missing_files.append(line.split(":")[4])
+                missing_packages.append(line.split(":")[4])
             else:
                 pass
 
