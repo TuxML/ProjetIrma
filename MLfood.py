@@ -11,10 +11,8 @@ if len(sys.argv) == 1:
 =======
 =======
 if len(argv) == 1:
->>>>>>> 13bab78bc1dd5fd73e94725f7595341cc42139fc
     print("Please specify a number of compilation to launch.")
     exit()
->>>>>>> f6bca867aba5dd262490703643000873db417260
 
 # Retrieves the number of compilation to run.
 nb = int(argv[1])
@@ -24,15 +22,7 @@ if nb <= 0:
     exit()
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-<<<<<<< HEAD
-<<<<<<< HEAD
-images = ["tuxmfood"]
-=======
-images = ["debian","archlinux/base","url3"]
->>>>>>> f6bca867aba5dd262490703643000873db417260
-=======
 images = ["tuxml/tuxmldebian"]
->>>>>>> 13bab78bc1dd5fd73e94725f7595341cc42139fc
 
 # The image list must not be empty.
 if len(images) == 0:
