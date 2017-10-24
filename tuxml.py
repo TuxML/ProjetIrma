@@ -151,19 +151,21 @@ def send_data(has_compiled):
 ## return value :
 #   -1 distro not supported by TuxML
 #    0 installation OK
-def install_missing_packages(distro, missing_files, missing_packages):
+def install_missing_packages(missing_files, missing_packages):
     # 0 Arch / 1 Debian / 2 RedHat
-    if distro > 2:
+    if DISTRO > 2:
         print("[-] Distro not supported by TuxML")
         return -1
 
     if DEBUG:
-        if distro == 0:
+        if DISTRO == 0:
             print("=== Arch based distro")
-        elif distro == 1:
+        elif DISTRO == 1:
             print("=== Debian based distro")
-        elif distro == 2:
+        elif DISTRO == 2:
             print("=== RedHat based distro")
+        else:
+            pass
 
     cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
     cmd_search = ["pkgfile -s {} | grep {}", "apt-file search {} | grep {}"]
@@ -177,17 +179,20 @@ def install_missing_packages(distro, missing_files, missing_packages):
         if DEBUG:
             print("===" + mf)
 
-        output = subprocess.check_output([cmd_search[distro].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
+        output = subprocess.check_output([cmd_search[DISTRO].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
 
         # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
         missing_packages.append(line[COUNTER].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
-    subprocess.call([cmd_update[distro]], shell=True)
+    subprocess.call([cmd_update[DISTRO]], shell=True)
 
     print("[*] Installing missing packages : " + " ".join(missing_packages))
-    subprocess.call([cmd_install[distro] + " ".join(missing_packages)], shell=True)
+    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], shell=True)
+    # BUG Des fois le gestionnaire de paquet ne trouve pas le paquet
+    # Donc l'install des paquets plante mais la compile recommence
+    # (cas de aicdb.h)
 
     return 0
 
@@ -200,6 +205,8 @@ def install_missing_packages(distro, missing_files, missing_packages):
 #   -1 it wasn't able to find them
 #    0 the program was able to find the missing package(s)
 def log_analysis():
+    global COUNTER
+
     print("[*] Analyzing error log file")
 
     missing_files = []
@@ -207,14 +214,19 @@ def log_analysis():
     with open(PATH + ERR_LOG_FILE, "r") as err_logs:
         for line in err_logs:
             if re.search("fatal error", line):
-                missing_packages.append(line.split(":")[2]) # case TODO
-            elif re.search("command not found", line):
-                missing_packages.append(line.split(":")[1]) # case make[4]: <package> : command not found
+                # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
+                missing_packages.append(line.split(":")[4])
+            elif re.search("Command not found", line):
+                # case make[4]: <package> : command not found
+                missing_packages.append(line.split(":")[1])
             elif re.search("not found", line):
-                missing_files.append(line.split(":")[4]) # case /bin/sh: 1: <package>: not found
+                # case /bin/sh: 1: <package>: not found
+                missing_files.append(line.split(":")[4])
+            else:
+                pass
 
     if len(missing_files) > 0 or len(missing_packages) > 0:
-        status = install_missing_packages(get_distro(), missing_files, missing_packages)
+        status = install_missing_packages(missing_files, missing_packages)
 
         if status == 0:
             print("[+] Restarting compilation")
@@ -268,6 +280,7 @@ PATH = sys.argv[1]
 LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
+DISTRO = get_distro()
 COUNTER = 0 # number of time the program had to recompile
 
 if "--debug" in sys.argv:
