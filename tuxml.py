@@ -15,6 +15,17 @@ import datetime
 import json
 import base64
 
+
+# === GLOBALS ===
+PATH = ""
+LOG_DIR = "/logs"
+STD_LOG_FILE = LOG_DIR + "/std.logs"
+ERR_LOG_FILE = LOG_DIR + "/err.logs"
+DISTRO = ""
+DEBUG = False
+COUNTER = 0 # number of time the program had to recompile
+
+
 # author : LEBRETON Mickael
 #
 # Get the package manager of the system
@@ -277,11 +288,7 @@ if len(sys.argv) < 2 or os.getuid() != 0:
     sys.exit(-1)
 
 PATH = sys.argv[1]
-LOG_DIR = "/logs"
-STD_LOG_FILE = LOG_DIR + "/std.logs"
-ERR_LOG_FILE = LOG_DIR + "/err.logs"
 DISTRO = get_distro()
-COUNTER = 0 # number of time the program had to recompile
 
 if "--debug" in sys.argv:
     DEBUG = True
