@@ -3,13 +3,6 @@ from sys import argv
 
 
 # Error if there is no argument "number" of compilation to run.
-<<<<<<< HEAD
-if len(sys.argv) == 1:
-<<<<<<< HEAD
-    print("Veuillez préciser un nombre de compilation a lancer.")
-    exit(1)
-=======
-=======
 if len(argv) == 1:
     print("Please specify a number of compilation to launch.")
     exit()
@@ -32,7 +25,7 @@ if len(images) == 0:
 # For each url in the url list "images", we run a new docker which run the TuxML command.
 for i in range(nb):
 	print("\n=============== Docker n°{} ===============".format(i+1))
-	str = 'sudo docker run -t -i {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
+	str = 'sudo docker run -t -i {} /TuxML/tuxml.py /TuxML/linux-4.13.3 &'.format(images[i % len(images)])
 	print(str)
 	print("=========================================\n")
 	os.system(str)
