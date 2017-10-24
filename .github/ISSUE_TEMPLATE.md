@@ -4,3 +4,4 @@
 * Comportement attendu :
 * Architecture de la machine (distribution, version, 32/64 bits, docker ou VM etc) :
 * pastebin vers le .config :
+* pastebin vers le log d'erreur :
