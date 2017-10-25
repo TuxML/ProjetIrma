@@ -79,7 +79,7 @@ def install_missing_packages(missing_files, missing_packages):
             pass
 
     cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
-    cmd_search = ["pkgfile -s {} | grep {}", "apt-file search {} | grep {}"]
+    cmd_search = ["pkgfile -s {}", "apt-file search {}"]
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
     if DEBUG:
@@ -90,7 +90,7 @@ def install_missing_packages(missing_files, missing_packages):
         if DEBUG:
             print("===" + mf)
 
-        output = subprocess.check_output([cmd_search[DISTRO].format(mf.split("/")[1], mf.split("/")[0])], shell=True)
+        output = subprocess.check_output([cmd_search[DISTRO].format(mf)], shell=True)
 
         # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
@@ -99,11 +99,12 @@ def install_missing_packages(missing_files, missing_packages):
     print("[*] Updating package database")
     subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
-    print("[*] Installing missing packages : " + " ".join(missing_packages))
-    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
     # BUG Des fois le gestionnaire de paquet ne trouve pas le paquet
     # Donc l'install des paquets plante mais la compile recommence
+    # (compile à l'infini)
     # (cas de aicdb.h)
+    print("[*] Installing missing packages : " + " ".join(missing_packages))
+    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     return 0
 
@@ -128,11 +129,11 @@ def log_analysis():
                 # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
                 missing_files.append(line.split(":")[4])
             elif re.search("Command not found", line):
-                # case make[4]: <package> : command not found
+                # case "make[4]: <command> : command not found"
                 missing_packages.append(line.split(":")[1])
             elif re.search("not found", line):
-                # case /bin/sh: 1: <package>: not found
-                missing_packages.append(line.split(":")[2])
+                # case "/bin/sh: 1: <command>: not found"
+                missing_files.append(line.split(":")[2])
             else:
                 pass
 
