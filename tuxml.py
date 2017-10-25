@@ -83,7 +83,7 @@ def get_kernel_size():
 # return value :
 #   0 - failed
 #   1 - success
-def send_data(has_compiled):
+def send_data(compile_time):
     print("[*] Sending config file and status to database")
     # date
     today = datetime.datetime.today()
@@ -97,6 +97,7 @@ def send_data(has_compiled):
     config_file = open(config_path, "r+b")
 
     # Error log
+    has_compiled = compile_time > 0
     err_log = open(PATH+ERR_LOG_FILE, "r+b").read() if not has_compiled else b""
 
     try:
@@ -129,7 +130,7 @@ def send_data(has_compiled):
         post_body = json.dumps({
           "boot": None,
           "boottime": None,
-          "compilationtime": None,
+          "compilationtime": compile_time,
           "compile": has_compiled,
           "configfile": (base64.b64encode(config_file.read())).decode(),
           "configfileContentType": "string",
@@ -317,4 +318,4 @@ else:
     # status == -2
     print("[-] Unable to compile using this config or another error happened, sending data anyway")
 
-send_data(status >= 0)
+send_data(status)
