@@ -23,6 +23,7 @@ STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
 DISTRO = ""
 DEBUG = False
+OUTPUT = sys.__stdout__
 COUNTER = 0 # number of time the program had to recompile
 
 
@@ -198,10 +199,10 @@ def install_missing_packages(missing_files, missing_packages):
         missing_packages.append(line[COUNTER].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
-    subprocess.call([cmd_update[DISTRO]], shell=True)
+    subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=sys.__stdout__, shell=True)
 
     print("[*] Installing missing packages : " + " ".join(missing_packages))
-    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], shell=True)
+    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=sys.__stdout__, shell=True)
     # BUG Des fois le gestionnaire de paquet ne trouve pas le paquet
     # Donc l'install des paquets plante mais la compile recommence
     # (cas de aicdb.h)
@@ -286,22 +287,32 @@ if len(sys.argv) < 2 or os.getuid() != 0:
     print("[*] Please run TuxML as root")
     print("[*] Available options :")
     print("\t--debug\t\tTuxML is more verbose and do not generate a new config file")
+    print("\t--version\tDisplay the version of TuxML")
     sys.exit(-1)
 
 PATH = sys.argv[1]
 DISTRO = get_distro()
 
+# TODO do not print subprocess output
+# import command/command line ??? ==> plus propre (parsing arguments)
+
+if "--version" in sys.argv:
+    print("TuxML v0.1")
+    sys.exit(0)
+
 if "--debug" in sys.argv:
     DEBUG = True
+    OUTPUT = sys.__stdout__
     print("=== Debug mode enabled")
     print("[*] Cleaning previous compilation")
-    subprocess.call(["make", "clean"])
+    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=sys.__stdout__)
 else:
     DEBUG = False
+    OUTPUT = subprocess.DEVNULL
     print("[*] Cleaning previous compilation")
-    subprocess.call(["make", "mrproper"])
+    subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=sys.__stdout__)
     print("[*] Generating random config")
-    subprocess.call(["make", "-C", PATH, "randconfig"])
+    subprocess.call(["make", "-C", PATH, "randconfig"], stdout=OUTPUT, stderr=sys.__stdout__)
 
 check_dependencies()
 
