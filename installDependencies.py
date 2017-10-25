@@ -59,7 +59,8 @@ def installDependency():
         print("[-] Error while installing common packages")
         return returnCode;
     # Now installation of packages with name that vary amongs distributions
-    debian_specific = ["reiserfsprogs", "squashfs","quotatool", "nfs-kernel-server","procps", "mcelog", "libcrypto++6"]
+    debian_specific = ["reiserfsprogs", "squashfs","quotatool", "nfs-kernel-server","procps", "mcelog", "libcrypto++6"
+    ,"apt-utils"]
 
     arch_specific = ["reiserfsprogs", "squashfs-tools","quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
 
