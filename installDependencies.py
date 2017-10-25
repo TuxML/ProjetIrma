@@ -55,7 +55,7 @@ def installDependency():
     print("[*] Installation...")
     returnCode = installPackages(common_pkg)
 
-    if (returnCode != 0)
+    if (returnCode != 0):
         print("[-] Error while installing common packages")
         return returnCode;
     # Now installation of packages with name that vary amongs distributions
@@ -73,7 +73,7 @@ def installDependency():
     packageSpecific = {"apt-get" : debian_specific, "pacman" : arch_specific, "dnf":redHat_specific, "yum":redHat_specific, "emerge":gentoo_specific, "zypper":suse_specific}
     returnCode = installPackages(packageSpecific[pkg_manager])
 
-    if (returnCode != 0)
+    if (returnCode != 0):
         print("[-] Error while installing distrib specific packages")
         return errorCode;
 
