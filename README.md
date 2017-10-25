@@ -1,16 +1,20 @@
 # py-scripts
 
 ### tuxml.py
-    ./tuxml.py path/to/kernel/sources
+    ./tuxml.py source_directory [--debug] [--version]
 
 expected output :
 
+    [*] Cleaning previous compilation
+    [*] Generating random config
     [*] Checking dependencies
-    [*] Waiting for compilation ending...
+    [*] Compilation in progress
     [+] Compilation done
-    [+] Successfully compiled, sending data
+    [+] Testing the kernel config
+    [+] Successfully compiled in 00:10:45, sending data
     [*] Sending config file and status to database
     [+] Successfully sent info to db
+
 
 ### MLfood.py
 
