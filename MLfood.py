@@ -15,7 +15,7 @@ if nb <= 0:
     exit()
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["tuxml/tuxmldebian"]
+images = ["tuxml/tuxmldebian:latest"]
 
 # The image list must not be empty.
 if len(images) == 0:
@@ -24,8 +24,11 @@ if len(images) == 0:
 
 # For each url in the url list "images", we run a new docker which run the TuxML command.
 for i in range(nb):
-	print("\n=============== Docker n°{} ===============".format(i+1))
-	str = 'sudo docker run -t -i {} /TuxML/tuxml.py /TuxML/linux-4.13.3 &'.format(images[i % len(images)])
-	print(str)
-	print("=========================================\n")
-	os.system(str)
+    str2 = "sudo docker pull {} ".format(images[i % len(images)])
+    print("Recuperation {}".format(images[i % len(images)]))
+    os.system(str2)
+    print("\n=============== Docker n°{} ===============".format(i+1))
+    chaine = 'sudo docker run -t -i -d {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
+    print(chaine)
+    print("=========================================\n")
+    os.system(chaine)
