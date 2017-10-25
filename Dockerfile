@@ -1,7 +1,6 @@
-FROM debiantuxml:latest
+FROM tuxml/debiantuxml:latest
 
-
-ADD .  /TuxML
+ADD . /TuxML
 
 EXPOSE 80
 
