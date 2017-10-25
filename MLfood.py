@@ -28,7 +28,7 @@ for i in range(nb):
     print("Recuperation {}".format(images[i % len(images)]))
     os.system(str2)
     print("\n=============== Docker n°{} ===============".format(i+1))
-    chaine = 'sudo docker run -t -i -d {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
+    chaine = 'sudo docker run -t -i {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
     print(chaine)
     print("=========================================\n")
     os.system(chaine)
