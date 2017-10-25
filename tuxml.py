@@ -293,8 +293,12 @@ DISTRO = get_distro()
 if "--debug" in sys.argv:
     DEBUG = True
     print("=== Debug mode enabled")
+    print("[*] Cleaning previous compilation")
+    subprocess.call(["make", "clean"])
 else:
     DEBUG = False
+    print("[*] Cleaning previous compilation")
+    subprocess.call(["make", "mrproper"])
     print("[*] Generating random config")
     subprocess.call(["make", "-C", PATH, "randconfig"])
 
