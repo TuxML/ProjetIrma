@@ -199,10 +199,10 @@ def install_missing_packages(missing_files, missing_packages):
         missing_packages.append(line[COUNTER].split(":")[0]) #debian and archway
 
     print("[*] Updating package database")
-    subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=sys.__stdout__, shell=True)
+    subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     print("[*] Installing missing packages : " + " ".join(missing_packages))
-    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=sys.__stdout__, shell=True)
+    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
     # BUG Des fois le gestionnaire de paquet ne trouve pas le paquet
     # Donc l'install des paquets plante mais la compile recommence
     # (cas de aicdb.h)
@@ -234,7 +234,7 @@ def log_analysis():
                 missing_packages.append(line.split(":")[1])
             elif re.search("not found", line):
                 # case /bin/sh: 1: <package>: not found
-                missing_packages.append(line.split(":")[4])
+                missing_packages.append(line.split(":")[2])
             else:
                 pass
 
@@ -281,6 +281,20 @@ def compile():
         return log_analysis() - 1
 
 
+# author : DUMANGET Dorian, MERZOUK Fahim
+#
+# [archi_is_64 description]
+#
+# return value :
+#   True  Archi is 64 bits
+#   False Archi is 32 bits
+def archi_is_64():
+    with open(PATH + "/.config") as config:
+        for line in config:
+            if re.search("CONFIG_OUTPUT_FORMAT", line):
+                return not re.search("elf32-i386", line)
+
+
 # === MAIN FUNCTION ===
 if len(sys.argv) < 2 or os.getuid() != 0:
     print("[*] USE : ./tuxml.py <path/to/the/linux/sources/directory> [option1 option2 ...]")
@@ -293,9 +307,7 @@ if len(sys.argv) < 2 or os.getuid() != 0:
 PATH = sys.argv[1]
 DISTRO = get_distro()
 
-# TODO do not print subprocess output
 # import command/command line ??? ==> plus propre (parsing arguments)
-
 if "--version" in sys.argv:
     print("TuxML v0.1")
     sys.exit(0)
@@ -305,14 +317,20 @@ if "--debug" in sys.argv:
     OUTPUT = sys.__stdout__
     print("=== Debug mode enabled")
     print("[*] Cleaning previous compilation")
-    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=sys.__stdout__)
+    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=OUTPUT)
 else:
     DEBUG = False
     OUTPUT = subprocess.DEVNULL
+
     print("[*] Cleaning previous compilation")
-    subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=sys.__stdout__)
+    subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
+
+    amd64 = False
     print("[*] Generating random config")
-    subprocess.call(["make", "-C", PATH, "randconfig"], stdout=OUTPUT, stderr=sys.__stdout__)
+    while not amd64:
+        subprocess.call(["make", "-C", PATH, "randconfig"], stdout=OUTPUT, stderr=OUTPUT)
+        amd64 = archi_is_64()
+
 
 check_dependencies()
 
