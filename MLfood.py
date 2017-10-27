@@ -25,7 +25,7 @@ if len(images) == 0:
 # For each url in the url list "images", we run a new docker which run the TuxML command.
 for i in range(nb):
     str2 = "sudo docker pull {} ".format(images[i % len(images)])
-    print("Recuperation {}".format(images[i % len(images)]))
+    print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
     os.system(str2)
     print("\n=============== Docker n°{} ===============".format(i+1))
     chaine = 'sudo docker run -it {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
