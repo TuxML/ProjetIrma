@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+#TODO tout faire
 import os
 
 print("Mise a jour de l'image tuxmldebian")
