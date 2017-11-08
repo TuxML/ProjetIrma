@@ -100,7 +100,8 @@ def install_missing_packages(missing_files, missing_packages):
         i = 0
         while i < len(line) and 1:
             package = line[i].split(":")[0]
-            status = subprocess.call([cmd_check[DISTRO].format(package)])
+            print(package)
+            status = subprocess.call([cmd_check[DISTRO].format(package)], stdout=OUTPUT, stderr=OUTPUT)
             print(status)
             missing_packages.append(package) #debian and archway
             i += 1
@@ -204,9 +205,6 @@ if len(sys.argv) < 2 or os.getuid() != 0 or "--help" in sys.argv:
 
 print("### START TIME : {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 
-if sys.argv[1][0] == '/':
-    sys.argv[1] = sys.argv[1][1:] # remove the '/' at the beginning
-
 PATH = sys.argv[1]
 DISTRO = get_distro()
 
@@ -231,7 +229,7 @@ else:
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
 
     print("[*] Generating new config file")
-    output = subprocess.call(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    output = subprocess.call(["KCONFIG_ALLCONFIG=" + PATH + "../tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
 check_dependencies()
 
