@@ -83,6 +83,8 @@ def send_data(path, err_log_file, compile_time):
           "date": dateFormatted,
           "erreur": (base64.b64encode(err_log)).decode(),
           "erreurContentType": "string",
+          "dependance": (base64.b64encode("")).decode(),
+          "dependanceContentType": "string"
         })
 
         conn_http.request("POST", "/api/i-rma-dbs", post_body, headers)
