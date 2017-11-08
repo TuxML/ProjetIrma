@@ -18,9 +18,11 @@ expected output :
 
 ### MLfood.py
 
-  Script de lancement de remplissage de la BdD pour "nourrir" l'algorithme de Machine Learning.
-  Permet de lancer automatiquement la commande tuxml.py sur différentes conteneurs ( Docker ) soit le lancement de tuxml sur différentes architectures en parallèle.
+Script used to fill the DataBase which "feed" the Machine Learning algorithm.
+Allows to start automatically the tuxml.py command on different dockers.
 
-  La commande doit être :
+Command should be :
 
-    python3 MLfood.py [nbentier]
+    ./MLfood.py [Integer]
+
+It will start [Integer] number of compilation sequentially.
