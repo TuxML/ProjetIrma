@@ -200,6 +200,8 @@ if len(sys.argv) < 2 or os.getuid() != 0:
     print("\t--version\tDisplay the version of TuxML")
     sys.exit(-1)
 
+print("### START TIME : {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+
 PATH = sys.argv[1]
 DISTRO = get_distro()
 
@@ -220,7 +222,10 @@ else:
 
     print("[*] Cleaning previous compilation")
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
-    subprocess.call(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    output = subprocess.check_output(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], shell=True)
+    for line in output.decode("utf-8").splitlines():
+        if re.search("KCONFIG_SEED", line):
+            print("### KCONFIG_SEED=" + line)
 
 check_dependencies()
 
