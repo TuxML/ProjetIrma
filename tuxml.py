@@ -100,7 +100,7 @@ def install_missing_packages(missing_files, missing_packages):
         i = 0
         while i < len(line) and 1:
             package = line[i].split(":")[0]
-            status = subprocess.call([cmd_check[DISTO].format(package)])
+            status = subprocess.call([cmd_check[DISTRO].format(package)])
             print(status)
             missing_packages.append(package) #debian and archway
             i += 1
@@ -192,15 +192,20 @@ def compile():
         return log_analysis() - 1
 
 # === MAIN FUNCTION ===
-if len(sys.argv) < 2 or os.getuid() != 0:
+if len(sys.argv) < 2 or os.getuid() != 0 or "--help" in sys.argv:
     print("[*] USE : ./tuxml.py <path/to/the/linux/sources/directory> [option1 option2 ...]")
     print("[*] Please run TuxML as root")
     print("[*] Available options :")
-    print("\t--debug\t\tTuxML is more verbose and do not generate a new config file")
+    print("\t--debug\t\tTuxML is more verbose")
+    print("\t--help\t\tPrint the help")
+    print("\t--no-randconfig\tDo not generate a new config file")
     print("\t--version\tDisplay the version of TuxML")
     sys.exit(-1)
 
 print("### START TIME : {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+
+if sys.argv[1][0] == '/':
+    sys.argv[1] = sys.argv[1][1:] # remove the '/' at the beginning
 
 PATH = sys.argv[1]
 DISTRO = get_distro()
@@ -214,18 +219,19 @@ if "--debug" in sys.argv:
     DEBUG = True
     OUTPUT = sys.__stdout__
     print("=== Debug mode enabled")
-    print("[*] Cleaning previous compilation")
-    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=OUTPUT)
 else:
     DEBUG = False
     OUTPUT = subprocess.DEVNULL
 
+if "--no-randconfig" in sys.argv:
+    print("[*] Cleaning previous compilation")
+    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=OUTPUT)
+else:
     print("[*] Cleaning previous compilation")
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
-    output = subprocess.check_output(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], shell=True)
-    for line in output.decode("utf-8").splitlines():
-        if re.search("KCONFIG_SEED", line):
-            print("### KCONFIG_SEED=" + line)
+
+    print("[*] Generating new config file")
+    output = subprocess.call(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
 check_dependencies()
 
