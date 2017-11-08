@@ -23,6 +23,6 @@ Allows to start automatically the tuxml.py command on different dockers.
 
 Command should be :
 
-    python3 MLfood.py [Integer]
+    ./MLfood.py [Integer]
 
 It will start [Integer] number of compilation sequentially.
