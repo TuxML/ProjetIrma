@@ -165,20 +165,6 @@ def log_analysis():
         return -1
 
 
-# author : DUMANGET Dorian, MERZOUK Fahim
-#
-# [archi_is_64 description]
-#
-# return value :
-#   True  Archi is 64 bits
-#   False Archi is 32 bits
-def archi_is_64():
-    with open(PATH + "/.config") as config:
-        for line in config:
-            if re.search("CONFIG_OUTPUT_FORMAT", line):
-                return not re.search("elf32-i386", line)
-
-
 # author : LEBRETON Mickael
 #
 # [compile description]
@@ -234,12 +220,7 @@ else:
 
     print("[*] Cleaning previous compilation")
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
-
-    amd64 = False
-    print("[*] Generating random config")
-    while not amd64:
-        subprocess.call(["make", "-C", PATH, "randconfig"], stdout=OUTPUT, stderr=OUTPUT)
-        amd64 = archi_is_64()
+    subprocess.call(["KCONFIG_ALLCONFIG=../" + PATH + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
 check_dependencies()
 
