@@ -5,12 +5,19 @@ from sys import argv
 
 
 # Error if there is no argument "number" of compilation to run.
-if len(argv) == 1:
+if len(argv) == 1 :
     print("Please specify a number of compilation to launch.")
+    print("Command ./MLfood.py [Integer]")
+    exit()
+
+try:
+    nb = int(argv[1])
+except Exception as e:
+    print("Please specify a number of compilation to launch.")
+    print("Command ./MLfood.py [Integer]")
     exit()
 
 # Retrieves the number of compilation to run.
-nb = int(argv[1])
 
 if nb <= 0:
     print("Please enter a non-zero positive integer.")
@@ -32,5 +39,5 @@ for i in range(nb):
     print("\n=============== Docker n°{} ===============".format(i+1))
     chaine = 'sudo docker run -it {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
     print(chaine)
-    print("=========================================\n")
+    print("==========================================\n")
     os.system(chaine)
