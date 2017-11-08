@@ -37,7 +37,7 @@ for i in range(nb):
     print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
     os.system(str2)
     print("\n=============== Docker n°{} ===============".format(i+1))
-    chaine = 'sudo docker run -it {} /TuxML/tuxml.py /TuxML/linux-4.13.3'.format(images[i % len(images)])
+    chaine = 'sudo docker run -it {} /TuxML/tuxml.py /TuxML/linux-4.13.3 --debug'.format(images[i % len(images)])
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
