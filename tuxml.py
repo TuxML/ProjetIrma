@@ -59,7 +59,8 @@ def check_dependencies():
 #
 # [install_missing_packages description]
 #
-## return value :
+# return value :
+#   -2 package not found
 #   -1 distro not supported by TuxML
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
@@ -78,8 +79,9 @@ def install_missing_packages(missing_files, missing_packages):
         else:
             pass
 
-    cmd_update = ["pacman -Sy", "apt-file update && apt-get update"]
-    cmd_search = ["pkgfile -s {}", "apt-file search {}"]
+    cmd_update  = ["pacman -Sy", "apt-file update && apt-get update"]
+    cmd_check   = ["/", "dpkg-query -W {}"]
+    cmd_search  = ["pkgfile -s {}", "apt-file search {}"] #pkgfile -s openssl/bio.h ne marche pas
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
     if DEBUG:
@@ -94,7 +96,14 @@ def install_missing_packages(missing_files, missing_packages):
 
         # some times the output gives several packages, the program takes the first one (== first line)
         line = output.decode("utf-8").splitlines()
-        missing_packages.append(line[COUNTER].split(":")[0]) #debian and archway
+        # problème changer le 0 ==> réinstalle le même paquet en boucle
+        i = 0
+        while i < len(line) and 1:
+            package = line[i].split(":")[0]
+            status = subprocess.call([cmd_check[DISTO].format(package)])
+            print(status)
+            missing_packages.append(package) #debian and archway
+            i += 1
 
     print("[*] Updating package database")
     subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
@@ -104,8 +113,13 @@ def install_missing_packages(missing_files, missing_packages):
     # (compile à l'infini)
     # (cas de aicdb.h)
     print("[*] Installing missing packages : " + " ".join(missing_packages))
-    subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    status = subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
+    if status != 0:
+        print("[-] Some packages were not found, installation stoped")
+        return -2
+
+    print("[+] All the missing packages were found and installed")
     return 0
 
 
@@ -151,35 +165,6 @@ def log_analysis():
         return -1
 
 
-# author : LEBRETON Mickael
-#
-# [compilation description]
-#
-# return value :
-#   -1 compilation has failed but the program was able to find the missing package(s)
-#   -2 compilation has failed and the program wasn't able to find the missing package(s)
-#      (it means an unknow error)
-#   >0 no error (time to compile in seconds)
-def compile():
-    print("[*] Compilation in progress");
-    # barre de chargement [ ##########-------------------- ] 33%
-
-    if not os.path.exists(PATH + LOG_DIR):
-        os.makedirs(PATH + LOG_DIR)
-
-    with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
-        start_time = time.time()
-        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
-        end_time = time.time()
-
-    if status == 0:
-        print("[+] Compilation done")
-        return end_time - start_time
-    else:
-        print("[-] Compilation failed, exit status : {}".format(status))
-        return log_analysis() - 1
-
-
 # author : DUMANGET Dorian, MERZOUK Fahim
 #
 # [archi_is_64 description]
@@ -193,6 +178,32 @@ def archi_is_64():
             if re.search("CONFIG_OUTPUT_FORMAT", line):
                 return not re.search("elf32-i386", line)
 
+
+# author : LEBRETON Mickael
+#
+# [compile description]
+#
+# return value :
+#   -1 compilation has failed but the program was able to find the missing package(s)
+#   -2 compilation has failed and the program wasn't able to find the missing package(s)
+#      (it means an unknow error)
+#    0 no error (time to compile in seconds)
+def compile():
+    print("[*] Compilation in progress");
+    # barre de chargement [ ##########-------------------- ] 33%
+
+    if not os.path.exists(PATH + LOG_DIR):
+        os.makedirs(PATH + LOG_DIR)
+
+    with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
+        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+
+    if status == 0:
+        print("[+] Compilation done")
+        return 0
+    else:
+        print("[-] Compilation failed, exit status : {}".format(status))
+        return log_analysis() - 1
 
 # === MAIN FUNCTION ===
 if len(sys.argv) < 2 or os.getuid() != 0:
@@ -230,17 +241,19 @@ else:
         subprocess.call(["make", "-C", PATH, "randconfig"], stdout=OUTPUT, stderr=OUTPUT)
         amd64 = archi_is_64()
 
-
 check_dependencies()
 
+start_time = time.time()
 status = -1
 while (status == -1):
     if DEBUG:
         print("=== Counter : {}".format(COUNTER))
     status = compile()
+end_time = time.time()
 
-if status >= 0:
+if status == 0:
     print("[+] Testing the kernel config")
+    status = end_time - start_time
     print("[+] Successfully compiled in " + time.strftime("%H:%M:%S", time.gmtime(status)) + ", sending data")
 else:
     # status == -2
