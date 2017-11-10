@@ -80,7 +80,7 @@ def install_missing_packages(missing_files, missing_packages):
             pass
 
     cmd_update  = ["pacman -Sy", "apt-file update && apt-get update"]
-    cmd_check   = ["/", "dpkg-query -W {}"]
+    cmd_check   = ["/", "dpkg-query -l | grep {}"]
     cmd_search  = ["pkgfile -s {}", "apt-file search {}"] #pkgfile -s openssl/bio.h ne marche pas
     cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
 
@@ -94,16 +94,20 @@ def install_missing_packages(missing_files, missing_packages):
 
         output = subprocess.check_output([cmd_search[DISTRO].format(mf)], shell=True)
 
-        # some times the output gives several packages, the program takes the first one (== first line)
-        line = output.decode("utf-8").splitlines()
-        # problème changer le 0 ==> réinstalle le même paquet en boucle
+        # some times the output gives several packages
+        # the program takes the first one, check if the package is already installed
+        # if not, tuxml installs it else it installs the next one
+        lines = output.decode("utf-8").splitlines()
         i = 0
-        while i < len(line) and 1:
-            package = line[i].split(":")[0]
-            print(package)
-            status = subprocess.call([cmd_check[DISTRO].format(package)], stdout=OUTPUT, stderr=OUTPUT)
-            print(status)
-            missing_packages.append(package) #debian and archway
+        status = 0
+        while i < len(lines) and status == 0:
+            package = lines[i].split(":")[0]
+            # 0: package already installed
+            # 1: package not installed
+            status = subprocess.call([cmd_check[DISTRO].format(package)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+            print("=== {} not installed".format(package))
+            if status == 1:
+                missing_packages.append(package)
             i += 1
 
     print("[*] Updating package database")
@@ -194,7 +198,7 @@ def compile():
 
 # === MAIN FUNCTION ===
 if len(sys.argv) < 2 or os.getuid() != 0 or "--help" in sys.argv:
-    print("[*] USE : ./tuxml.py <path/to/the/linux/sources/directory> [option1 option2 ...]")
+    print("[*] USE : ./tuxml.py </absolute/path/to/sources/directory> [option1 option2 ...]")
     print("[*] Please run TuxML as root")
     print("[*] Available options :")
     print("\t--debug\t\tTuxML is more verbose")
@@ -202,8 +206,6 @@ if len(sys.argv) < 2 or os.getuid() != 0 or "--help" in sys.argv:
     print("\t--no-randconfig\tDo not generate a new config file")
     print("\t--version\tDisplay the version of TuxML")
     sys.exit(-1)
-
-print("### START TIME : {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 
 PATH = sys.argv[1]
 DISTRO = get_distro()
@@ -216,7 +218,7 @@ if "--version" in sys.argv:
 if "--debug" in sys.argv:
     DEBUG = True
     OUTPUT = sys.__stdout__
-    print("=== Debug mode enabled")
+    print("=== Debug mode enabled at {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 else:
     DEBUG = False
     OUTPUT = subprocess.DEVNULL
