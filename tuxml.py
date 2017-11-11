@@ -18,7 +18,6 @@ ERR_LOG_FILE = LOG_DIR + "/err.logs"
 DISTRO = ""
 DEBUG = False
 OUTPUT = sys.__stdout__
-COUNTER = 0 # number of time the program had to recompile
 
 
 # author : LEBRETON Mickael
@@ -34,7 +33,7 @@ def get_distro():
     package_managers = ["pacman", "apt-get", "dnf"]
     for pm in package_managers:
         try:
-            distro = package_managers.index(shutil.which(pm).split("/")[3]) #/usr/bin/pacman --> pacman
+            distro = package_managers.index(shutil.which(pm).split("/")[3])
         except Exception as err:
             distro = -1
 
@@ -88,15 +87,14 @@ def install_missing_packages(missing_files, missing_packages):
         print("=== Those files are missing :")
 
     for mf in missing_files:
-        # example : mf = "openssl/bio.h"
         if DEBUG:
             print("===" + mf)
 
         output = subprocess.check_output([cmd_search[DISTRO].format(mf)], shell=True)
 
-        # some times the output gives several packages
-        # the program takes the first one, check if the package is already installed
-        # if not, tuxml installs it else it installs the next one
+        # Sometimes the  output gives  several packages. The  program takes  the
+        # first one and check if the package is already installed. If not, tuxml
+        # installs it else it installs the next one
         lines = output.decode("utf-8").splitlines()
         i = 0
         status = 0
@@ -113,10 +111,6 @@ def install_missing_packages(missing_files, missing_packages):
     print("[*] Updating package database")
     subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
-    # BUG Des fois le gestionnaire de paquet ne trouve pas le paquet
-    # Donc l'install des paquets plante mais la compile recommence
-    # (compile à l'infini)
-    # (cas de aicdb.h)
     print("[*] Installing missing packages : " + " ".join(missing_packages))
     status = subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -136,12 +130,10 @@ def install_missing_packages(missing_files, missing_packages):
 #   -1 it wasn't able to find them
 #    0 the program was able to find the missing package(s)
 def log_analysis():
-    global COUNTER
-
     print("[*] Analyzing error log file")
 
-    missing_files = []
     missing_packages = []
+    missing_files    = []
     with open(PATH + ERR_LOG_FILE, "r") as err_logs:
         for line in err_logs:
             if re.search("fatal error", line):
@@ -161,7 +153,6 @@ def log_analysis():
 
         if status == 0:
             print("[+] Restarting compilation")
-            COUNTER += 1
             return 0
         else:
             return -1
@@ -181,7 +172,8 @@ def log_analysis():
 #    0 no error (time to compile in seconds)
 def compile():
     print("[*] Compilation in progress");
-    # barre de chargement [ ##########-------------------- ] 33%
+
+    # TODO barre de chargement [ ##########-------------------- ] 33%
 
     if not os.path.exists(PATH + LOG_DIR):
         os.makedirs(PATH + LOG_DIR)
@@ -197,39 +189,43 @@ def compile():
         return log_analysis() - 1
 
 # === MAIN FUNCTION ===
-if len(sys.argv) < 2 or os.getuid() != 0 or "--help" in sys.argv:
+# TODO import command/command line ??? ==> plus propre (parsing arguments)
+
+if "-h" in sys.argv or "--help" in sys.argv:
     print("[*] USE : ./tuxml.py </absolute/path/to/sources/directory> [option1 option2 ...]")
     print("[*] Please run TuxML as root")
     print("[*] Available options :")
-    print("\t--debug\t\tTuxML is more verbose")
-    print("\t--help\t\tPrint the help")
-    print("\t--no-randconfig\tDo not generate a new config file")
-    print("\t--version\tDisplay the version of TuxML")
+    print("\t-d  --debug\t\tTuxML is more verbose")
+    print("\t-h  --help\t\tPrint this")
+    print("\t    --no-randconfig\tDo not generate a new config file")
+    print("\t-v  --version\t\tDisplay the version of TuxML")
+    sys.exit(0)
+
+if "-v" in sys.argv or "--version" in sys.argv:
+    print("TuxML v0.1")
+    sys.exit(0)
+
+if len(sys.argv) < 2 or os.getuid() != 0:
+    print("[-] Bad parameters, use --help to print help")
     sys.exit(-1)
 
 PATH = sys.argv[1]
 DISTRO = get_distro()
 
-# import command/command line ??? ==> plus propre (parsing arguments)
-if "--version" in sys.argv:
-    print("TuxML v0.1")
-    sys.exit(0)
-
-if "--debug" in sys.argv:
-    DEBUG = True
+if "-d" in sys.argv or "--debug" in sys.argv:
+    DEBUG  = True
     OUTPUT = sys.__stdout__
     print("=== Debug mode enabled at {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 else:
-    DEBUG = False
+    DEBUG  = False
     OUTPUT = subprocess.DEVNULL
 
+print("[*] Cleaning previous compilation")
+
 if "--no-randconfig" in sys.argv:
-    print("[*] Cleaning previous compilation")
     subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=OUTPUT)
 else:
-    print("[*] Cleaning previous compilation")
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
-
     print("[*] Generating new config file")
     output = subprocess.call(["KCONFIG_ALLCONFIG=" + PATH + "../tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -237,9 +233,7 @@ check_dependencies()
 
 start_time = time.time()
 status = -1
-while (status == -1):
-    if DEBUG:
-        print("=== Counter : {}".format(COUNTER))
+while status == -1:
     status = compile()
 end_time = time.time()
 
