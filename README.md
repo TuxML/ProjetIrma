@@ -44,7 +44,8 @@ Expected output :
 ## MLfood.py
 
 Script used to fill the DataBase which "feed" the Machine Learning algorithm.
-Allows to start automatically the tuxml.py command on different dockers.
+Allows to start automatically the tuxml.py command on different dockers by calling
+the script tuxLogs.py which write the tuxml.logs.
 
 Command should be :
 
@@ -52,4 +53,5 @@ Command should be :
 
 It will start [Integer] number of compilation sequentially.
 
-[UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder.
+[UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder
+thanks to tuxLogs.py.
