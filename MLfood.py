@@ -10,10 +10,20 @@ if len(argv) == 1 :
     print("Command ./MLfood.py [Integer]")
     exit()
 
+# Convert the parameter in an Integer which is the number of compilation to do.
+# If the number is above 50, the scrypt will ask for a confirmation
 try:
     nb = int(argv[1])
+    if nb > 50 :
+        print("Are-you sure you want to start {} compilation? (y/n)".format(nb))
+        ok = input();
+        ok.lower()
+        if ok != "y":
+            print("Canceled")
+            exit()
+
 except Exception as e:
-    print("Please specify a number of compilation to launch.")
+    print("Please specify a valide number of compilation to launch.")
     print("Command ./MLfood.py [Integer]")
     exit()
 
