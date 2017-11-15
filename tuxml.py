@@ -188,12 +188,11 @@ def compile():
         print("[-] Compilation failed, exit status : {}".format(status))
         return log_analysis() - 1
 
+
 # === MAIN FUNCTION ===
 # TODO import command/command line ??? ==> plus propre (parsing arguments)
-
 if "-h" in sys.argv or "--help" in sys.argv:
-    print("[*] USE : ./tuxml.py </absolute/path/to/sources/directory> [option1 option2 ...]")
-    print("[*] Please run TuxML as root")
+    print("[*] USE : sudo ./tuxml.py </absolute/path/to/sources/directory> [option1 option2 ...]")
     print("[*] Available options :")
     print("\t-d  --debug\t\tTuxML is more verbose")
     print("\t-h  --help\t\tPrint this")
@@ -205,7 +204,11 @@ if "-v" in sys.argv or "--version" in sys.argv:
     print("TuxML v0.1")
     sys.exit(0)
 
-if len(sys.argv) < 2 or os.getuid() != 0:
+if os.getuid() != 0:
+    print("[-] Please run TuxML as root, use --help to print help")
+    sys.exit(-1)
+
+if len(sys.argv) < 2:
     print("[-] Bad parameters, use --help to print help")
     sys.exit(-1)
 
