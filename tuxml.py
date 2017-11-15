@@ -42,18 +42,6 @@ def get_distro():
     return -1
 
 
-# author : LE FLEM Erwan, MERZOUK Fahim
-#
-# [check_dependencies description]
-#
-# return value :
-#   0
-#   1
-def check_dependencies():
-    print("[*] Checking dependencies")
-    # TODO check_dependencies
-
-
 # author : LEBRETON Mickael
 #
 # [install_missing_packages description]
@@ -192,7 +180,7 @@ def compile():
 # === MAIN FUNCTION ===
 # TODO import command/command line ??? ==> plus propre (parsing arguments)
 if "-h" in sys.argv or "--help" in sys.argv:
-    print("[*] USE : sudo ./tuxml.py </absolute/path/to/sources/directory> [option1 option2 ...]")
+    print("[*] USE : sudo ./tuxml.py </path/to/sources/directory> [option1 option2 ...]")
     print("[*] Available options :")
     print("\t-d  --debug\t\tTuxML is more verbose")
     print("\t-h  --help\t\tPrint this")
@@ -230,9 +218,9 @@ if "--no-randconfig" in sys.argv:
 else:
     subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
     print("[*] Generating new config file")
-    output = subprocess.call(["KCONFIG_ALLCONFIG=" + PATH + "../tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.getcwd() + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
-check_dependencies()
+print("[+] Checking dependencies -- TODO")
 
 start_time = time.time()
 status = -1
@@ -241,7 +229,7 @@ while status == -1:
 end_time = time.time()
 
 if status == 0:
-    print("[+] Testing the kernel config")
+    print("[+] Testing the kernel config -- TODO")
     status = end_time - start_time
     print("[+] Successfully compiled in " + time.strftime("%H:%M:%S", time.gmtime(status)) + ", sending data")
 else:

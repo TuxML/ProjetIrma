@@ -83,7 +83,7 @@ def send_data(path, err_log_file, compile_time):
           "date": dateFormatted,
           "erreur": (base64.b64encode(err_log)).decode(),
           "erreurContentType": "string",
-          "dependance": (base64.b64encode("")).decode(),
+          "dependance": (base64.b64encode(b"")).decode(),
           "dependanceContentType": "string"
         })
 
