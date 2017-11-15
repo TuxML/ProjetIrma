@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-# compile, log analysis & dependencies imports
 import os
 import sys
 import subprocess
@@ -8,16 +7,8 @@ import re
 import shutil
 import time
 import sendDB
-
-
-# === GLOBALS ===
-PATH = ""
-LOG_DIR = "/logs"
-STD_LOG_FILE = LOG_DIR + "/std.logs"
-ERR_LOG_FILE = LOG_DIR + "/err.logs"
-DISTRO = ""
-DEBUG = False
-OUTPUT = sys.__stdout__
+import tuxml_common
+import tuxml_settings
 
 
 # author : LEBRETON Mickael
@@ -29,6 +20,8 @@ OUTPUT = sys.__stdout__
 #   0 Arch based distro
 #   1 Debian based distro
 #   2 RedHat based distro
+#
+# TODO fusionner get_distro et tuxml_common.get_package_manager (common)
 def get_distro():
     package_managers = ["pacman", "apt-get", "dnf"]
     for pm in package_managers:
@@ -42,43 +35,44 @@ def get_distro():
     return -1
 
 
-# author : LEBRETON Mickael
+# author : LE FLEM Erwan
 #
-# [install_missing_packages description]
+# [build_dependencies_arch description]
 #
 # return value :
-#   -2 package not found
-#   -1 distro not supported by TuxML
+#   -1 package not found
 #    0 installation OK
-def install_missing_packages(missing_files, missing_packages):
-    # 0 Arch / 1 Debian / 2 RedHat
-    if DISTRO > 2:
-        print("[-] Distro not supported by TuxML")
-        return -1
+def build_dependencies_arch(missing_files, missing_packages):
+    if tuxml_settings.DEBUG:
+        tuxml_common.pprint(3, "Arch based distro")
 
-    if DEBUG:
-        if DISTRO == 0:
-            print("=== Arch based distro")
-        elif DISTRO == 1:
-            print("=== Debian based distro")
-        elif DISTRO == 2:
-            print("=== RedHat based distro")
-        else:
-            pass
+    cmd_check   = ""
+    cmd_search  = "pkgfile -s {}" #pkgfile -s openssl/bio.h ne marche pas
 
-    cmd_update  = ["pacman -Sy", "apt-file update && apt-get update"]
-    cmd_check   = ["/", "dpkg-query -l | grep {}"]
-    cmd_search  = ["pkgfile -s {}", "apt-file search {}"] #pkgfile -s openssl/bio.h ne marche pas
-    cmd_install = ["pacman --noconfirm -S ", "apt-get -y install "]
+    return 0
 
-    if DEBUG:
-        print("=== Those files are missing :")
+# author : LEBRETON Mickael
+#
+# [build_dependencies_debian description]
+#
+# return value :
+#   -1 package not found
+#    0 installation OK
+def build_dependencies_debian(missing_files, missing_packages):
+    if tuxml_settings.DEBUG:
+        tuxml_common.pprint(3, "Debian based distro")
+
+    cmd_search  = "apt-file search {}" # cherche dans quel paquet est le fichier
+    cmd_check   = "dpkg-query -l | grep {}" # vérifie si le paquet est présent sur le système
+
+    if tuxml_settings.DEBUG and len(missing_files) > 0:
+        tuxml_common.pprint(3, "Those files are missing :")
 
     for mf in missing_files:
-        if DEBUG:
-            print("===" + mf)
+        if tuxml_settings.DEBUG:
+            print(" " * 3 + mf)
 
-        output = subprocess.check_output([cmd_search[DISTRO].format(mf)], shell=True)
+        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
 
         # Sometimes the  output gives  several packages. The  program takes  the
         # first one and check if the package is already installed. If not, tuxml
@@ -90,25 +84,63 @@ def install_missing_packages(missing_files, missing_packages):
             package = lines[i].split(":")[0]
             # 0: package already installed
             # 1: package not installed
-            status = subprocess.call([cmd_check[DISTRO].format(package)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
-            print("=== {} not installed".format(package))
+            status = subprocess.call([cmd_check.format(package)], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
             if status == 1:
                 missing_packages.append(package)
             i += 1
 
-    print("[*] Updating package database")
-    subprocess.call([cmd_update[DISTRO]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+        return missing_packages
 
-    print("[*] Installing missing packages : " + " ".join(missing_packages))
-    status = subprocess.call([cmd_install[DISTRO] + " ".join(missing_packages)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
-    if status != 0:
-        print("[-] Some packages were not found, installation stoped")
-        return -2
+# author :
+#
+# [build_dependencies_redhat description]
+#
+# return value :
+#   -1 package not found
+#    0 installation OK
+def build_dependencies_redhat(missing_files, missing_packages):
+    if tuxml_settings.DEBUG:
+        tuxml_common.pprint(3, "RedHat based distro")
 
-    print("[+] All the missing packages were found and installed")
     return 0
 
+# author : LEBRETON Mickael
+#
+# [install_missing_packages description]
+#
+# return value :
+#   -3 distro or package manager not supported by TuxML
+#   -2 sys update failed
+#   -1 package(s) not found
+#    0 installation OK
+def install_missing_packages(missing_files, missing_packages):
+    distro = get_distro()
+
+    if distro > 2:
+        tuxml_common.pprint(1, "Distro not supported by TuxML")
+        return -3
+
+    if distro == 0:
+        pkgs = build_dependencies_arch(missing_files, missing_packages);
+    elif distro == 1:
+        pkgs = build_dependencies_debian(missing_files, missing_packages);
+    elif distro == 2:
+        pkgs = build_dependencies_redhat(missing_files, missing_packages);
+    else:
+        pass
+
+    pkg_manager = tuxml_common.get_package_manager()
+    if pkg_manager == None:
+        return -3
+
+    if tuxml_common.update_system(pkg_manager) != 0:
+        return -2
+
+    if tuxml_common.install_packages(pkg_manager, pkgs) != 0:
+        return -1
+
+    return 0
 
 # author : LEBRETON Mickael
 #
@@ -118,11 +150,11 @@ def install_missing_packages(missing_files, missing_packages):
 #   -1 it wasn't able to find them
 #    0 the program was able to find the missing package(s)
 def log_analysis():
-    print("[*] Analyzing error log file")
+    tuxml_common.pprint(2, "Analyzing error log file")
 
     missing_packages = []
     missing_files    = []
-    with open(PATH + ERR_LOG_FILE, "r") as err_logs:
+    with open(tuxml_settings.PATH + tuxml_settings.ERR_LOG_FILE, "r") as err_logs:
         for line in err_logs:
             if re.search("fatal error", line):
                 # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
@@ -140,12 +172,12 @@ def log_analysis():
         status = install_missing_packages(missing_files, missing_packages)
 
         if status == 0:
-            print("[+] Restarting compilation")
+            tuxml_common.pprint(0, "Restarting compilation")
             return 0
         else:
             return -1
     else:
-        print("[-] Unable to find the missing package(s)")
+        tuxml_common.pprint(1, "Unable to find the missing package(s)")
         return -1
 
 
@@ -159,28 +191,28 @@ def log_analysis():
 #      (it means an unknow error)
 #    0 no error (time to compile in seconds)
 def compile():
-    print("[*] Compilation in progress");
+    tuxml_common.pprint(2, "Compilation in progress")
 
     # TODO barre de chargement [ ##########-------------------- ] 33%
 
-    if not os.path.exists(PATH + LOG_DIR):
-        os.makedirs(PATH + LOG_DIR)
+    if not os.path.exists(tuxml_settings.PATH + tuxml_settings.LOG_DIR):
+        os.makedirs(tuxml_settings.PATH + tuxml_settings.LOG_DIR)
 
-    with open(PATH + STD_LOG_FILE, "w") as std_logs, open(PATH + ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+    with open(tuxml_settings.PATH + tuxml_settings.STD_LOG_FILE, "w") as std_logs, open(tuxml_settings.PATH + tuxml_settings.ERR_LOG_FILE, "w") as err_logs:
+        status = subprocess.call(["make", "-C", tuxml_settings.PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
-        print("[+] Compilation done")
+        tuxml_common.pprint(0, "Compilation done")
         return 0
     else:
-        print("[-] Compilation failed, exit status : {}".format(status))
+        tuxml_common.pprint(2, "Compilation failed, exit status : {}".format(status))
         return log_analysis() - 1
 
 
 # === MAIN FUNCTION ===
 # TODO import command/command line ??? ==> plus propre (parsing arguments)
 if "-h" in sys.argv or "--help" in sys.argv:
-    print("[*] USE : sudo ./tuxml.py </path/to/sources/directory> [option1 option2 ...]")
+    print("[*] USE : sudo ./tuxml_common.py </path/to/sources/directory> [option1 option2 ...]")
     print("[*] Available options :")
     print("\t-d  --debug\t\tTuxML is more verbose")
     print("\t-h  --help\t\tPrint this")
@@ -189,38 +221,37 @@ if "-h" in sys.argv or "--help" in sys.argv:
     sys.exit(0)
 
 if "-v" in sys.argv or "--version" in sys.argv:
-    print("TuxML v0.1")
+    print("TuxML v0.2")
     sys.exit(0)
 
-if os.getuid() != 0:
-    print("[-] Please run TuxML as root, use --help to print help")
-    sys.exit(-1)
-
 if len(sys.argv) < 2:
-    print("[-] Bad parameters, use --help to print help")
+    tuxml_common.pprint(1, "Bad parameters, use --help to print help")
     sys.exit(-1)
 
-PATH = sys.argv[1]
-DISTRO = get_distro()
+if os.getuid() != 0:
+    tuxml_common.pprint(1, "Please run TuxML as root, use --help to print help")
+    sys.exit(-1)
 
 if "-d" in sys.argv or "--debug" in sys.argv:
-    DEBUG  = True
-    OUTPUT = sys.__stdout__
-    print("=== Debug mode enabled at {}".format(time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+    tuxml_settings.DEBUG  = True
+    tuxml_settings.OUTPUT = sys.__stdout__
+    date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
+    tuxml_common.pprint(3, "Debug mode ON")
 else:
-    DEBUG  = False
-    OUTPUT = subprocess.DEVNULL
+    tuxml_settings.DEBUG  = False
+    tuxml_settings.OUTPUT = subprocess.DEVNULL
 
-print("[*] Cleaning previous compilation")
+tuxml_common.pprint(2, "Cleaning previous compilation")
 
+tuxml_settings.PATH = sys.argv[1]
 if "--no-randconfig" in sys.argv:
-    subprocess.call(["make", "-C", PATH, "clean"], stdout=OUTPUT, stderr=OUTPUT)
+    subprocess.call(["make", "-C", tuxml_settings.PATH, "clean"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT)
 else:
-    subprocess.call(["make", "-C", PATH, "mrproper"], stdout=OUTPUT, stderr=OUTPUT)
-    print("[*] Generating new config file")
-    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.getcwd() + "/tuxml.config make -C " + PATH + " randconfig"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    subprocess.call(["make", "-C", tuxml_settings.PATH, "mrproper"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT)
+    tuxml_common.pprint(2, "Generating new config file")
+    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.getcwd() + "/tuxml.config make -C " + tuxml_settings.PATH + " randconfig"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
 
-print("[+] Checking dependencies -- TODO")
+tuxml_common.pprint(0, "Checking dependencies")
 
 start_time = time.time()
 status = -1
@@ -229,11 +260,12 @@ while status == -1:
 end_time = time.time()
 
 if status == 0:
-    print("[+] Testing the kernel config -- TODO")
+    tuxml_common.pprint(0, "Testing the kernel config")
     status = end_time - start_time
-    print("[+] Successfully compiled in " + time.strftime("%H:%M:%S", time.gmtime(status)) + ", sending data")
+    compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
+    tuxml_common.pprint(0, "Successfully compiled in {}, sending data".format(compile_time))
 else:
     # status == -2
-    print("[-] Unable to compile using this config or another error happened, sending data anyway")
+    tuxml_common.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
 
-sendDB.send_data(PATH, ERR_LOG_FILE, status)
+# sendDB.send_data(tuxml_settings.PATH, tuxml_settings.ERR_LOG_FILE, status)
