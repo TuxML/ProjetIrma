@@ -13,13 +13,13 @@ print("Update of the docker image tuxml/tuxmldebian")
 
 # Build the choosen docker image
 str1 = 'sudo docker build -t tuxml/tuxmldebian .'
-resb = os.system(str1)
-
-if resb != 0:
-    print("erreur {}".format(resb))
+os.system(str1)
 
 print("Push of the image on the distant repository")
 
 # Push of the docker image on docker hub
 str2 = 'sudo docker push tuxml/tuxmldebian'
-os.system(str2)
+resb = os.system(str2)
+
+if resb != 0:
+    print("erreur {}".format(resb))
