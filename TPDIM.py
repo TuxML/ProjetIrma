@@ -23,3 +23,4 @@ resb = os.system(str2)
 
 if resb == 256:
     str3 = 'sudo docker login'
+    os.system(str3)
