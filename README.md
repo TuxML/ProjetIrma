@@ -51,3 +51,5 @@ Command should be :
     ./MLfood.py [Integer]
 
 It will start [Integer] number of compilation sequentially.
+
+[UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder.
