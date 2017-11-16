@@ -51,6 +51,7 @@ def build_dependencies_arch(missing_files, missing_packages):
 
     return 0
 
+
 # author : LEBRETON Mickael
 #
 # [build_dependencies_debian description]
@@ -105,6 +106,7 @@ def build_dependencies_redhat(missing_files, missing_packages):
 
     return 0
 
+
 # author : LEBRETON Mickael
 #
 # [install_missing_packages description]
@@ -141,6 +143,7 @@ def install_missing_packages(missing_files, missing_packages):
         return -1
 
     return 0
+
 
 # author : LEBRETON Mickael
 #
