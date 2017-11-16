@@ -72,13 +72,13 @@ for i in range(nb):
     print("mkdir -p Logs/" + logsFolder)
 
     # Get the last version of the image.
-    str2 = "sudo docker pull {} ".format(images[i % len(images)])
-    print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
+    str2 = "sudo docker pull " + images[i % len(images)]
+    print("Recuperation dernière version de l'image " + images[i % len(images)])
     os.system(str2)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
-    print("\n=============== Docker n°{} ===============".format(i+1))
+    print("\n=============== Docker n°" + i + " ===============")
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
@@ -87,9 +87,9 @@ for i in range(nb):
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
-    stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, logsFolder)
-    errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, logsFolder)
-    print("Fetch logs to the folder ./Logs/{}".format(logsFolder))
+    stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.logs ./Logs/' + logsFolder
+    errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.logs ./Logs/' + logsFolder
+    print("Fetch logs to the folder ./Logs/" + logsFolder)
     os.system(stdlogs)
     os.system(errlogs)
 
@@ -99,11 +99,11 @@ for i in range(nb):
         os.system("sudo docker rm -v $(docker ps -aq)")
         print("Clean done!")
     else:
-        print("Option {} unknown.".format(argv[2]))
+        print("Option " + argv[2] + " unknown.")
         exit(0)
 
     print("")
 
 # The end
-print("Your tamago... database ate {} compilation data, come back later to feed him again !".format(nb))
+print("Your tamago... database ate " + nb + " compilation data, come back later to feed him")
 print("")
