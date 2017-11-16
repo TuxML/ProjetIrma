@@ -55,3 +55,13 @@ It will start [Integer] number of compilation sequentially.
 
 [UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder
 thanks to tuxLogs.py.
+
+
+## TPDIM(WIP)
+
+This script/program is design to help people using TuxML easly manage there docker image or container.
+
+At the moment the script can do :
+
+* Build the docker image tuxml/tuxmldebian
+* Push this image on the repository tuxml on https://hub.docker.com/r/tuxml/
