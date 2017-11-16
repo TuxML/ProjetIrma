@@ -5,7 +5,7 @@ from sys import argv
 
 
 # Error if there is no argument "number" of compilation to run.
-if len(argv) == 1 :
+if len(argv) == 1:
     print("Please specify a number of compilation to launch.")
     print("Command ./MLfood.py [Integer]")
     exit()
@@ -14,7 +14,7 @@ if len(argv) == 1 :
 # If the number is above 50, the scrypt will ask for a confirmation
 try:
     nb = int(argv[1])
-    if nb >= 50 :
+    if nb >= 50:
         print("Are-you sure you want to start {} compilation? (y/n)".format(nb))
         ok = input()
         ok.lower()
@@ -49,14 +49,14 @@ for i in range(nb):
     print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
     os.system(str2)
     chaine = 'sudo docker run -it {} /TuxML/tuxLogs.py'.format(images[i % len(images)])
-    print("\n=============== Docker n°{} ===============".format(i+1))
+    print("\n=============== Docker n°{} ===============".format(i + 1))
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
 
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
-    dock = dock[0:len(dock) -1]
+    dock = dock[0:len(dock) - 1]
     tuxmllogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/tuxML.logs ./Logs/{}'.format(dock, folder_name)
     stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, folder_name)
     errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, folder_name)
