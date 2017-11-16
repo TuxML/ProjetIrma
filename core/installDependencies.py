@@ -14,7 +14,6 @@ def installDependency():
 
     update_package_manager()
     #Installation of package with name common for all distributions.
-    common_pkg = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
     print("[*] Installation...")
     returnCode = installPackages(common_pkg)
 
