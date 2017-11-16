@@ -47,30 +47,37 @@ if len(images) == 0:
 # For each url in the url list "images", we run a new docker which run the TuxML command nb times and saves the logs.
 for i in range(nb):
     print("")
+
+    # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
-    folder_name = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
-    os.system("mkdir -p Logs/" + folder_name)
-    print("mkdir -p Logs/" + folder_name)
+    logsFolder = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
+    os.system("mkdir -p Logs/" + logsFolder)
+    print("mkdir -p Logs/" + logsFolder)
+
+    # Get the last version of the image.
     str2 = "sudo docker pull {} ".format(images[i % len(images)])
     print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
     os.system(str2)
-    chaine = 'sudo docker run -it {} /TuxML/tuxLogs.py'.format(images[i % len(images)])
+
+    # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
+    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
     print("\n=============== Docker n°{} ===============".format(i+1))
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
 
+    # Get the logs from the last used container.
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
-    tuxmllogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/tuxML.logs ./Logs/{}'.format(dock, folder_name)
-    stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, folder_name)
-    errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, folder_name)
-
-    print("Recovery of logs in the folder ./Logs/{}".format(folder_name))
+    stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, logsFolder)
+    errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, logsFolder)
+    print("Recovery of logs in the folder ./Logs/{}".format(logsFolder))
     os.system(tuxmllogs)
     os.system(stdlogs)
     os.system(errlogs)
+
+    # Clean all the containers used before.
     if "--clean" in argv or "-c" in argv:
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(docker ps -aq)")
@@ -81,5 +88,6 @@ for i in range(nb):
 
     print("")
 
+# The end
 print("Your tamago... database ate {} compilation data, come back later to feed him again !".format(nb))
 print("")
