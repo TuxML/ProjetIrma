@@ -252,8 +252,7 @@ if "--no-randconfig" in sys.argv:
 else:
     subprocess.call(["make", "-C", tuxml_settings.PATH, "mrproper"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT)
     tuxml_common.pprint(2, "Generating new config file")
-    print(os.getcwd())
-    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.getcwd() + "/tuxml.config make -C " + tuxml_settings.PATH + " randconfig"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
+    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tuxml_settings.PATH + " randconfig"], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
 
 tuxml_common.pprint(0, "Checking dependencies")
 
