@@ -73,7 +73,6 @@ for i in range(nb):
     stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, logsFolder)
     errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, logsFolder)
     print("Recovery of logs in the folder ./Logs/{}".format(logsFolder))
-    os.system(tuxmllogs)
     os.system(stdlogs)
     os.system(errlogs)
 
