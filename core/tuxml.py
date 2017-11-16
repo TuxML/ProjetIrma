@@ -6,7 +6,7 @@ import subprocess
 import re
 import shutil
 import time
-import sendDB
+import tuxml_sendDB
 import tuxml_common
 import tuxml_settings
 
@@ -272,4 +272,4 @@ else:
     # status == -2
     tuxml_common.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
 
-# sendDB.send_data(tuxml_settings.PATH, tuxml_settings.ERR_LOG_FILE, status)
+# tuxml_sendDB.send_data(tuxml_settings.PATH, tuxml_settings.ERR_LOG_FILE, status)
