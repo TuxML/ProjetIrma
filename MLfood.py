@@ -57,9 +57,9 @@ for i in range(nb):
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
-    tuxmllogs = 'sudo docker cp {}:/TuxML/Logs/tuxML.logs ./Logs/{}'.format(dock, folder_name)
-    stdlogs = 'sudo docker cp {}:/TuxML/Logs/std.logs ./Logs/{}'.format(dock, folder_name)
-    errlogs = 'sudo docker cp {}:/TuxML/Logs/err.logs ./Logs/{}'.format(dock, folder_name)
+    tuxmllogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/tuxML.logs ./Logs/{}'.format(dock, folder_name)
+    stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, folder_name)
+    errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, folder_name)
 
     print("Recovery of logs in the folder ./Logs/{}".format(folder_name))
     os.system(tuxmllogs)
