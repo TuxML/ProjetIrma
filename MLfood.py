@@ -1,13 +1,17 @@
 #!/usr/bin/python3
 
 import os
+import time
 from sys import argv
 
-
 # Error if there is no argument "number" of compilation to run.
-if len(argv) == 1 :
-    print("Please specify a number of compilation to launch.")
-    print("Command ./MLfood.py [Integer]")
+if len(argv) == 1 or "-h" in argv or "--help" in argv:
+    print("")
+    print("Try: ./MLfood.py <Integer> [Options]")
+    print("")
+    print("Options: -c, --clean   Delete past containers")
+    print("         -h, --help    Prompt Options")
+    print("")
     exit()
 
 # Convert the parameter in an Integer which is the number of compilation to do.
@@ -24,7 +28,7 @@ try:
 
 except Exception as e:
     print("Please specify a valide number of compilation to launch.")
-    print("Command ./MLfood.py [Integer]")
+    print("Command ./MLfood.py <Integer> [Option]")
     exit()
 
 # Retrieves the number of compilation to run.
@@ -40,11 +44,13 @@ if len(images) == 0:
     print("There is no images.")
     exit()
 
-# For each url in the url list "images", we run a new docker which run the TuxML command nb times.
-# For each tuxml.py, logs are saved in the Logs/Tuxml-[nb]/
+# For each url in the url list "images", we run a new docker which run the TuxML command nb times and saves the logs.
 for i in range(nb):
-    folder_name = "Tuxml-{}".format(i)
-    os.system("mkdir -p Logs/{}".format(folder_name))
+    print("")
+    today = time.localtime(time.time())
+    folder_name = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
+    os.system("mkdir -p Logs/" + folder_name)
+    print("mkdir -p Logs/" + folder_name)
     str2 = "sudo docker pull {} ".format(images[i % len(images)])
     print("Recuperation dernière version de l'image {}".format(images[i % len(images)]))
     os.system(str2)
@@ -65,8 +71,15 @@ for i in range(nb):
     os.system(tuxmllogs)
     os.system(stdlogs)
     os.system(errlogs)
-    # print(dock)  # The ID of the current container
-    # print(tuxmllogs)  # Print the cp command of tuxml.logs
-    # print(stdlogs)    # Print the cp command of std.logs
-    # print(errlogs)    # Print the cp command of err.logs
+    if "--clean" in argv or "-c" in argv:
+        print("Cleaning containers . . .")
+        os.system("sudo docker rm -v $(docker ps -aq)")
+        print("Clean done!")
+    else:
+        print("Option {} unknown.".format(argv[2]))
+        exit()
+
     print("")
+
+print("Your tamago... database ate {} compilation data, come back later to feed him again !".format(nb))
+print("")

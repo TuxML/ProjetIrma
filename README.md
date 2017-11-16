@@ -49,9 +49,12 @@ the script tuxLogs.py which write the tuxml.logs.
 
 Command should be :
 
-    ./MLfood.py [Integer]
+    ./MLfood.py <Integer> [Options]
 
-It will start [Integer] number of compilation sequentially.
+It will start <Integer> number of compilation sequentially.
+
+Options : -c, --clean     Delete past containers
+          -h, --help      Prompt Options
 
 [UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder
 thanks to tuxLogs.py.
