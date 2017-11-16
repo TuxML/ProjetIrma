@@ -1,7 +1,7 @@
 import subprocess
 import shutil
 import time
-import tuxml_settings
+import tuxml_settings as tset
 
 
 # author : LEBRETON Mickael
@@ -16,7 +16,7 @@ def pprint(s, message):
 
     date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
 
-    if tuxml_settings.DEBUG:
+    if tset.DEBUG:
         print(status[s] + " " + date + message)
     else:
         print(status[s] + " " + message)
@@ -62,7 +62,7 @@ def install_packages(pkg_manager, missing_packages):
         "zypper": " --non-interactive install "
     }
 
-    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager] + " ".join(missing_packages)], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
+    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager] + " ".join(missing_packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Some packages were not found, installation stoped")
@@ -93,7 +93,7 @@ def update_system(pkg_manager):
         "zypper": " refresh"
     }
 
-    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager]], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
+    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Error while updating packages repositories")
