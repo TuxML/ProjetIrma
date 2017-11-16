@@ -11,30 +11,47 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     print("Options: -c, --clean   Delete past containers")
     print("         -h, --help    Prompt Options")
+    print("         --reset-logs  Delete all the saved logs")
     print("")
-    exit()
+    exit(0)
+
+if "--reset-logs" in argv:
+    print("Are-you sure you want to delete all the saved logs? (y/n)")
+    reset = input()
+    reset.lower()
+    if reset == "y":
+        print("Deleting all the logs in Logs/...")
+        os.system("rm -rf Logs/*")
+        print("Delete done.")
+        print("")
+        exit(0)
+    else:
+        print("")
+        print("Logs are not deleted.")
+        print("")
+        exit(0)
 
 # Convert the parameter in an Integer which is the number of compilation to do.
 # If the number is above 50, the scrypt will ask for a confirmation
 try:
     nb = int(argv[1])
     if nb >= 50 :
-        print("Are-you sure you want to start {} compilation? (y/n)".format(nb))
+        print("Are-you sure you want to start " + nb + " compilation? (y/n)")
         ok = input()
         ok.lower()
         if ok != "y":
             print("Canceled")
-            exit()
+            exit(0)
 
 except Exception as e:
     print("Please specify a valide number of compilation to launch.")
     print("Command ./MLfood.py <Integer> [Option]")
-    exit()
+    exit(0)
 
 # Retrieves the number of compilation to run.
 if nb <= 0:
     print("Please enter a non-zero positive integer.")
-    exit()
+    exit(0)
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
 images = ["tuxml/tuxmldebian:latest"]
@@ -42,7 +59,7 @@ images = ["tuxml/tuxmldebian:latest"]
 # The image list must not be empty.
 if len(images) == 0:
     print("There is no images.")
-    exit()
+    exit(0)
 
 # For each url in the url list "images", we run a new docker which run the TuxML command nb times and saves the logs.
 for i in range(nb):
@@ -66,13 +83,13 @@ for i in range(nb):
     print("==========================================\n")
     os.system(chaine)
 
-    # Get the logs from the last used container.
+    # Get the logs std.logs and err.logs from the last used container.
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
     stdlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/std.logs ./Logs/{}'.format(dock, logsFolder)
     errlogs = 'sudo docker cp {}:/TuxML/linux-4.13.3/logs/err.logs ./Logs/{}'.format(dock, logsFolder)
-    print("Recovery of logs in the folder ./Logs/{}".format(logsFolder))
+    print("Fetch logs to the folder ./Logs/{}".format(logsFolder))
     os.system(stdlogs)
     os.system(errlogs)
 
@@ -83,7 +100,7 @@ for i in range(nb):
         print("Clean done!")
     else:
         print("Option {} unknown.".format(argv[2]))
-        exit()
+        exit(0)
 
     print("")
 
