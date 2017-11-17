@@ -36,8 +36,8 @@ Expected output :
 **TODO :**
 
 * ~~renommer sendDB.py en tuxml_sendDB.py~~
-* ~~renommer installDependencies.py en tuxml_init.py~~
-* adapter tuxml_init.py aux nouvelles fonctions de tuxml_common.py
+* ~~renommer installDependencies.py en tuxml_depman.py~~
+* ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
 * utiliser tuxml_settings.py dans tuxml_sendDB.py
 * "fusionner" get_distro() et get_package_manager()
 
