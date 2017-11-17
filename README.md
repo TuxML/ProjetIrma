@@ -49,9 +49,22 @@ the script tuxLogs.py which write the tuxml.logs.
 
 Command should be :
 
-    ./MLfood.py [Integer]
+    ./MLfood.py <Integer> [Options]
 
-It will start [Integer] number of compilation sequentially.
+It will start \<Integer\> number of compilation sequentially.
 
-[UPDATE] The script will now retrieves the logs file err.logs, std.logs and tuxml.logs in the Logs/ folder
+Options : -c, --clean     Delete past containers
+          -h, --help      Prompt Options
+          --reset-logs    Delete all the logs in Logs/
+
+[UPDATE] The script will now retrieves the logs file err.logs, std.logs and output.logs in the Logs/ folder.
 thanks to tuxLogs.py.
+
+## TPDIM(WIP)
+
+This script/program is design to help people using TuxML easly manage there docker image or container.
+
+At the moment the script can do :
+
+* Build the docker image tuxml/tuxmldebian
+* Push this image on the repository tuxml on
