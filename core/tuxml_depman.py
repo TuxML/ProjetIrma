@@ -77,37 +77,43 @@ def build_dependencies_redhat(missing_files, missing_packages):
 
 
 # authors : LE FLEM Erwan, MERZOUK Fahim
+#
 # Install packages of required dependencies to compile the kernel
-# return zero on sucess, - 2 if no packages manager is found on error, other values for installation error.
-def installDependency():
+#
+# return
+#   -2 No packages manager found
+#   -1 Unable to install some packages
+#    0 succes
+def install_default_dependencies():
     pkg_manager = get_package_manager();
     if pkg_manager == None:
         return -2
 
-    update_package_manager()
-    #Installation of package with name common for all distributions.
-    print("[*] Installation...")
-    returnCode = installPackages(common_pkg)
+    tcom.update_system()
 
-    if (returnCode != 0):
-        print("[-] Error while installing common packages")
-        return returnCode
+    # Install packages common to all distro
+    pprint(2, "Installing default dependencies")
+
+    common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
+
+    if tcom.install_packages(pkg_manager, common_pkgs) != 0:
+        return -1
 
     # Now installation of packages with name that vary amongs distributions
-    debian_specific = ["reiserfsprogs", "squashfs","quotatool", "nfs-kernel-server","procps", "mcelog", "libcrypto++6"
-    ,"apt-utils"]
+    debian_specific = ["reiserfsprogs" , "squashfs", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils"]
+    arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
+    redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
+    gentoo_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
+    suse_specific   = ["reiserfs", "quota", "nfs-client" , "procps"]
 
-    arch_specific = ["reiserfsprogs", "squashfs-tools","quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
+    specific_pkgs = {
+        "apt-get" : debian_specific,
+        "pacman" : arch_specific,
+        "dnf":redHat_specific,
+        "yum":redHat_specific,
+        "emerge":gentoo_specific,
+        "zypper":suse_specific
+    }
 
-    redHat_specific =  ["reiserfs-utils", "squashfs-tools", "quotatool","isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
-
-    gentoo_specific =  ["reiserfsprogs", "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
-
-    suse_specific =  ["reiserfs", "quota", "nfs-client", "procps"]
-
-    packageSpecific = {"apt-get" : debian_specific, "pacman" : arch_specific, "dnf":redHat_specific, "yum":redHat_specific, "emerge":gentoo_specific, "zypper":suse_specific}
-    returnCode = installPackages(packageSpecific[pkg_manager])
-
-    if (returnCode != 0):
-        print("[-] Error while installing distrib specific packages")
-        return errorCode
+    if tcom.install_packages(pkg_manager, specific_pkgs) != 0:
+        return -1
