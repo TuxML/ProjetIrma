@@ -15,6 +15,13 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     exit(0)
 
+# We check if the user is a super-user.
+if os.geteuid() != 0:
+	print("You need to have super-user privileges.")
+	print("")
+	exit(0)
+	
+# Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print("Are-you sure you want to delete all the saved logs? (y/n)")
     reset = input()
@@ -42,7 +49,6 @@ try:
         if ok != "y":
             print("Canceled")
             exit(0)
-
 except Exception as e:
     print("Please specify a valide number of compilation to launch.")
     print("Command ./MLfood.py <Integer> [Option]")
