@@ -16,7 +16,7 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     exit(0)
 
 # We check if the user is a super-user.
-if os.geteuid() != 0:
+if os.getuid() != 0:
 	print("You need to have super-user privileges.")
 	print("")
 	exit(0)
