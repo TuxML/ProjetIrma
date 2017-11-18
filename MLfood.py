@@ -69,7 +69,6 @@ for i in range(nb):
     today = time.localtime(time.time())
     logsFolder = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
     os.system("mkdir -p Logs/" + logsFolder)
-    print("mkdir -p Logs/" + logsFolder)
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
@@ -78,7 +77,7 @@ for i in range(nb):
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
-    print("\n=============== Docker n°" + str(i)+ " ===============")
+    print("\n=============== Docker n°" + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
