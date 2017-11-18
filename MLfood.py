@@ -36,7 +36,7 @@ if "--reset-logs" in argv:
 try:
     nb = int(argv[1])
     if nb >= 50 :
-        print("Are-you sure you want to start " + nb + " compilation? (y/n)")
+        print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
         ok = input()
         ok.lower()
         if ok != "y":
@@ -78,7 +78,7 @@ for i in range(nb):
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
-    print("\n=============== Docker n°" + i + " ===============")
+    print("\n=============== Docker n°" + str(i)+ " ===============")
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
@@ -105,5 +105,5 @@ for i in range(nb):
     print("")
 
 # The end
-print("Your tamago... database ate " + nb + " compilation data, come back later to feed him")
+print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed him")
 print("")
