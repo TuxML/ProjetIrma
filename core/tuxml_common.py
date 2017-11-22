@@ -99,5 +99,5 @@ def update_system(pkg_manager):
         pprint(1, "Error while updating packages repositories")
         return -1
     else:
-        pprint(0, "Updated packages repositories")
+        pprint(0, "Packages repositories updated")
         return 0
