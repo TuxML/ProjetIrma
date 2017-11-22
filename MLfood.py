@@ -15,6 +15,13 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     exit(0)
 
+# We check if the user is a super-user.
+if os.getuid() != 0:
+	print("You need to have super-user privileges.")
+	print("")
+	exit(0)
+	
+# Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print("Are-you sure you want to delete all the saved logs? (y/n)")
     reset = input()
@@ -36,13 +43,12 @@ if "--reset-logs" in argv:
 try:
     nb = int(argv[1])
     if nb >= 50 :
-        print("Are-you sure you want to start " + nb + " compilation? (y/n)")
+        print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
         ok = input()
         ok.lower()
         if ok != "y":
             print("Canceled")
             exit(0)
-
 except Exception as e:
     print("Please specify a valide number of compilation to launch.")
     print("Command ./MLfood.py <Integer> [Option]")
@@ -69,7 +75,6 @@ for i in range(nb):
     today = time.localtime(time.time())
     logsFolder = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
     os.system("mkdir -p Logs/" + logsFolder)
-    print("mkdir -p Logs/" + logsFolder)
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
@@ -78,7 +83,7 @@ for i in range(nb):
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
-    print("\n=============== Docker n°" + i + " ===============")
+    print("\n=============== Docker n°" + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
@@ -105,5 +110,5 @@ for i in range(nb):
     print("")
 
 # The end
-print("Your tamago... database ate " + nb + " compilation data, come back later to feed him")
+print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed him")
 print("")

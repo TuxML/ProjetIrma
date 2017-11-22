@@ -53,9 +53,11 @@ Command should be :
 
 It will start \<Integer\> number of compilation sequentially.
 
+```
 Options : -c, --clean     Delete past containers
           -h, --help      Prompt Options
           --reset-logs    Delete all the logs in Logs/
+```
 
 [UPDATE] The script will now retrieves the logs file err.logs, std.logs and output.logs in the Logs/ folder.
 thanks to tuxLogs.py.
