@@ -17,9 +17,13 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 
 # We check if the user is a super-user.
 if os.getuid() != 0:
-	print("You need to have super-user privileges.")
-	print("")
-	exit(0)
+    print("You need to have super-user privileges.")
+    ar = "sudo"
+    for a in argv:
+         ar = ar + " {}".format(a)
+
+    os.system(ar)
+    exit(0)
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
