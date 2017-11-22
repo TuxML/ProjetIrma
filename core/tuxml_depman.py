@@ -2,7 +2,7 @@
 import subprocess
 import shutil
 import tuxml_common as tcom
-
+import tset as tset
 
 # author : LE FLEM Erwan
 #
@@ -12,7 +12,7 @@ import tuxml_common as tcom
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_arch(missing_files, missing_packages):
-    if tuxml_settings.DEBUG:
+    if tset.DEBUG:
         tcom.pprint(3, "Arch based distro")
 
     cmd_check   = ""
@@ -29,17 +29,17 @@ def build_dependencies_arch(missing_files, missing_packages):
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_debian(missing_files, missing_packages):
-    if tuxml_settings.DEBUG:
+    if tset.DEBUG:
         tcom.pprint(3, "Debian based distro")
 
     cmd_search  = "apt-file search {}" # cherche dans quel paquet est le fichier
     cmd_check   = "dpkg-query -l | grep {}" # vérifie si le paquet est présent sur le système
 
-    if tuxml_settings.DEBUG and len(missing_files) > 0:
+    if tset.DEBUG and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
 
     for mf in missing_files:
-        if tuxml_settings.DEBUG:
+        if tset.DEBUG:
             print(" " * 3 + mf)
 
         output = subprocess.check_output([cmd_search.format(mf)], shell=True)
@@ -54,7 +54,7 @@ def build_dependencies_debian(missing_files, missing_packages):
             package = lines[i].split(":")[0]
             # 0: package already installed
             # 1: package not installed
-            status = subprocess.call([cmd_check.format(package)], stdout=tuxml_settings.OUTPUT, stderr=tuxml_settings.OUTPUT, shell=True)
+            status = subprocess.call([cmd_check.format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
             if status == 1:
                 missing_packages.append(package)
             i += 1
@@ -70,7 +70,7 @@ def build_dependencies_debian(missing_files, missing_packages):
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_redhat(missing_files, missing_packages):
-    if tuxml_settings.DEBUG:
+    if tset.DEBUG:
         tcom.pprint(3, "RedHat based distro")
 
     return 0
