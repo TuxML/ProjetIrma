@@ -9,7 +9,7 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     print("Try: ./MLfood.py <Integer> [Options]")
     print("")
-    print("Options: -c, --clean   Delete past containers")
+    print("Options: --no-clean   Do not delete past containers")
     print("         -h, --help    Prompt Options")
     print("         --reset-logs  Delete all the saved logs")
     print("")
@@ -17,10 +17,14 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 
 # We check if the user is a super-user.
 if os.getuid() != 0:
-	print("You need to have super-user privileges.")
-	print("")
-	exit(0)
-	
+    print("You need to have super-user privileges.")
+    ar = "sudo"
+    for a in argv:
+         ar = ar + " {}".format(a)
+
+    os.system(ar)
+    exit(0)
+
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print("Are-you sure you want to delete all the saved logs? (y/n)")
@@ -99,7 +103,7 @@ for i in range(nb):
     os.system(errlogs)
 
     # Clean all the containers used before.
-    if "--clean" in argv or "-c" in argv:
+    if not "--no-clean" in argv:
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(docker ps -aq)")
         print("Clean done!")
