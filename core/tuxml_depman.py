@@ -2,7 +2,7 @@
 import subprocess
 import shutil
 import tuxml_common as tcom
-import tset as tset
+import tuxml_settings as tset
 
 # author : LE FLEM Erwan
 #
@@ -15,11 +15,31 @@ def build_dependencies_arch(missing_files, missing_packages):
     if tset.DEBUG:
         tcom.pprint(3, "Arch based distro")
 
-    cmd_check   = ""
-    cmd_search  = "pkgfile -s {}" #pkgfile -s openssl/bio.h ne marche pas
+    cmd_check   = "pacman -Fs {}"
+    cmd_search  = "pkgfile -d {}" #pkgfile -s openssl/bio.h ne marche pas
 
-    return 0
+    for mf in missing_files:
+        if tset.DEBUG:
+            print(" " * 3 + mf)
 
+        mf = mf.replace("/", " ")
+        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
+
+        # Sometimes the  output gives  several packages. The  program takes  the
+        # first one and check if the package is already installed. If not, tuxml
+        # installs it else it installs the next one
+        lines = output.decode("utf-8").splitlines()
+        i = 0
+        status = 0
+        while i < len(lines) and status == 0:
+            # 0: package already installed
+            # 1: package not installed
+            status = subprocess.call([cmd_check.format(lines[i])], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            if status == 1:
+                missing_packages.append(lines[i])
+            i += 1
+
+            return missing_packages
 
 # author : LEBRETON Mickael
 #
