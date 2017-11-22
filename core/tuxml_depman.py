@@ -2,7 +2,7 @@
 import subprocess
 import shutil
 import tuxml_common as tcom
-import tset as tset
+import tuxml_settings as tset
 
 # author : LE FLEM Erwan
 #
