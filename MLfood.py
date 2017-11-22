@@ -15,13 +15,11 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     exit(0)
 
-<<<<<<< HEAD
 # # We check if the user is a super-user.
 # if os.getuid() != 0:
 # 	print("You need to have super-user privileges.")
 # 	print("")
 # 	exit(0)
-=======
 # We check if the user is a super-user.
 if os.getuid() != 0:
     print("You need to have super-user privileges.")
@@ -31,7 +29,6 @@ if os.getuid() != 0:
 
     os.system(ar)
     exit(0)
->>>>>>> 06830c2c57a4c51711df1697e879e818d8f644f0
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
