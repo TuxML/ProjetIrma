@@ -15,12 +15,12 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     exit(0)
 
-# We check if the user is a super-user.
-if os.getuid() != 0:
-	print("You need to have super-user privileges.")
-	print("")
-	exit(0)
-	
+# # We check if the user is a super-user.
+# if os.getuid() != 0:
+# 	print("You need to have super-user privileges.")
+# 	print("")
+# 	exit(0)
+
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print("Are-you sure you want to delete all the saved logs? (y/n)")
@@ -73,7 +73,7 @@ for i in range(nb):
 
     # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
-    logsFolder = str(today.tm_year) + "-" + str(today.tm_mon) + "-" + str(today.tm_mday) + "_" + str(today.tm_hour) + "h" + str(today.tm_min) + "m" + str(today.tm_sec)
+    logsFolder = str(today.tm_year) + str(today.tm_mon) + str(today.tm_mday) + str(today.tm_hour) + str(today.tm_min) + str(today.tm_sec)
     os.system("mkdir -p Logs/" + logsFolder)
 
     # Get the last version of the image.
