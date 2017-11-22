@@ -21,5 +21,6 @@ print("Push of the image on the distant repository")
 str2 = 'sudo docker push tuxml/tuxmldebian'
 resb = os.system(str2)
 
-if resb != 0:
-    print("erreur {}".format(resb))
+if resb == 256:
+    str3 = 'sudo docker login'
+    os.system(str3)
