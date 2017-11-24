@@ -97,6 +97,7 @@ def install_default_dependencies():
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
     if tcom.install_packages(pkg_manager, common_pkgs) != 0:
+        pprint(1, "Unable to install minimum dependencies")
         return -1
 
     # Now installation of packages with name that vary amongs distributions
@@ -116,4 +117,8 @@ def install_default_dependencies():
     }
 
     if tcom.install_packages(pkg_manager, specific_pkgs) != 0:
+        pprint(1, "Unable to install minimum dependencies")
         return -1
+    else:
+        pprint(1, "All minimum dependencies were installed")
+        return 0

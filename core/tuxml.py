@@ -182,7 +182,8 @@ else:
     tcom.pprint(2, "Generating new config file")
     output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
-tcom.pprint(0, "Checking dependencies")
+if tdep.install_default_dependencies() != 0:
+    exit(-1)
 
 start_time = time.time()
 status = -1
