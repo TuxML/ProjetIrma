@@ -54,7 +54,7 @@ Command should be :
 It will start \<Integer\> number of compilation sequentially.
 
 ```
-Options : -c, --clean     Delete past containers
+Options : --no-clean      Do not delete past containers
           -h, --help      Prompt Options
           --reset-logs    Delete all the logs in Logs/
 ```

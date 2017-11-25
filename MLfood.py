@@ -23,6 +23,7 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 # We check if the user is a super-user.
 if os.getuid() != 0:
     print("You need to have super-user privileges.")
+    print('Restarting with sudo ...')
     ar = "sudo"
     for a in argv:
          ar = ar + " {}".format(a)
