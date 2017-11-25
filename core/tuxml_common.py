@@ -16,7 +16,7 @@ def pprint(s, message):
 
     date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
 
-    if tset.DEBUG:
+    if tset.VERBOSE:
         print(status[s] + " " + date + message)
     else:
         print(status[s] + " " + message)

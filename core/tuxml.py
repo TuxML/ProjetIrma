@@ -6,6 +6,7 @@ import subprocess
 import re
 import shutil
 import time
+import argparse
 import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset
@@ -140,57 +141,80 @@ def compile():
         return log_analysis() - 1
 
 
-# === MAIN FUNCTION ===
-# TODO import command/command line ??? ==> plus propre (parsing arguments)
-if "-h" in sys.argv or "--help" in sys.argv:
-    print("[*] USE : sudo ./tcom.py </path/to/sources/directory> [option1 option2 ...]")
-    print("[*] Available options :")
-    print("\t-d  --debug\t\tTuxML is more verbose")
-    print("\t-h  --help\t\tPrint this")
-    print("\t    --no-randconfig\tDo not generate a new config file")
-    print("\t-v  --version\t\tDisplay the version of TuxML")
-    sys.exit(0)
+# author : LEBRETON Mickael
+#
+# [args_handler description]
+#
+# return value :
+#    void
+def args_handler():
+    #TODO welcome_message : github ? équipe ?
+    welcome_message  = "Welcome, this is the TuxML core program. TuxML is currently on developpement stage. "
+    welcome_message += "Please visit our Github at https://github.com/TuxML."
 
-if "-v" in sys.argv or "--version" in sys.argv:
-    print("TuxML v0.2")
-    sys.exit(0)
+    parser = argparse.ArgumentParser(description=welcome_message)
+    parser.add_argument("source_path", help="path to the Linux source directory")
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+    parser.add_argument("-V", "--version", help="display TuxML version and exit", action='version', version='%(prog)s 0.2')
+    parser.add_argument("-d", "--debug", help="debug a given kconfig seed", type=str, metavar="KCONFIG_SEED")
+    args = parser.parse_args()
 
-if len(sys.argv) < 2:
-    tcom.pprint(1, "Bad parameters, use --help to print help")
-    sys.exit(-1)
+    if os.getuid() != 0:
+          sudo_args = ["sudo", "-k", sys.executable] + sys.argv + [os.environ]
+          os.execlpe('sudo', *sudo_args)
+          sys.exit(-1)
 
-if os.getuid() != 0:
-    tcom.pprint(1, "Please run TuxML as root, use --help to print help")
-    sys.exit(-1)
+    # manage level of verbosity
+    if args.verbose:
+        tset.VERBOSE  = True
+        tset.OUTPUT = sys.__stdout__
+        date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
+        tcom.pprint(3, "Verbosity enabled")
+    else:
+        tset.VERBOSE  = False
+        tset.OUTPUT = subprocess.DEVNULL
 
-if "-d" in sys.argv or "--debug" in sys.argv:
-    tset.DEBUG  = True
-    tset.OUTPUT = sys.__stdout__
-    date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
-    tcom.pprint(3, "Debug mode ON")
-else:
-    tset.DEBUG  = False
-    tset.OUTPUT = subprocess.DEVNULL
+    # store the linux source path in a global var
+    if not os.path.exists(args.source_path):
+        tcom.pprint(1, "This path doesn't exist")
+        exit(-1)
 
-tcom.pprint(2, "Cleaning previous compilation")
+    tset.PATH = args.source_path
 
-tset.PATH = sys.argv[1]
-if "--no-randconfig" in sys.argv:
-    subprocess.call(["make", "-C", tset.PATH, "clean"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-else:
+    # cleaning previous compilation
+    tcom.pprint(2, "Cleaning previous compilation")
     subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-    tcom.pprint(2, "Generating new config file")
-    output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
+    # generating config file
+    if args.debug:
+        try:
+            int(args.debug, 16);
+        except ValueError:
+            tcom.pprint(1, "Invalid KCONFIG_SEED")
+            exit(-1)
+
+        tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
+        output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    else:
+        tcom.pprint(2, "Randomising new config file")
+        output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+
+
+# === MAIN FUNCTION ===
+args_handler()
+
+install default packages
 if tdep.install_default_dependencies() != 0:
     exit(-1)
 
+# launching compilation
 start_time = time.time()
 status = -1
 while status == -1:
     status = compile()
 end_time = time.time()
 
+# testing kernel
 if status == 0:
     tcom.pprint(0, "Testing the kernel config")
     status = end_time - start_time
@@ -200,4 +224,5 @@ else:
     # status == -2
     tcom.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
 
+# sending data to IrmaDB
 # tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
