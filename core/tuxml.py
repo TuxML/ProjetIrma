@@ -54,11 +54,11 @@ def install_missing_packages(missing_files, missing_packages):
         return -3
 
     if distro == 0:
-        pkgs = tdep.build_dependencies_arch(missing_files, missing_packages);
+        pkgs = tdep.build_dependencies_arch(missing_files);
     elif distro == 1:
-        pkgs = tdep.build_dependencies_debian(missing_files, missing_packages);
+        pkgs = tdep.build_dependencies_debian(missing_files);
     elif distro == 2:
-        pkgs = tdep.build_dependencies_redhat(missing_files, missing_packages);
+        pkgs = tdep.build_dependencies_redhat(missing_files);
     else:
         pass
 
@@ -69,7 +69,7 @@ def install_missing_packages(missing_files, missing_packages):
     if tcom.update_system(pkg_manager) != 0:
         return -2
 
-    if tcom.install_packages(pkg_manager, pkgs) != 0:
+    if tcom.install_packages(pkg_manager, pkgs + missing_packages) != 0:
         return -1
 
     return 0

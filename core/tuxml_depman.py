@@ -28,7 +28,7 @@ def build_dependencies_arch(missing_files, missing_packages):
 # return value :
 #   -1 package not found
 #    0 installation OK
-def build_dependencies_debian(missing_files, missing_packages):
+def build_dependencies_debian(missing_files):
     if tset.VERBOSE:
         tcom.pprint(3, "Debian based distro")
 
@@ -38,6 +38,7 @@ def build_dependencies_debian(missing_files, missing_packages):
     if tset.VERBOSE and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
 
+    missing_packages = []
     for mf in missing_files:
         if tset.VERBOSE:
             print(" " * 3 + mf)
@@ -59,7 +60,7 @@ def build_dependencies_debian(missing_files, missing_packages):
                 missing_packages.append(package)
             i += 1
 
-        return missing_packages
+    return missing_packages
 
 
 # author :
