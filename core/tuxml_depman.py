@@ -89,15 +89,15 @@ def install_default_dependencies():
     if pkg_manager == None:
         return -2
 
-    tcom.update_system()
+    tcom.update_system(pkg_manager)
 
     # Install packages common to all distro
-    pprint(2, "Installing default dependencies")
+    tcom.pprint(2, "Installing default dependencies")
 
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
     if tcom.install_packages(pkg_manager, common_pkgs) != 0:
-        pprint(1, "Unable to install minimum dependencies")
+        tcom.pprint(1, "Unable to install minimum dependencies")
         return -1
 
     # Now installation of packages with name that vary amongs distributions
@@ -116,8 +116,8 @@ def install_default_dependencies():
         "zypper":suse_specific
     }
 
-    if tcom.install_packages(pkg_manager, specific_pkgs) != 0:
-        pprint(1, "Unable to install minimum dependencies")
+    if tcom.install_packages(pkg_manager, specific_pkgs[pkg_manager]) != 0:
+        tcom.pprint(1, "Unable to install minimum dependencies")
         return -1
     else:
         pprint(1, "All minimum dependencies were installed")
