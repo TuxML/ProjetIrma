@@ -12,6 +12,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
 
+
 # author : LEBRETON Mickael
 #
 # Get the package manager of the system
@@ -144,19 +145,16 @@ def compile():
 # author : LEBRETON Mickael
 #
 # [args_handler description]
-#
-# return value :
-#    void
 def args_handler():
     #TODO welcome_message : github ? équipe ?
-    welcome_message  = "Welcome, this is the TuxML core program. TuxML is currently on developpement stage. "
-    welcome_message += "Please visit our Github at https://github.com/TuxML."
+    welcome_message  = "Welcome, this is the TuxML core program. It's currently a pre-alpha. "
+    welcome_message += "Please visit our Github at https://github.com/TuxML in order to report any issue. Thanks !"
 
     parser = argparse.ArgumentParser(description=welcome_message)
     parser.add_argument("source_path", help="path to the Linux source directory")
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
     parser.add_argument("-V", "--version", help="display TuxML version and exit", action='version', version='%(prog)s 0.2')
-    parser.add_argument("-d", "--debug", help="debug a given kconfig seed", type=str, metavar="KCONFIG_SEED")
+    parser.add_argument("-d", "--debug", help="debug a given kconfig seed. If no seed is given, TuxML will use the existing kconfig file in the linux source directory", type=str, metavar="KCONFIG_SEED", nargs='?', const="CONFIG")
     args = parser.parse_args()
 
     if os.getuid() != 0:
@@ -169,7 +167,6 @@ def args_handler():
         tset.VERBOSE  = True
         tset.OUTPUT = sys.__stdout__
         date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
-        tcom.pprint(3, "Verbosity enabled")
     else:
         tset.VERBOSE  = False
         tset.OUTPUT = subprocess.DEVNULL
@@ -181,21 +178,25 @@ def args_handler():
 
     tset.PATH = args.source_path
 
-    # cleaning previous compilation
-    tcom.pprint(2, "Cleaning previous compilation")
-    subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-
-    # generating config file
     if args.debug:
-        try:
-            int(args.debug, 16);
-        except ValueError:
-            tcom.pprint(1, "Invalid KCONFIG_SEED")
-            exit(-1)
+        # use previous config file
+        if args.debug == "CONFIG":
+            tcom.pprint(2, "Using previous kconfig file")
+        else:
+            # generating config file with given seed
+            try:
+                int(args.debug, 16);
+            except ValueError:
+                tcom.pprint(1, "Invalid KCONFIG_SEED")
+                exit(-1)
 
-        tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
-        output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
+            output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
     else:
+        # cleaning previous compilation and randconfig
+        tcom.pprint(2, "Cleaning previous compilation")
+        subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+
         tcom.pprint(2, "Randomising new config file")
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
