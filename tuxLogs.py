@@ -8,4 +8,4 @@ print(':Updating:')
 os.system('apt update')
 
 print('Starting tuxml.py ...')
-os.system('/TuxML/core/tuxml.py /TuxML/linux-4.13.3 --debug')
+os.system('/TuxML/core/tuxml.py /TuxML/linux-4.13.3 -v')
