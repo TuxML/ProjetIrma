@@ -203,7 +203,7 @@ def args_handler():
 # === MAIN FUNCTION ===
 args_handler()
 
-install default packages
+# install default packages
 if tdep.install_default_dependencies() != 0:
     exit(-1)
 
