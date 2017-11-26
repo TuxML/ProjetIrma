@@ -62,7 +62,7 @@ def build_dependencies_debian(missing_files, missing_packages):
         return missing_packages
 
 
-# author :
+# author : Fahim MERZOUK
 #
 # [build_dependencies_redhat description]
 #
@@ -73,7 +73,35 @@ def build_dependencies_redhat(missing_files, missing_packages):
     if tset.DEBUG:
         tcom.pprint(3, "RedHat based distro")
 
-    return 0
+    cmd_search  = "dnf provides {}" # cherche dans quel paquet est le fichier
+    cmd_check   = "rpm -qa | grep {}" # vérifie si le paquet est présent sur le système
+    if tset.DEBUG and len(missing_files) > 0:
+        tcom.pprint(3, "Those files are missing :")
+
+    for mf in missing_files:
+        if tset.DEBUG:
+            print(" " * 3 + mf)
+
+        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
+
+        # Sometimes the  output gives  several packages. The  program takes  the
+        # first one and check if the package is already installed. If not, tuxml
+        # installs it else it installs the next one
+        lines = output.decode("utf-8").splitlines()
+        i = 0
+        status = 0
+        while i < len(lines) and status == 0:
+            package = lines[i].split(":")[0]
+            # 0: package already installed
+            # 1: package not installed
+            status = subprocess.call([cmd_check.format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            if status == 1:
+                missing_packages.append(package)
+            i += 1
+
+        return missing_packages
+
+
 
 
 # authors : LE FLEM Erwan, MERZOUK Fahim
