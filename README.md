@@ -2,12 +2,23 @@
 
 ## tuxml.py
 ```
-[*] USE : sudo ./tuxml.py </path/to/sources/directory> [option1 option2 ...]
-[*] Available options :
-        -d  --debug             TuxML is more verbose
-        -h  --help              Print this
-            --no-randconfig     Do not generate a new config file
-        -v  --version           Display the version of TuxML
+usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
+
+Welcome, this is the TuxML core program. It's currently a pre-alpha. Please
+visit our Github at https://github.com/TuxML in order to report any issue.
+Thanks !
+
+positional arguments:
+  source_path           path to the Linux source directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         increase output verbosity
+  -V, --version         display TuxML version and exit
+  -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
+                        debug a given kconfig seed. If no seed is given, TuxML
+                        will use the existing kconfig file in the linux source
+                        directory
 ```
 
 Expected output :
