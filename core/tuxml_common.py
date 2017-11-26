@@ -48,7 +48,6 @@ def get_package_manager():
 #   -1 Unable to install the packages
 #    0 Successfull install
 def install_packages(pkg_manager, missing_packages):
-    print(missing_packages[0])
     pprint(2, "Installing missing packages : " + " ".join(missing_packages))
 
     manager_to_cmd = {

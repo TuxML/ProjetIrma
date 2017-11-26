@@ -121,5 +121,5 @@ def install_default_dependencies():
         tcom.pprint(1, "Unable to install minimum dependencies")
         return -1
     else:
-        pprint(1, "All minimum dependencies were installed")
+        tcom.pprint(1, "All minimum dependencies were installed")
         return 0

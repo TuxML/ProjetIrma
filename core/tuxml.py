@@ -205,8 +205,8 @@ def args_handler():
 args_handler()
 
 # install default packages
-# if tdep.install_default_dependencies() != 0:
-#     exit(-1)
+if tdep.install_default_dependencies() != 0:
+    exit(-1)
 
 # launching compilation
 start_time = time.time()
