@@ -83,7 +83,7 @@ for i in range(nb):
 
     # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
-    logsFolder = str(today.tm_mday) + str(today.tm_mon) + str(today.tm_year) + "_" + str(today.tm_hour) + str(today.tm_min) + str(today.tm_sec)
+    logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
     os.system("mkdir -p Logs/" + logsFolder)
 
     # Get the last version of the image.
