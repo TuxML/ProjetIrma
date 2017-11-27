@@ -146,17 +146,35 @@ def compile():
 #
 # [args_handler description]
 def args_handler():
-    #TODO welcome_message : github ? équipe ?
-    welcome_message  = "Welcome, this is the TuxML core program. It's currently a pre-alpha. "
-    welcome_message += "Please visit our Github at https://github.com/TuxML in order to report any issue. Thanks !"
+    msg  = "Welcome, this is the TuxML core program.\n\n"
 
-    parser = argparse.ArgumentParser(description=welcome_message)
-    parser.add_argument("source_path", help="path to the Linux source directory")
-    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
-    parser.add_argument("-V", "--version", help="display TuxML version and exit", action='version', version='%(prog)s 0.2')
-    parser.add_argument("-d", "--debug", help="debug a given kconfig seed. If no seed is given, TuxML will use the existing kconfig file in the linux source directory", type=str, metavar="KCONFIG_SEED", nargs='?', const="CONFIG")
+    msg += "The goal of TuxML is to  automatically  compile Linux kernel sources in order to\n"
+    msg += "build a database for a machine learning algorithm.\n"
+    msg += "If the compilation crashes, TuxML  analyzes the error log file  to determine the\n"
+    msg += "causes. There are two possible ways:\n"
+    msg += "  * it is a missing  package : TuxML will install it and  resume the compilation\n"
+    msg += "  * the error can't be fixed : the compilation stops\n"
+    msg += "Then TuxML sends the results of the compilation to the database.\n\n"
+
+    msg += "Keep in mind that the program is currently  in developpement stage. Please visit\n"
+    msg += "our Github at https://github.com/TuxML in order to report any issue.\n"
+    msg += "Thanks !\n\n"
+
+    p_help  = "path to the Linux source directory"
+    v_help  = "increase output verbosity"
+    V_help  = "display TuxML version and exit"
+    d_help  = "debug a given  kconfig seed. If no seed is given, TuxML\n"
+    d_help += "will use the existing kconfig file in  the linux source\n"
+    d_help += "directory"
+
+    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("source_path",     help=p_help)
+    parser.add_argument("-v", "--verbose", help=v_help, action="store_true")
+    parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
+    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED", nargs='?', const=-1)
     args = parser.parse_args()
 
+    # ask root credentials
     if os.getuid() != 0:
           sudo_args = ["sudo", "-k", sys.executable] + sys.argv + [os.environ]
           os.execlpe('sudo', *sudo_args)
@@ -174,26 +192,29 @@ def args_handler():
     # store the linux source path in a global var
     if not os.path.exists(args.source_path):
         tcom.pprint(1, "This path doesn't exist")
-        exit(-1)
-
-    tset.PATH = args.source_path
+    else:
+        tset.PATH = args.source_path
 
     if args.debug:
-        # use previous config file
-        if args.debug == "CONFIG":
-            tcom.pprint(2, "Using previous kconfig file")
+        if args.debug == -1:
+            # use previous config file
+            if not os.path.exists(tset.PATH + "/.config"):
+                tcom.pprint(1, "KConfig file not found")
+                sys.exit(-1)
+            else:
+                tcom.pprint(2, "Using previous kconfig file")
         else:
             # generating config file with given seed
             try:
                 int(args.debug, 16);
             except ValueError:
                 tcom.pprint(1, "Invalid KCONFIG_SEED")
-                exit(-1)
+                sys.exit(-1)
 
             tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
             output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
     else:
-        # cleaning previous compilation and randconfig
+        # cleaning previous compilation and generating new KConfig file
         tcom.pprint(2, "Cleaning previous compilation")
         subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
@@ -201,29 +222,39 @@ def args_handler():
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
 
-# === MAIN FUNCTION ===
-args_handler()
+# author : LEBRETON Mickael
+#
+# [main description]
+def main():
+    args_handler()
 
-# install default packages
-if tdep.install_default_dependencies() != 0:
-    exit(-1)
+    # install default packages
+    if tdep.install_default_dependencies() != 0:
+        sys.exit(-1)
 
-# launching compilation
-start_time = time.time()
-status = -1
-while status == -1:
-    status = compile()
-end_time = time.time()
+    # launching compilation
+    start_time = time.time()
+    status = -1
+    while status == -1:
+        status = compile()
+    end_time = time.time()
 
-# testing kernel
-if status == 0:
-    tcom.pprint(0, "Testing the kernel config")
-    status = end_time - start_time
-    compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
-    tcom.pprint(0, "Successfully compiled in {}, sending data".format(compile_time))
-else:
-    # status == -2
-    tcom.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
+    # testing kernel
+    if status == 0:
+        tcom.pprint(0, "Testing the kernel config")
+        status = end_time - start_time
+        compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
+        tcom.pprint(0, "Successfully compiled in {}, sending data".format(compile_time))
+    else:
+        # status == -2
+        tcom.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
 
-# sending data to IrmaDB
-# tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
+    # sending data to IrmaDB
+    # tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
+
+
+# ============================================================================ #
+
+
+if __name__ == '__main__':
+    main()

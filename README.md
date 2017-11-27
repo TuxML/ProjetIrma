@@ -4,8 +4,18 @@
 ```
 usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
 
-Welcome, this is the TuxML core program. It's currently a pre-alpha. Please
-visit our Github at https://github.com/TuxML in order to report any issue.
+Welcome, this is the TuxML core program.
+
+The goal of TuxML is to  automatically  compile Linux kernel sources in order to
+build a database for a machine learning algorithm.
+If the compilation crashes, TuxML  analyzes the error log file  to determine the
+causes. There are two possible ways:
+  * it is a missing  package : TuxML will install it and  resume the compilation
+  * the error can't be fixed : the compilation stops
+Then TuxML sends the results of the compilation to the database.
+
+Keep in mind that the program is currently  in developpement stage. Please visit
+our Github at https://github.com/TuxML in order to report any issue.
 Thanks !
 
 positional arguments:
@@ -16,8 +26,8 @@ optional arguments:
   -v, --verbose         increase output verbosity
   -V, --version         display TuxML version and exit
   -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
-                        debug a given kconfig seed. If no seed is given, TuxML
-                        will use the existing kconfig file in the linux source
+                        debug a given  kconfig seed. If no seed is given, TuxML
+                        will use the existing kconfig file in  the linux source
                         directory
 ```
 
