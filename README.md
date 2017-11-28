@@ -68,6 +68,7 @@ Script used to fill the DataBase which "feed" the Machine Learning algorithm.
 Allows to start automatically the tuxml.py command on different dockers by calling
 the script tuxLogs.py which write the tuxml.logs.
 
+
 Command should be :
 
     ./MLfood.py <Integer> [Options]
@@ -76,12 +77,14 @@ It will start \<Integer\> number of compilation sequentially.
 
 ```
 Options : --no-clean      Do not delete past containers
-          -h, --help      Prompt Options
           --reset-logs    Delete all the logs in Logs/
+          -h, --help      Prompt Options for MLfood.py
 ```
 
 [UPDATE] The script will now retrieves the logs file err.logs, std.logs and output.logs in the Logs/ folder.
 thanks to tuxLogs.py.
+
+See tuxLogs.py
 
 ## TPDIM(WIP)
 
