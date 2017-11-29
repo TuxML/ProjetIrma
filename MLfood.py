@@ -16,14 +16,8 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     exit(0)
 
 # # We check if the user is a super-user.
-# if os.getuid() != 0:
-# 	print("You need to have super-user privileges.")
-# 	print("")
-# 	exit(0)
-# We check if the user is a super-user.
 if os.getuid() != 0:
-    print("You need to have super-user privileges.")
-    print('Restarting with sudo ...')
+    print('Restarting with super user privileges ...')
     ar = "sudo"
     for a in argv:
          ar = ar + " {}".format(a)
@@ -81,15 +75,15 @@ if len(images) == 0:
 for i in range(nb):
     print("")
 
-    # Generation of the logs folder create thanks to the execution date
-    today = time.localtime(time.time())
-    logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-    os.system("mkdir -p Logs/" + logsFolder)
-
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
     print("Recuperation dernière version de l'image " + images[i % len(images)])
     os.system(str2)
+
+    # Generation of the logs folder create thanks to the execution date
+    today = time.localtime(time.time())
+    logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
+    os.system("mkdir -p Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
@@ -98,15 +92,17 @@ for i in range(nb):
     print("==========================================\n")
     os.system(chaine)
 
-    # Get the logs std.logs and err.logs from the last used container.
+    # Get the logs std.logs and err.logs from the last used container and retrieves the ".config" file.
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
     stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.logs ./Logs/' + logsFolder
     errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.logs ./Logs/' + logsFolder
-    print("Fetch logs to the folder ./Logs/" + logsFolder)
+    configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
+    print("Fetch logs and .config file to the folder ./Logs/" + logsFolder)
     os.system(stdlogs)
     os.system(errlogs)
+    os.system(configFile)
 
     # Clean all the containers used before.
     if not "--no-clean" in argv:
