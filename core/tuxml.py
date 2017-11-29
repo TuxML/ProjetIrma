@@ -96,8 +96,12 @@ def log_analysis():
                 # case "make[4]: <command> : command not found"
                 missing_packages.append(line.split(":")[1])
             elif re.search("not found", line):
-                # case "/bin/sh: 1: <command>: not found"
-                missing_files.append(line.split(":")[2])
+                if len(line.split(":")) == 4:
+                    # case "/bin/sh: 1: <command>: not found"
+                    missing_files.append(line.split(":")[2])
+                else:
+                    # ./scripts/gcc-plugin.sh: 11: ./scripts/gcc-plugin.sh: <package>: not found
+                    missing_packages.append(line.split(":")[3])
             else:
                 pass
 
@@ -192,6 +196,7 @@ def args_handler():
     # store the linux source path in a global var
     if not os.path.exists(args.source_path):
         tcom.pprint(1, "This path doesn't exist")
+        sys.exit(-1)
     else:
         tset.PATH = args.source_path
 
