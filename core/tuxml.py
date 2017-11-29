@@ -255,7 +255,7 @@ def main():
         tcom.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
 
     # sending data to IrmaDB
-    # tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
+    tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
 
 
 # ============================================================================ #
