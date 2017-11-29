@@ -1,5 +1,13 @@
 # py-scripts
 
+
+## How to Use
+
+To run the main command on a host machine, you just need to download `MLfood.py`, the folders "core" and "csvgen" are contained in the image for docker.
+Running `MLfood.py` download the latest image with the TuxML folder.
+
+
+
 ## MLfood.py
 
 `MLfood.py` is the first command to run on your host machine.
