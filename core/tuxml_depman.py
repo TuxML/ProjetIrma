@@ -120,7 +120,7 @@ def install_default_dependencies():
         return -1
 
     # Now installation of packages with name that vary amongs distributions
-    debian_specific = ["reiserfsprogs" , "squashfs", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "mysql-server"]
+    debian_specific = ["reiserfsprogs" , "squashfs", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "mysql-client", "python-mysqldb"]
     arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
     redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
     gentoo_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
