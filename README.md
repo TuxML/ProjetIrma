@@ -81,7 +81,7 @@ Options : --no-clean      Do not delete past containers
           -h, --help      Prompt Options for MLfood.py
 ```
 
-[UPDATE] The script will now retrieves the logs file err.logs, std.logs and output.logs in the Logs/ folder thanks to `tuxLogs.py`.
+The script retrieves the logs file err.logs, std.logs and output.logs as well as the .config file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
 
 `MLfood.py` now use "tee" to create the output.logs from `tuxLogs.py` to prompt the output and create the `output.logs` which is the tuxml.py's one.
 
