@@ -9,5 +9,5 @@ PATH = ""
 LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.logs"
 ERR_LOG_FILE = LOG_DIR + "/err.logs"
-DEBUG = False
+VERBOSE = False
 OUTPUT = sys.__stdout__

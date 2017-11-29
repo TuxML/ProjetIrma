@@ -12,7 +12,7 @@ import tuxml_settings as tset
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_arch(missing_files, missing_packages):
-    if tset.DEBUG:
+    if tset.VERBOSE:
         tcom.pprint(3, "Arch based distro")
 
     cmd_check   = ""
@@ -28,18 +28,19 @@ def build_dependencies_arch(missing_files, missing_packages):
 # return value :
 #   -1 package not found
 #    0 installation OK
-def build_dependencies_debian(missing_files, missing_packages):
-    if tset.DEBUG:
+def build_dependencies_debian(missing_files):
+    if tset.VERBOSE:
         tcom.pprint(3, "Debian based distro")
 
     cmd_search  = "apt-file search {}" # cherche dans quel paquet est le fichier
     cmd_check   = "dpkg-query -l | grep {}" # vérifie si le paquet est présent sur le système
 
-    if tset.DEBUG and len(missing_files) > 0:
+    if tset.VERBOSE and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
 
+    missing_packages = []
     for mf in missing_files:
-        if tset.DEBUG:
+        if tset.VERBOSE:
             print(" " * 3 + mf)
 
         output = subprocess.check_output([cmd_search.format(mf)], shell=True)
@@ -59,7 +60,7 @@ def build_dependencies_debian(missing_files, missing_packages):
                 missing_packages.append(package)
             i += 1
 
-        return missing_packages
+    return missing_packages
 
 
 # author :
@@ -70,7 +71,7 @@ def build_dependencies_debian(missing_files, missing_packages):
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_redhat(missing_files, missing_packages):
-    if tset.DEBUG:
+    if tset.VERBOSE:
         tcom.pprint(3, "RedHat based distro")
 
     return 0
@@ -85,14 +86,14 @@ def build_dependencies_redhat(missing_files, missing_packages):
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    pkg_manager = get_package_manager();
+    pkg_manager = tcom.get_package_manager();
     if pkg_manager == None:
         return -2
 
-    tcom.update_system()
+    tcom.update_system(pkg_manager)
 
     # Install packages common to all distro
-    pprint(2, "Installing default dependencies")
+    tcom.pprint(2, "Installing default dependencies")
 
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
@@ -100,7 +101,7 @@ def install_default_dependencies():
         return -1
 
     # Now installation of packages with name that vary amongs distributions
-    debian_specific = ["reiserfsprogs" , "squashfs", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils"]
+    debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils"]
     arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
     redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
     gentoo_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
@@ -115,5 +116,7 @@ def install_default_dependencies():
         "zypper":suse_specific
     }
 
-    if tcom.install_packages(pkg_manager, specific_pkgs) != 0:
+    if tcom.install_packages(pkg_manager, specific_pkgs[pkg_manager]) != 0:
         return -1
+    else:
+        return 0

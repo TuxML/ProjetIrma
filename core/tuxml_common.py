@@ -7,16 +7,13 @@ import tuxml_settings as tset
 # author : LEBRETON Mickael
 #
 # Pretty Printer
-#
-# return value :
-#
 def pprint(s, message):
     # success, error, message, debug, warning
     status = ["[+]", "[-]", "[*]", "[#]", "[!]"]
 
     date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
 
-    if tset.DEBUG:
+    if tset.VERBOSE:
         print(status[s] + " " + date + message)
     else:
         print(status[s] + " " + message)
@@ -99,5 +96,5 @@ def update_system(pkg_manager):
         pprint(1, "Error while updating packages repositories")
         return -1
     else:
-        pprint(0, "Updated packages repositories")
+        pprint(0, "Packages repositories updated")
         return 0
