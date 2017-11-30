@@ -1,5 +1,50 @@
 # py-scripts
 
+
+## How to Use
+
+To run the main command on a host machine, you just need to download `MLfood.py`, the folders "core" and "csvgen" are contained in the image for docker.
+Running `MLfood.py` download the latest image with the TuxML folder.
+
+
+
+## MLfood.py
+
+`MLfood.py` is the first command to run on your host machine.
+
+At the beginning, it will ask you the super user privileges in order to run docker.
+
+This script is used to fill the DataBase which "feed" the Machine Learning algorithm and allows to start automatically the `tuxml.py` command on different dockers by calling the script `tuxLogs.py` which write the tuxml.logs.
+
+./MLfood n will start n docker sequentially, each docker run `tuxlogs.py` which run `tuxml.py`
+
+Command should be :
+
+    ./MLfood.py <Integer> [Options]
+
+It will start \<Integer\> number of compilation sequentially.
+
+```
+Options : --no-clean      Do not delete past containers
+          --reset-logs    Delete all the logs in Logs/
+          -h, --help      Prompt Options for MLfood.py
+```
+
+The script retrieves the logs file err.logs, std.logs and output.logs as well as the `.config` file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
+
+`MLfood.py` now use "tee" to create the output.logs from `tuxLogs.py` to prompt the output and create the `output.logs` which is the tuxml.py's one.
+
+See `tuxLogs.py`
+
+## tuxLogs.py
+
+Script contained in the docker image in the folder/TuxML, this is the script which run the command `/TuxML/core/tuxml.py /TuxML/linux-4.13.3 -v` directly.
+
+This script exist only to allow `MLfood.py` to create the output log of `tuxml.py` with the stack trace.
+
+See `MLfood.py`
+
+
 ## tuxml.py
 ```
 usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
@@ -61,41 +106,6 @@ Expected output :
 * ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
 * utiliser tuxml_settings.py dans tuxml_sendDB.py
 * "fusionner" get_distro() et get_package_manager()
-
-## MLfood.py
-
-Script used to fill the DataBase which "feed" the Machine Learning algorithm.
-Allows to start automatically the `tuxml.py` command on different dockers by calling
-the script `tuxLogs.py` which write the tuxml.logs.
-
-
-Command should be :
-
-    ./MLfood.py <Integer> [Options]
-
-It will start \<Integer\> number of compilation sequentially.
-
-```
-Options : --no-clean      Do not delete past containers
-          --reset-logs    Delete all the logs in Logs/
-          -h, --help      Prompt Options for MLfood.py
-```
-
-The script retrieves the logs file err.logs, std.logs and output.logs as well as the .config file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
-
-`MLfood.py` now use "tee" to create the output.logs from `tuxLogs.py` to prompt the output and create the `output.logs` which is the tuxml.py's one.
-
-
-See `tuxLogs.py`
-
-## tuxLogs.py
-
-Script contained in the docker image in the folder/TuxML, this is the script which run the command `/TuxML/core/tuxml.py /TuxML/linux-4.13.3 -v` directly.
-
-This script exist only to allow `MLfood.py` to create the output log of `tuxml.py` with the stack trace.
-
-See `MLfood.py`
-
 
 ## TPDIM.py (WIP)
 
