@@ -161,7 +161,7 @@ def args_handler():
     msg += "Then TuxML sends the results of the compilation to the database.\n\n"
 
     msg += "Keep in mind that the program is currently  in developpement stage. Please visit\n"
-    msg += "our Github at https://github.com/TuxML in order to report any issue.\n"
+    msg += "our Github at <https://github.com/TuxML> in order to report any issue.\n"
     msg += "Thanks !\n\n"
 
     p_help  = "path to the Linux source directory"
@@ -249,10 +249,10 @@ def main():
         tcom.pprint(0, "Testing the kernel config")
         status = end_time - start_time
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
-        tcom.pprint(0, "Successfully compiled in {}, sending data".format(compile_time))
+        tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
     else:
         # status == -2
-        tcom.pprint(1, "Unable to compile using this config or another error happened, sending data anyway")
+        tcom.pprint(1, "Unable to compile using this config or another error happened")
 
     # sending data to IrmaDB
     tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
