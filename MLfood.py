@@ -20,7 +20,7 @@ if os.getuid() != 0:
     print('Restarting with super user privileges ...')
     ar = "sudo"
     for a in argv:
-         ar = ar + " {}".format(a)
+        ar = ar + " {}".format(a)
 
     os.system(ar)
     exit(0)

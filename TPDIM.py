@@ -2,6 +2,13 @@
 
 import os
 
+
+def dockerPush():
+    str = 'sudo docker push tuxml/tuxmldebian'
+    resb = os.system(str)
+    return resb
+
+
 # Start of the script
 
 print("Welcome, this is the TuxML Project Docker Image Manager")
@@ -18,9 +25,8 @@ os.system(str1)
 print("Push of the image on the distant repository")
 
 # Push of the docker image on docker hub
-str2 = 'sudo docker push tuxml/tuxmldebian'
-resb = os.system(str2)
+resP = dockerPush()
 
-if resb == 256:
+if resP == 256:
     str3 = 'sudo docker login'
     os.system(str3)
