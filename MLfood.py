@@ -17,14 +17,8 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 
 # We check if the user is a super-user.
 # Restarting with sudo.
-# if os.getuid() != 0:
-#     print('Restarting with super user privileges ...')
-#     ar = "sudo"
-#     for a in argv:
-#         ar = ar + " {}".format(a)
-#
-#     os.system(ar)
-#     exit(0)
+if os.getuid() != 0:
+    print('Docker needs to start with sudo mode')
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
