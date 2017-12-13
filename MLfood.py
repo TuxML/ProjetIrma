@@ -102,7 +102,7 @@ for i in range(nb):
     # Clean all the containers used before.
     if not "--no-clean" in argv:
         print("Cleaning containers . . .")
-        os.system("sudo docker rm -v $(docker ps -aq)")
+        os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
     else:
         print("Option " + argv[2] + " unknown.")
