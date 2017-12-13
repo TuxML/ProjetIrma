@@ -81,7 +81,7 @@ for i in range(nb):
     os.system("mkdir -p Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
+    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.log'
     print("\n=============== Docker n°" + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
