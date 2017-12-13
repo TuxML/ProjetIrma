@@ -72,7 +72,7 @@ for i in range(nb):
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
-    print("Recuperation dernière version de l'image " + images[i % len(images)])
+    print("Recovering the last docker image " + images[i % len(images)])
     os.system(str2)
 
     # Generation of the logs folder create thanks to the execution date
