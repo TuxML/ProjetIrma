@@ -101,6 +101,7 @@ for i in range(nb):
 
     # Clean all the containers used before.
     if not "--no-clean" in argv:
+        print('Super-user privilege needed to clean remaining containers.')
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
