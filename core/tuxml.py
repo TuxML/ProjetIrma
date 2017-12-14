@@ -164,15 +164,16 @@ def args_handler():
     d_help  = "debug a given KCONFIG_SEED  or  KCONFIG_FILE. If no seed\n"
     d_help += "or file are  given, the script  will  use  the  existing\n"
     d_help += "KCONFIG_FILE in the linux source directory"
-    c_help  = "Define  the  number  of CPU  cores  to  use  during  the\n"
+    c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
     parser.add_argument("-v", "--verbose", help=v_help, type=int, nargs='?', const=1, choices=[1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
-    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
+    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
+
     args = parser.parse_args()
 
     # ask root credentials
