@@ -11,3 +11,4 @@ STD_LOG_FILE = LOG_DIR + "/std.log"
 ERR_LOG_FILE = LOG_DIR + "/err.log"
 VERBOSE = False
 OUTPUT = sys.__stdout__
+NB_CORES = 1

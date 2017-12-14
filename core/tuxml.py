@@ -53,23 +53,24 @@ def install_missing_packages(missing_files, missing_packages):
         tcom.pprint(1, "Distro not supported by TuxML")
         return -3
 
-    if distro == 0:
-        pkgs = tdep.build_dependencies_arch(missing_files);
-    elif distro == 1:
-        pkgs = tdep.build_dependencies_debian(missing_files);
-    elif distro == 2:
-        pkgs = tdep.build_dependencies_redhat(missing_files);
-    else:
-        pass
+    build_dependencies = {
+        "apt-get": tdep.build_dependencies_debian,
+        "pacman":  tdep.build_dependencies_arch,
+        "dnf":     tdep.build_dependencies_redhat,
+        "yum":     tdep.build_dependencies_redhat
+    }
 
     pkg_manager = tcom.get_package_manager()
     if pkg_manager == None:
         return -3
 
+    if build_dependencies[pkg_manager](missing_files, missing_packages) != 0:
+        return -1
+
     if tcom.update_system(pkg_manager) != 0:
         return -2
 
-    if tcom.install_packages(pkg_manager, pkgs + missing_packages) != 0:
+    if tcom.install_packages(pkg_manager, missing_packages) != 0:
         return -1
 
     return 0
@@ -129,7 +130,7 @@ def compilation():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", tset.PATH, "-j", "1"], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", tset.PATH, "-j", str(tset.NB_CORES)], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         tcom.pprint(0, "Compilation done")
@@ -160,15 +161,18 @@ def args_handler():
     p_help  = "path to the Linux source directory"
     v_help  = "increase output verbosity"
     V_help  = "display TuxML version and exit"
-    d_help  = "debug a given  kconfig seed. If no seed is given, TuxML\n"
-    d_help += "will use the existing kconfig file in  the linux source\n"
-    d_help += "directory"
+    d_help  = "debug a given KCONFIG_SEED  or  KCONFIG_FILE. If no seed\n"
+    d_help += "or file are  given, the script  will  use  the  existing\n"
+    d_help += "KCONFIG_FILE in the linux source directory"
+    c_help  = "Define  the  number  of CPU  cores  to  use  during  the\n"
+    c_help += "compilation"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
     parser.add_argument("-v", "--verbose", help=v_help, action="store_true")
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
-    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED", nargs='?', const=-1)
+    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
+    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES", nargs='?', const=1)
     args = parser.parse_args()
 
     # ask root credentials
@@ -193,24 +197,33 @@ def args_handler():
     else:
         tset.PATH = args.source_path
 
+    # handle debug mode
     if args.debug:
         if args.debug == -1:
             # use previous config file
             if not os.path.exists(tset.PATH + "/.config"):
-                tcom.pprint(1, "KConfig file not found")
+                tcom.pprint(1, "KCONFIG_FILE not found")
                 sys.exit(-1)
             else:
-                tcom.pprint(2, "Using previous kconfig file")
+                tcom.pprint(2, "Using previous KCONFIG_FILE")
         else:
-            # generating config file with given seed
+            # debug config with given KCONFIG_SEED
             try:
-                int(args.debug, 16);
+                kconfig_seed = int(args.debug, 16)
             except ValueError:
-                tcom.pprint(1, "Invalid KCONFIG_SEED")
-                sys.exit(-1)
+                kconfig_seed = -1
 
-            tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
-            output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            if kconfig_seed != -1:
+                tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
+                output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            else:
+                # debug config with given KCONFIG_FILE
+                if os.path.exists(args.debug):
+                    tcom.pprint(2, "Using KCONFIG_FILE " + args.debug)
+                    shutil.copyfile(args.debug, tset.PATH + "/.config") # TODO maybe a better way ?
+                else:
+                    tcom.pprint(1, "Invalid KCONFIG_SEED or KCONFIG_FILE doesn't exist")
+                    sys.exit(-1)
     else:
         # cleaning previous compilation and generating new KConfig file
         tcom.pprint(2, "Cleaning previous compilation")
@@ -219,6 +232,8 @@ def args_handler():
         tcom.pprint(2, "Randomising new config file")
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
+    # set the number of cores
+    tset.NB_CORES = args.cores
 
 # author : LEBRETON Mickael
 #
@@ -257,7 +272,7 @@ def main():
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
     else:
-        tcom.pprint(1, "Unable to compile using this config or another error happened")
+        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE")
 
     # sending data to IrmaDB
     tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
