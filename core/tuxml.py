@@ -172,7 +172,7 @@ def args_handler():
     parser.add_argument("-v", "--verbose", help=v_help, type=int, nargs='?', const=1, choices=[1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
-    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES", nargs='?', const=1)
+    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     args = parser.parse_args()
 
     # ask root credentials
