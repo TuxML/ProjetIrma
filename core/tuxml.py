@@ -169,7 +169,7 @@ def args_handler():
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
-    parser.add_argument("-v", "--verbose", help=v_help, action="store_true")
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, nargs='?', const=1, choices=[1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES", nargs='?', const=1)
@@ -184,7 +184,10 @@ def args_handler():
     # manage level of verbosity
     if args.verbose:
         tset.VERBOSE  = True
-        tset.OUTPUT = sys.__stdout__
+
+        if args.verbose == 2:
+            tset.OUTPUT = sys.__stdout__
+
         date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
     else:
         tset.VERBOSE  = False
@@ -234,6 +237,7 @@ def args_handler():
 
     # set the number of cores
     tset.NB_CORES = args.cores
+
 
 # author : LEBRETON Mickael
 #
