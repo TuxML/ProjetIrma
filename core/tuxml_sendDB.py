@@ -6,6 +6,7 @@ import os
 import MySQLdb
 import tuxml_common as tcom
 
+
 # author : LE LURON Pierre
 #
 # Returns the size of the newly compiled kernel
@@ -20,6 +21,7 @@ def get_kernel_size(path):
         if os.path.isfile(full_filename):
             return os.path.getsize(full_filename)
     return 0
+
 
 # author : LE LURON Pierre
 #

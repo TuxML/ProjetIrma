@@ -6,7 +6,7 @@ import tuxml_settings as tset
 
 # author : LEBRETON Mickael
 #
-# Pretty Printer
+# Pretty Printer which allow us to print the date in VERBOSE mod
 def pprint(s, message):
     # success, error, message, debug, warning
     status = ["[+]", "[-]", "[*]", "[#]", "[!]"]

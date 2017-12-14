@@ -7,7 +7,7 @@ import tuxml_settings as tset
 
 # author : LE FLEM Erwan
 #
-# [build_dependencies_arch description]
+# Find the missing packages (ArchLinux distribution)
 #
 # return value :
 #   -1 package not found
@@ -21,7 +21,7 @@ def build_dependencies_arch(missing_files, missing_packages):
 
 # author : LEBRETON Mickael
 #
-# [build_dependencies_debian description]
+# Find the missing packages (Debian distribution)
 #
 # return value :
 #   -1 package not found
@@ -43,6 +43,9 @@ def build_dependencies_debian(missing_files):
 
         output = subprocess.check_output([cmd_search.format(mf)], shell=True)
 
+        if output == None:
+            return -1
+
         # Sometimes the  output gives  several packages. The  program takes  the
         # first one and check if the package is already installed. If not, tuxml
         # installs it else it installs the next one
@@ -63,7 +66,7 @@ def build_dependencies_debian(missing_files):
 
 # author :
 #
-# [build_dependencies_redhat description]
+# Find the missing packages (RedHat distribution)
 #
 # return value :
 #   -1 package not found
@@ -99,14 +102,12 @@ def install_default_dependencies():
         return -1
 
     # Now installation of packages with name that vary amongs distributions
-    # TODO ajouter les paquets python3-pip, mysql-client?, libmariadbclient-dev, mysql-server? pour les autres distib
-    debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "python3-pip", "mysql-client", "mysql-server", "libmariadbclient-dev"]
+    # TODO ajouter les paquets python3-pip, mysql-client?, libmariadbclient-dev, mysql-server?
+    debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils"]
     arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
     redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
     gentoo_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
     suse_specific   = ["reiserfs", "quota", "nfs-client" , "procps"]
-
-    # TODO pip3 install mysqlclient
 
     specific_pkgs = {
         "apt-get" : debian_specific,
