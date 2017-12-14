@@ -39,7 +39,7 @@ def get_distro():
 
 # author : LEBRETON Mickael
 #
-# [install_missing_packages description]
+# This function installs the missing packages
 #
 # return value :
 #   -3 distro or package manager not supported by TuxML
@@ -77,16 +77,15 @@ def install_missing_packages(missing_files, missing_packages):
 
 # author : LEBRETON Mickael
 #
-# [log_analysis description]
+# This function analyzes the error log file and try to find the missing packages
+# and the missings files
 #
 # return value :
-#   -1 it wasn't able to find them
+#   -1 the program wasn't able to find the missing package(s)
 #    0 the program was able to find the missing package(s)
-def log_analysis():
+def log_analysis(missing_files, missing_packages):
     tcom.pprint(2, "Analyzing error log file")
 
-    missing_packages = []
-    missing_files    = []
     with open(tset.PATH + tset.ERR_LOG_FILE, "r") as err_logs:
         for line in err_logs:
             if re.search("fatal error", line):
@@ -106,13 +105,8 @@ def log_analysis():
                 pass
 
     if len(missing_files) > 0 or len(missing_packages) > 0:
-        status = install_missing_packages(missing_files, missing_packages)
-
-        if status == 0:
-            tcom.pprint(0, "Restarting compilation")
-            return 0
-        else:
-            return -1
+        tcom.pprint(0, "Missing package(s) found")
+        return 0
     else:
         tcom.pprint(1, "Unable to find the missing package(s)")
         return -1
@@ -120,14 +114,13 @@ def log_analysis():
 
 # author : LEBRETON Mickael
 #
-# [compile description]
+# This  function  starts the  compilation and redirects  the  logs to  the files
+# std.logs and err.logs
 #
 # return value :
-#   -1 compilation has failed but the program was able to find the missing package(s)
-#   -2 compilation has failed and the program wasn't able to find the missing package(s)
-#      (it means an unknow error)
+#   -1 compilation has failed
 #    0 no error (time to compile in seconds)
-def compile():
+def compilation():
     tcom.pprint(2, "Compilation in progress")
 
     # TODO barre de chargement [ ##########-------------------- ] 33%
@@ -136,19 +129,19 @@ def compile():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", tset.PATH, "-j", "6"], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", tset.PATH, "-j", "1"], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         tcom.pprint(0, "Compilation done")
         return 0
     else:
         tcom.pprint(2, "Compilation failed, exit status : {}".format(status))
-        return log_analysis() - 1
+        return -1
 
 
 # author : LEBRETON Mickael
 #
-# [args_handler description]
+# This function handles the arguments of the ./tuxml.py command
 def args_handler():
     msg  = "Welcome, this is the TuxML core program.\n\n"
 
@@ -241,7 +234,20 @@ def main():
     start_time = time.time()
     status = -1
     while status == -1:
-        status = compile()
+        missing_packages = []
+        missing_files    = []
+
+        if compilation() == -1:
+            if log_analysis(missing_files, missing_packages) == 0:
+                if install_missing_packages(missing_files, missing_packages) == 0:
+                    tcom.pprint(0, "Restarting compilation")
+                    status = -1
+                else:
+                    status = -2
+            else:
+                status = -2
+        else:
+            status = 0
     end_time = time.time()
 
     # testing kernel
@@ -251,7 +257,6 @@ def main():
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
     else:
-        # status == -2
         tcom.pprint(1, "Unable to compile using this config or another error happened")
 
     # sending data to IrmaDB
