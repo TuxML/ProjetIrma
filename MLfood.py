@@ -43,6 +43,7 @@ try:
     nb = int(argv[1])
     if nb >= 50 :
         print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
+        print('Canceling it would take as much Ctrl+C as the remaining number of compiling.')
         ok = input()
         ok.lower()
         if ok != "y":
@@ -101,7 +102,6 @@ for i in range(nb):
 
     # Clean all the containers used before.
     if not "--no-clean" in argv:
-        print('Super-user privilege needed to clean remaining containers.')
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
@@ -112,5 +112,5 @@ for i in range(nb):
     print("")
 
 # The end
-print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed him")
+print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!")
 print("")
