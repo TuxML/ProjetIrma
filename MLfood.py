@@ -92,8 +92,8 @@ for i in range(nb):
     dockerid = os.popen("sudo docker ps -lq", "r")
     dock = dockerid.read()
     dock = dock[0:len(dock) -1]
-    stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.logs ./Logs/' + logsFolder
-    errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.logs ./Logs/' + logsFolder
+    stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
+    errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
     configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
     print("Fetch logs and .config file to the folder ./Logs/" + logsFolder)
     os.system(stdlogs)
