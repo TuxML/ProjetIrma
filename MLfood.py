@@ -17,14 +17,8 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 
 # We check if the user is a super-user.
 # Restarting with sudo.
-# if os.getuid() != 0:
-#     print('Restarting with super user privileges ...')
-#     ar = "sudo"
-#     for a in argv:
-#         ar = ar + " {}".format(a)
-#
-#     os.system(ar)
-#     exit(0)
+if os.getuid() != 0:
+    print('Docker needs to start with sudo mode')
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
@@ -49,6 +43,7 @@ try:
     nb = int(argv[1])
     if nb >= 50 :
         print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
+        print('Canceling it would take as much Ctrl+C as the remaining number of compiling.')
         ok = input()
         ok.lower()
         if ok != "y":
@@ -78,7 +73,7 @@ for i in range(nb):
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
-    print("Recuperation dernière version de l'image " + images[i % len(images)])
+    print("Recovering the last docker image " + images[i % len(images)])
     os.system(str2)
 
     # Generation of the logs folder create thanks to the execution date
@@ -87,7 +82,7 @@ for i in range(nb):
     os.system("mkdir -p Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.logs'
+    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.log'
     print("\n=============== Docker n°" + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
@@ -108,7 +103,7 @@ for i in range(nb):
     # Clean all the containers used before.
     if not "--no-clean" in argv:
         print("Cleaning containers . . .")
-        os.system("sudo docker rm -v $(docker ps -aq)")
+        os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
     else:
         print("Option " + argv[2] + " unknown.")
@@ -117,5 +112,5 @@ for i in range(nb):
     print("")
 
 # The end
-print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed him")
+print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!")
 print("")
