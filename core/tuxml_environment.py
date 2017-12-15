@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 
 import os
-import sys
 import subprocess
-import re
-import shutil
 import multiprocessing
 import platform
+import csv
+import tuxml_settings as tset
 
 #tuxml_environment is a basic utilitary to retreieve informations about the local machine,
 #like the distribution, the kernel version or CPU info...
@@ -25,7 +24,7 @@ def get_os_detail():
     system = {
         "os": os.uname().sysname,
         "distribution": platform.linux_distribution()[0],
-        "version": "",
+        "distib_version": platform.linux_distribution()[1],
         "kernel": os.uname().release
     }
     return system
@@ -41,6 +40,7 @@ def get_os_detail():
 # - ram the total quantity of Random Access Memory in the system.
 # - arch The architecture of the CPU, e.g x86_64
 # - cpu_cores The number of physical cores. Those are the physical cores, the virtual ones (i.e hyperthreading) are not counted.
+# Note that the CPU cores here is the number of available cores, NOT the number core actually used during the kernel compilation.
 def get_hardware():
 
     #TODO refactoring with smaller function
@@ -70,19 +70,42 @@ def get_hardware():
 
     return hw
 
-#
-# TODO
-#
-def compilation_details():
-    env = {
-        "version": platform.libc_ver()[1]
-    }
+def __get_libc_version():
+        result = subprocess.run(["ldd", "--version"], stdout=subprocess.PIPE,encoding="UTF8").stdout
+        return result.strip().split(' ')[3].split('\n')[0]
 
+def __get_gcc_version():
+        result = subprocess.run(["gcc", "--version"], stdout=subprocess.PIPE,encoding="UTF8").stdout
+        return result.strip().split(' ')[2].split('\n')[0]
+
+# authors : LE FLEM Erwan
+# retrieve informations about the compilation environment.
+#
+# For example, print(get_compilation_details["gcc_version"]) will display the installed version of gcc.
+#
+# The keys of the returned dictionary are :
+# - libc_version The libs version used.
+# - gcc_version The installed version of gcc.
+# - core_used The number of cores actually used during the compilation process.
+def get_compilation_details():
+    env = {
+        "libc_version": __get_libc_version(),
+        "gcc_version": __get_gcc_version(),
+        "core_used" : tset.NB_CORES
+    }
     return env
 
+#Export the environment detail in a csvfile
+#The export file is tuxml_environment.csv and is stored in the directory where you are when executing this script.
+def export_as_csv():
+    with open('tuxml_environment.csv', 'w', newline='') as csvfile:
+        merged_dict = {**get_hardware(), **get_os_detail(), **get_compilation_details()}
+        writer = csv.DictWriter(csvfile, merged_dict.keys())
+        writer.writeheader()
+        writer.writerow(merged_dict)
 
-# Temporaires, affichage pour tester.
-dico = get_os_detail()
-print(dico)
+# Code de test (temporaire).
+print(get_os_detail())
 print(get_hardware())
-print(compilation_details())
+print(get_compilation_details())
+export_as_csv()
