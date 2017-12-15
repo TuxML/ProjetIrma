@@ -1,4 +1,5 @@
 import sys
+import subprocess
 import time
 import math
 import os
@@ -12,5 +13,5 @@ LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.log"
 ERR_LOG_FILE = LOG_DIR + "/err.log"
 VERBOSE = False
-OUTPUT = open(os.devnull, 'w')
+OUTPUT = subprocess.DEVNULL
 NB_CORES = 1

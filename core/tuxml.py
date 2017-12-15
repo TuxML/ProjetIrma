@@ -171,7 +171,7 @@ def args_handler():
     parser.add_argument("source_path",     help=p_help)
     parser.add_argument("-v", "--verbose", help=v_help, type=int, nargs='?', const=1, choices=[1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
-    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
+    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES", default=1)
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
 
     args = parser.parse_args()
@@ -188,11 +188,8 @@ def args_handler():
 
         if args.verbose == 2:
             tset.OUTPUT = sys.__stdout__
-
-        date = time.strftime("%H:%M:%S", time.gmtime(time.time()))
     else:
         tset.VERBOSE  = False
-        tset.OUTPUT = subprocess.DEVNULL
 
     # store the linux source path in a global var
     if not os.path.exists(args.source_path):
@@ -237,6 +234,7 @@ def args_handler():
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     # set the number of cores
+    print(args.cores)
     tset.NB_CORES = args.cores
 
 
@@ -263,7 +261,7 @@ def main():
                     tcom.pprint(0, "Restarting compilation")
                     status = -1
                 else:
-                    status = -2
+                    status = -3
             else:
                 status = -2
         else:
@@ -277,7 +275,7 @@ def main():
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
     else:
-        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE")
+        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
     # sending data to IrmaDB
     tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
