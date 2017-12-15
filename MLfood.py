@@ -79,7 +79,8 @@ for i in range(nb):
     # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
     logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-    os.system("mkdir -p Logs/" + logsFolder)
+    if not os.path.exists("Logs/"+logsFolder):
+        os.makedirs("Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.log'
