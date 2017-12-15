@@ -81,7 +81,7 @@ def compilation_details():
     return env
 
 
-#Temporaires, affichage pour tester.
+# Temporaires, affichage pour tester.
 dico = get_os_detail()
 print(dico)
 print(get_hardware())
