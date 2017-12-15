@@ -5,9 +5,6 @@ import math
 import os
 
 # ===== GLOBALS =====
-# "/std_{}.log".format(math.ceil(time.time()))
-# "/err_{}.log".format(math.ceil(time.time()))
-
 PATH = ""
 LOG_DIR = "/logs"
 STD_LOG_FILE = LOG_DIR + "/std.log"

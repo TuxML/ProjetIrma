@@ -233,8 +233,9 @@ def args_handler():
         tcom.pprint(2, "Randomising new config file")
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
-    # set the number of cores
-    tset.NB_CORES = args.cores
+    # set the number of cores (default cores=1)
+    if args.cores:
+        tset.NB_CORES = args.cores
 
 
 # author : LEBRETON Mickael
