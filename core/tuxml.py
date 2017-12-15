@@ -234,7 +234,6 @@ def args_handler():
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     # set the number of cores
-    print(args.cores)
     tset.NB_CORES = args.cores
 
 
