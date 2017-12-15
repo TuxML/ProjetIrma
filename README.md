@@ -76,7 +76,7 @@ optional arguments:
                         directory
 ```
 
-Expected output :
+### Expected output
 
 ```
 [*] Cleaning previous compilation
@@ -99,13 +99,15 @@ Expected output :
 **\+** Ajout de la date et de l'heure en mode debug dans les logs de tuxml.py (désormais il faut utiliser le pretty printer)  
 **\-** L'appel à sendDB a été désactivé temporairement car le site est H.S
 
-**TODO :**
+### Todolist
 
 * ~~renommer sendDB.py en tuxml_sendDB.py~~
 * ~~renommer installDependencies.py en tuxml_depman.py~~
 * ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
-* utiliser tuxml_settings.py dans tuxml_sendDB.py
+* ~~utiliser tuxml_settings.py dans tuxml_sendDB.py~~
 * "fusionner" get_distro() et get_package_manager()
+* ~~étendre l'argument `--debug` pour qu'il supporte aussi un chemin vers un .config spécifique.~~
+* ajout des arguments `--allyes` et `--allno` (incompatibles avec `--debug`)
 
 ## TPDIM.py (WIP)
 

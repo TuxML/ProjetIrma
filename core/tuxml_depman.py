@@ -26,7 +26,7 @@ def build_dependencies_arch(missing_files, missing_packages):
 # return value :
 #   -1 package not found
 #    0 installation OK
-def build_dependencies_debian(missing_files):
+def build_dependencies_debian(missing_files, missing_packages):
     if tset.VERBOSE:
         tcom.pprint(3, "Debian based distro")
 
@@ -36,19 +36,19 @@ def build_dependencies_debian(missing_files):
     if tset.VERBOSE and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
 
-    missing_packages = []
     for mf in missing_files:
         if tset.VERBOSE:
             print(" " * 3 + mf)
 
-        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
-
-        if output == None:
+        try:
+            output = subprocess.check_output([cmd_search.format(mf)], shell=True)
+        except subprocess.CalledProcessError:
+            tcom.pprint(1, "Unable to find the missing package(s)")
             return -1
 
         # Sometimes the  output gives  several packages. The  program takes  the
         # first one and check if the package is already installed. If not, tuxml
-        # installs it else it installs the next one
+        # installs it. Else it installs the next one
         lines = output.decode("utf-8").splitlines()
         i = 0
         status = 0
@@ -61,7 +61,8 @@ def build_dependencies_debian(missing_files):
                 missing_packages.append(package)
             i += 1
 
-    return missing_packages
+    tcom.pprint(0, "Dependencies built")
+    return 0
 
 
 # author :
