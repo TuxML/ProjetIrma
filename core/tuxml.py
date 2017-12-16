@@ -15,30 +15,6 @@ import tuxml_depman as tdep
 
 # author : LEBRETON Mickael
 #
-# Get the package manager of the system
-#
-# return value :
-#  -1 Distro not supported
-#   0 Arch based distro
-#   1 Debian based distro
-#   2 RedHat based distro
-#
-# TODO fusionner get_distro et tcom.get_package_manager (common)
-def get_distro():
-    package_managers = ["pacman", "apt-get", "dnf"]
-    for pm in package_managers:
-        try:
-            distro = package_managers.index(shutil.which(pm).split("/")[3])
-        except Exception as err:
-            distro = -1
-
-        if 0 <= distro and distro < len(package_managers):
-            return distro
-    return -1
-
-
-# author : LEBRETON Mickael
-#
 # This function installs the missing packages
 #
 # return value :
@@ -47,11 +23,7 @@ def get_distro():
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
-    distro = get_distro()
-
-    if distro > 2:
-        tcom.pprint(1, "Distro not supported by TuxML")
-        return -3
+    #TODO supprimer ligne avec distro et les remplacer par package manager
 
     build_dependencies = {
         "apt-get": tdep.build_dependencies_debian,
@@ -60,17 +32,17 @@ def install_missing_packages(missing_files, missing_packages):
         "yum":     tdep.build_dependencies_redhat
     }
 
-    pkg_manager = tcom.get_package_manager()
-    if pkg_manager == None:
-        return -3
+    # pkg_manager = tcom.get_package_manager()
+    # if tset.PKG_MANAGER == None:
+    #     return -3
 
-    if build_dependencies[pkg_manager](missing_files, missing_packages) != 0:
+    if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
         return -1
 
-    if tcom.update_system(pkg_manager) != 0:
+    if tcom.update_system() != 0:
         return -2
 
-    if tcom.install_packages(pkg_manager, missing_packages) != 0:
+    if tcom.install_packages(missing_packages) != 0:
         return -1
 
     return 0
@@ -106,7 +78,7 @@ def log_analysis(missing_files, missing_packages):
                 pass
 
     if len(missing_files) > 0 or len(missing_packages) > 0:
-        tcom.pprint(0, "Missing package(s) found")
+        tcom.pprint(0, "Missing file(s)/package(s) found")
         return 0
     else:
         tcom.pprint(1, "Unable to find the missing package(s)")
@@ -243,6 +215,11 @@ def args_handler():
 # [main description]
 def main():
     args_handler()
+
+    # get the package manager
+    tset.PKG_MANAGER = tcom.get_package_manager()
+    if tset.PKG_MANAGER == None:
+        sys.exit(-1)
 
     # install default packages
     if tdep.install_default_dependencies() != 0:

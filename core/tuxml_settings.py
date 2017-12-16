@@ -12,3 +12,4 @@ ERR_LOG_FILE = LOG_DIR + "/err.log"
 VERBOSE = False
 OUTPUT = subprocess.DEVNULL
 NB_CORES = 1
+PKG_MANAGER = ""

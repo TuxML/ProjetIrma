@@ -41,7 +41,7 @@ def build_dependencies_debian(missing_files, missing_packages):
             print(" " * 3 + mf)
 
         try:
-            output = subprocess.check_output([cmd_search.format(mf)], shell=True)
+            output = subprocess.check_output([cmd_search.format(mf)], shell=True, universal_newlines=True)
         except subprocess.CalledProcessError:
             tcom.pprint(1, "Unable to find the missing package(s)")
             return -1
@@ -49,7 +49,7 @@ def build_dependencies_debian(missing_files, missing_packages):
         # Sometimes the  output gives  several packages. The  program takes  the
         # first one and check if the package is already installed. If not, tuxml
         # installs it. Else it installs the next one
-        lines = output.decode("utf-8").splitlines()
+        lines = output.splitlines()
         i = 0
         status = 0
         while i < len(lines) and status == 0:
@@ -60,6 +60,12 @@ def build_dependencies_debian(missing_files, missing_packages):
             if status == 1:
                 missing_packages.append(package)
             i += 1
+
+        # if tuxml reaches the end of the packages list without installing any package
+        # it means that there is a problem with mf, so it returns an error
+        if i > len(lines) and status == 0:
+            tcom.pprint(1, "Unable to find the missing package(s)")
+            return -1
 
     tcom.pprint(0, "Dependencies built")
     return 0
@@ -88,18 +94,18 @@ def build_dependencies_redhat(missing_files, missing_packages):
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    pkg_manager = tcom.get_package_manager();
-    if pkg_manager == None:
-        return -2
+    # pkg_manager = tcom.get_package_manager();
+    # if tset.PKG_MANAGER == None:
+    #     return -2
 
-    tcom.update_system(pkg_manager)
+    tcom.update_system()
 
     # Install packages common to all distro
     tcom.pprint(2, "Installing default dependencies")
 
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
-    if tcom.install_packages(pkg_manager, common_pkgs) != 0:
+    if tcom.install_packages(common_pkgs) != 0:
         return -1
 
     # Now installation of packages with name that vary amongs distributions
@@ -119,7 +125,7 @@ def install_default_dependencies():
         "zypper":suse_specific
     }
 
-    if tcom.install_packages(pkg_manager, specific_pkgs[pkg_manager]) != 0:
+    if tcom.install_packages(specific_pkgs[tset.PKG_MANAGER]) != 0:
         return -1
     else:
         return 0

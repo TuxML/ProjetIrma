@@ -105,9 +105,8 @@ optional arguments:
 * ~~renommer installDependencies.py en tuxml_depman.py~~
 * ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
 * ~~utiliser tuxml_settings.py dans tuxml_sendDB.py~~
-* "fusionner" get_distro() et get_package_manager()
+* ~~"fusionner" get_distro() et get_package_manager()~~
 * ~~étendre l'argument `--debug` pour qu'il supporte aussi un chemin vers un .config spécifique.~~
-* ajout des arguments `--allyes` et `--allno` (incompatibles avec `--debug`)
 
 ## TPDIM.py (WIP)
 
