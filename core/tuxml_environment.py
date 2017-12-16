@@ -92,6 +92,7 @@ def __get_gcc_version():
 # - core_used The number of cores actually used during the compilation process.
 def get_compilation_details():
     env = {
+        "tuxml_version": subprocess.check_output(["./tuxml.py -V"], shell=True),
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
         "core_used": tset.NB_CORES
