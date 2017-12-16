@@ -13,7 +13,7 @@ import tuxml_settings as tset
 # authors : LE FLEM Erwan
 # retrieve informations about the operating system and return those in a form of a dictionary (with string both for keys and values).
 #
-# For example, print(get_hardware()["kernel"]) will display the kernel version.
+# For example, print(get_os_detail()["kernel"]) will display the kernel version.
 #
 # The keys of the returned dictionary are :
 # - os The name of the System, e.g Linux.
@@ -48,10 +48,10 @@ def get_hardware():
         for line in f:
             if line.strip():
                 if line.rstrip('\n').startswith('model name'):
-                    cpu_name = line.rstrip('\n').split(':')[1]
+                    cpu_name = line.rstrip('\n').split(':')[1].strip()
                 if line.rstrip('\n').startswith('cpu MHz'):
                     cpu_freq = line.rstrip('\n').split(':')[1]
-                    cpu_freq = cpu_freq.split('.')[0]
+                    cpu_freq = cpu_freq.split('.')[0].strip()
 
         with open('/proc/meminfo') as f:
             for line in f:
@@ -80,6 +80,11 @@ def __get_gcc_version():
         result = subprocess.run(["gcc", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.strip().split(' ')[2].split('\n')[0]
 
+def __get_tuxml_version():
+        path = os.path.dirname(os.path.abspath( __file__ ))
+        result = subprocess.run([path + "/tuxml.py", "-V"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        return result.split('.py')[1].split('\n')[0].strip()
+
 
 # authors : LE FLEM Erwan
 # retrieve informations about the compilation environment.
@@ -87,12 +92,13 @@ def __get_gcc_version():
 # For example, print(get_compilation_details["gcc_version"]) will display the installed version of gcc.
 #
 # The keys of the returned dictionary are :
+# - tuxml_version La version de tuxml.
 # - libc_version The libs version used.
 # - gcc_version The installed version of gcc.
 # - core_used The number of cores actually used during the compilation process.
 def get_compilation_details():
     env = {
-        "tuxml_version": subprocess.check_output(["./tuxml.py -V"], shell=True),
+        "tuxml_version": __get_tuxml_version(),
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
         "core_used": tset.NB_CORES
