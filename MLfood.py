@@ -101,7 +101,7 @@ for i in range(nb):
     os.system(errlogs)
     os.system(configFile)
 
-    # Clean all the containers used before.
+    # Clean all the containers used previously.
     if not "--no-clean" in argv:
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
