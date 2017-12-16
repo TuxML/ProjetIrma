@@ -1,2 +1,0 @@
-cpu,cpu_freq,ram,arch,cpu_cores,os,distribution,distib_version,kernel,tuxml_version,libc_version,gcc_version,core_used
-Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz,2800,8053608,x86_64,8,Linux,arch,,4.14.5-1-ARCH,pre-alpha v0.2,2.26,7.2.1,1
