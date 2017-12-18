@@ -11,30 +11,23 @@ import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
-
+import tuxml_environment as tenv
 
 # author : LEBRETON Mickael
 #
 # This function installs the missing packages
 #
 # return value :
-#   -3 distro or package manager not supported by TuxML
 #   -2 sys update failed
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
-    #TODO supprimer ligne avec distro et les remplacer par package manager
-
     build_dependencies = {
         "apt-get": tdep.build_dependencies_debian,
         "pacman":  tdep.build_dependencies_arch,
         "dnf":     tdep.build_dependencies_redhat,
         "yum":     tdep.build_dependencies_redhat
     }
-
-    # pkg_manager = tcom.get_package_manager()
-    # if tset.PKG_MANAGER == None:
-    #     return -3
 
     if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
         return -1
@@ -102,7 +95,7 @@ def compilation():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", tset.PATH, "-j", str(tset.NB_CORES)], stdout=std_logs, stderr=err_logs)
+        status = subprocess.call(["make", "-C", tset.PATH, "-j" + str(tset.NB_CORES)], stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         tcom.pprint(0, "Compilation done")
@@ -215,6 +208,9 @@ def args_handler():
 # [main description]
 def main():
     args_handler()
+
+    # get environment details
+    tset.TUXML_ENV = tenv.get_environment_details()
 
     # get the package manager
     tset.PKG_MANAGER = tcom.get_package_manager()

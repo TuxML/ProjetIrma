@@ -13,7 +13,7 @@ import tuxml_settings as tset
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_arch(missing_files, missing_packages):
-    if tset.VERBOSE:
+    if tset.VERBOSE > 0:
         tcom.pprint(3, "Arch based distro")
 
     return 0
@@ -27,17 +27,17 @@ def build_dependencies_arch(missing_files, missing_packages):
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_debian(missing_files, missing_packages):
-    if tset.VERBOSE:
+    if tset.VERBOSE > 0:
         tcom.pprint(3, "Debian based distro")
 
     cmd_search  = "apt-file search {}" # cherche dans quel paquet est le fichier
     cmd_check   = "dpkg-query -l | grep {}" # vérifie si le paquet est présent sur le système
 
-    if tset.VERBOSE and len(missing_files) > 0:
+    if tset.VERBOSE > 0 and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
 
     for mf in missing_files:
-        if tset.VERBOSE:
+        if tset.VERBOSE > 0:
             print(" " * 3 + mf)
 
         try:
@@ -79,7 +79,7 @@ def build_dependencies_debian(missing_files, missing_packages):
 #   -1 package not found
 #    0 installation OK
 def build_dependencies_redhat(missing_files, missing_packages):
-    if tset.VERBOSE:
+    if tset.VERBOSE > 0:
         tcom.pprint(3, "RedHat based distro")
 
     return 0
@@ -90,14 +90,9 @@ def build_dependencies_redhat(missing_files, missing_packages):
 # Install packages of required dependencies to compile the kernel
 #
 # return
-#   -2 No packages manager found
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    # pkg_manager = tcom.get_package_manager();
-    # if tset.PKG_MANAGER == None:
-    #     return -2
-
     tcom.update_system()
 
     # Install packages common to all distro

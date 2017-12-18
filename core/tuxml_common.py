@@ -13,7 +13,7 @@ def pprint(s, message):
 
     date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
 
-    if tset.VERBOSE:
+    if tset.VERBOSE > 0:
         print(status[s] + " " + date + message)
     else:
         print(status[s] + " " + message)
@@ -77,7 +77,9 @@ def install_packages(missing_packages):
 #   -1 Unable to update the package databate
 #    0 Successfull update
 def update_system():
-    # TODO : check on https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported about potential issues using -Sy instead of -Syu before installing pkgs.
+    # TODO : check on
+    # https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
+    # about potential issues using -Sy instead of -Syu before installing pkgs.
 
     pprint(2, "Updating packages repositories")
 
