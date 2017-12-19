@@ -37,6 +37,24 @@ def get_os_details():
     return system
 
 
+def __get_partition():
+        path = os.path.dirname(os.path.abspath( __file__ ))
+        result = subprocess.run(["stat", "--format=%m", path], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        return result.split('\n')[0].strip()
+
+def __get_mount_point():
+        #spaces near {} are here to handle the case where the partition where tuxml is used is \
+        result = subprocess.run(["cat /proc/mounts |grep \" {} \" ".format(__get_partition())],
+        shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
+        return result.split(' ')[0].strip()
+
+def __get_type_of_disk():
+    #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
+    disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
+    disk = disk.split("/")[2]
+    result = subprocess.run(["cat", "/sys/block/{}/queue/rotational".format(disk)], stdout=subprocess.PIPE, universal_newlines=True).stdout
+    return result.split('\n')[0].strip()
+
 # author : LE FLEM Erwan
 #
 # retrieve  informations  about  the  hardware and  return those in a  form of a
@@ -50,9 +68,12 @@ def get_os_details():
 # - arch The architecture of the CPU, e.g x86_64
 # - cpu_cores The number of  physical cores. Those  are the  physical cores, the
 #   virtual ones (i.e hyperthreading) are not counted.
-#
-# Note that the CPU cores here is the number of available cores, NOT  the number
-# core actually used during the kernel compilation.
+# - disk_type The type of disk where tuxml scripts are located :
+#   0 for a non mecanical drive (e.g SSD)
+#   1 for a classical mecanical hard disk.
+# Note that disk_type is currently not reliable on RAID disk.
+# Note that the CPU cores here is the number of available cores, NOT the number
+# of core actually used during the kernel compilation.
 def get_hardware_details():
     # TODO refactoring with smaller function
     with open('/proc/cpuinfo') as f:
@@ -76,7 +97,8 @@ def get_hardware_details():
         "cpu_freq": cpu_freq,
         "ram": memory,
         "arch": os.uname().machine,
-        "cpu_cores": multiprocessing.cpu_count()
+        "cpu_cores": multiprocessing.cpu_count(),
+        "mecanical_drive": __get_type_of_disk()
     }
 
     return hw
@@ -160,7 +182,6 @@ def main():
     print(hw)
     print(comp)
     export_as_csv(os, hw, comp)
-
 
 # ============================================================================ #
 
