@@ -12,6 +12,7 @@ import tuxml_common as tcom
 # tuxml_environment  is  a basic  utilitary to retreieve informations  about the
 # local machine, like the distribution, the kernel version or CPU info...
 
+# TODO pretty printer pour les dicos
 
 # author : LE FLEM Erwan
 #
@@ -135,7 +136,7 @@ def export_as_csv(os_details, hw_details, comp_details):
 
 # author : LEBRETON Mickaël
 #
-# Return all the environments details as a triplet.
+# Return all the environment details as a triplet.
 def get_environment_details():
     tcom.pprint(2, "Getting environment details")
     os   = get_os_details()
