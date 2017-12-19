@@ -14,3 +14,4 @@ OUTPUT = subprocess.DEVNULL
 NB_CORES = 0
 PKG_MANAGER = ""
 TUXML_ENV = None, None, None
+INCREMENTAL_MOD = False

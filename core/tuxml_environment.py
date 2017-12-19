@@ -14,6 +14,7 @@ import tuxml_common as tcom
 
 # TODO pretty printer pour les dicos
 
+
 # author : LE FLEM Erwan
 #
 # retrieve informations about the operating system and return those in a form of
@@ -42,11 +43,13 @@ def __get_partition():
         result = subprocess.run(["stat", "--format=%m", path], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.split('\n')[0].strip()
 
+
 def __get_mount_point():
         #spaces near {} are here to handle the case where the partition where tuxml is used is \
         result = subprocess.run(["cat /proc/mounts |grep \" {} \" ".format(__get_partition())],
         shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.split(' ')[0].strip()
+
 
 def __get_type_of_disk():
     #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
@@ -54,6 +57,7 @@ def __get_type_of_disk():
     disk = disk.split("/")[2]
     result = subprocess.run(["cat", "/sys/block/{}/queue/rotational".format(disk)], stdout=subprocess.PIPE, universal_newlines=True).stdout
     return result.split('\n')[0].strip()
+
 
 # author : LE FLEM Erwan
 #
@@ -71,6 +75,7 @@ def __get_type_of_disk():
 # - disk_type The type of disk where tuxml scripts are located :
 #   0 for a non mecanical drive (e.g SSD)
 #   1 for a classical mecanical hard disk.
+#
 # Note that disk_type is currently not reliable on RAID disk.
 # Note that the CPU cores here is the number of available cores, NOT the number
 # of core actually used during the kernel compilation.
@@ -128,16 +133,18 @@ def __get_tuxml_version():
 # installed version of gcc.
 #
 # The keys of the returned dictionary are :
-# - tuxml_version La version de tuxml.
+# - tuxml_version TuxML version.
 # - libc_version The libs version used.
 # - gcc_version The installed version of gcc.
 # - core_used The number of cores actually used during the compilation process.
+# - incremental_mod True if TuxML didn't erase files from previous compilations.
 def get_compilation_details():
     env = {
         "tuxml_version": __get_tuxml_version(),
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
-        "core_used": tset.NB_CORES
+        "core_used": tset.NB_CORES,
+        "incremental_mod": tset.INCREMENTAL_MOD
     }
     return env
 

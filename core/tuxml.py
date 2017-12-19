@@ -132,6 +132,7 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default TuxML use all the availables cores on the"
     c_help += "system."
+    nc_help = "do not erase files from previous compilations."
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
@@ -139,7 +140,7 @@ def args_handler():
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
-
+    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -163,6 +164,13 @@ def args_handler():
         sys.exit(-1)
     else:
         tset.PATH = args.source_path
+
+    # enable or disable incremental mod (clean or not clean, that's the question)
+    tset.INCREMENTAL_MOD = args.no_clean
+    if not args.no_clean:
+        # cleaning previous compilation
+        tcom.pprint(2, "Cleaning previous compilation")
+        subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
     # handle debug mode
     if args.debug:
@@ -192,10 +200,7 @@ def args_handler():
                     tcom.pprint(1, "Invalid KCONFIG_SEED or KCONFIG_FILE doesn't exist")
                     sys.exit(-1)
     else:
-        # cleaning previous compilation and generating new KConfig file
-        tcom.pprint(2, "Cleaning previous compilation")
-        subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-
+        # generating new KConfig file
         tcom.pprint(2, "Randomising new config file")
         output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
@@ -249,7 +254,6 @@ def main():
 
     # testing kernel
     if status == 0:
-        tcom.pprint(0, "Testing the kernel config")
         status = end_time - start_time
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
