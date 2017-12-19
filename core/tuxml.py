@@ -201,7 +201,6 @@ def args_handler():
 
     # set the number of cores
     if args.cores:
-        print("args")
         tset.NB_CORES = args.cores
     else:
         try:
