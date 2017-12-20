@@ -13,6 +13,7 @@ import tuxml_settings as tset
 import tuxml_depman as tdep
 import tuxml_environment as tenv
 
+
 # author : LEBRETON Mickael
 #
 # This function installs the missing packages
@@ -31,9 +32,6 @@ def install_missing_packages(missing_files, missing_packages):
 
     if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
         return -1
-
-    if tcom.update_system() != 0:
-        return -2
 
     if tcom.install_packages(missing_packages) != 0:
         return -1
@@ -124,22 +122,26 @@ def args_handler():
     msg += "Thanks !\n\n"
 
     p_help  = "path to the Linux source directory"
-    v_help  = "increase output verbosity"
+    v_help  = "increase or decrease output verbosity\n"
+    v_help += " " * 2 + "0 : quiet\n"
+    v_help += " " * 2 + "1 : normal\n"
+    v_help += " " * 2 + "2 : chatty\n"
     V_help  = "display TuxML version and exit"
     d_help  = "debug a given KCONFIG_SEED  or  KCONFIG_FILE. If no seed\n"
     d_help += "or file are  given, the script  will  use  the  existing\n"
     d_help += "KCONFIG_FILE in the linux source directory"
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
-    c_help += "compilation. By default TuxML use all the availables cores on the"
-    c_help += "system."
+    c_help += "compilation. By default  TuxML  use all  the  availables\n"
+    c_help += "cores on the system."
     nc_help = "do not erase files from previous compilations."
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
-    parser.add_argument("-v", "--verbose", help=v_help, type=int, nargs='?', const=1, choices=[1,2])
+
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, default=1, choices=[0,1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
-    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG_SEED | KCONFIG_FILE", nargs='?', const=-1)
+    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
     parser.add_argument("--no-clean", help=nc_help, action ="store_true")
     args = parser.parse_args()
 
@@ -151,9 +153,9 @@ def args_handler():
 
     # manage level of verbosity
     if args.verbose:
-        tset.VERBOSE  = True
+        tset.VERBOSE  = args.verbose
 
-        if args.verbose == 2:
+        if tset.VERBOSE > 1:
             tset.OUTPUT = sys.__stdout__
     else:
         tset.VERBOSE  = False
@@ -214,6 +216,7 @@ def args_handler():
             tcom.pprint(1, "Wrong number of CPU cores value")
             sys.exit(-1)
 
+
 # author : LEBRETON Mickael
 #
 # Main function
@@ -226,6 +229,10 @@ def main():
     # get the package manager
     tset.PKG_MANAGER = tcom.get_package_manager()
     if tset.PKG_MANAGER == None:
+        sys.exit(-1)
+
+    # updating package database
+    if tcom.update_system() != 0:
         sys.exit(-1)
 
     # install default packages

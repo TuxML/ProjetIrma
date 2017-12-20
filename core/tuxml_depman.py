@@ -93,15 +93,10 @@ def build_dependencies_redhat(missing_files, missing_packages):
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    tcom.update_system()
-
     # Install packages common to all distro
     tcom.pprint(2, "Installing default dependencies")
 
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
-
-    if tcom.install_packages(common_pkgs) != 0:
-        return -1
 
     # Now installation of packages with name that vary amongs distributions
     # TODO ajouter les paquets python3-pip, mysql-client?, libmariadbclient-dev, mysql-server?
@@ -120,7 +115,7 @@ def install_default_dependencies():
         "zypper":suse_specific
     }
 
-    if tcom.install_packages(specific_pkgs[tset.PKG_MANAGER]) != 0:
+    if tcom.install_packages(common_pkgs + specific_pkgs[tset.PKG_MANAGER]) != 0:
         return -1
     else:
         return 0

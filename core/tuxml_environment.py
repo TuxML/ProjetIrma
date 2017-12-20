@@ -23,11 +23,14 @@ import tuxml_common as tcom
 # For example, print(get_os_details()["kernel"]) will display the kernel version.
 #
 # The keys of the returned dictionary are :
-# - os The name of the System, e.g Linux.
-# - distribution The specific distribution e.g Debian, Arch, and so on...
-# - version The version of the distribution, currently  it only  return an empty
-#   string.
-# - kernel the version of the kernel
+#   - os The name of the System, e.g Linux.
+#   - distribution The specific distribution e.g Debian, Arch, and so on...
+#   - version The version of the distribution, currently  it only  return an empty
+#     string.
+#   - kernel the version of the kernel
+#
+# return value :
+#   system The dictionary
 def get_os_details():
     system = {
         "os": os.uname().sysname,
@@ -79,6 +82,9 @@ def __get_type_of_disk():
 # Note that disk_type is currently not reliable on RAID disk.
 # Note that the CPU cores here is the number of available cores, NOT the number
 # of core actually used during the kernel compilation.
+#
+# return value :
+#   hw The dictionary
 def get_hardware_details():
     # TODO refactoring with smaller function
     with open('/proc/cpuinfo') as f:
@@ -102,18 +108,20 @@ def get_hardware_details():
         "cpu_freq": cpu_freq,
         "ram": memory,
         "arch": os.uname().machine,
-        "cpu_cores": multiprocessing.cpu_count(),
+        "cpu_cores": str(multiprocessing.cpu_count()),
         "mecanical_drive": __get_type_of_disk()
     }
 
     return hw
 
 
+# TODO enlever la parenthèse à la fin
 def __get_libc_version():
         result = subprocess.run(["ldd", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.strip().split(' ')[3].split('\n')[0]
 
 
+# TODO enlever la parenthèse à la fin
 def __get_gcc_version():
         result = subprocess.run(["gcc", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.strip().split(' ')[2].split('\n')[0]
@@ -138,15 +146,18 @@ def __get_tuxml_version():
 # - gcc_version The installed version of gcc.
 # - core_used The number of cores actually used during the compilation process.
 # - incremental_mod True if TuxML didn't erase files from previous compilations.
+#
+# return value :
+#   comp The dictionary
 def get_compilation_details():
-    env = {
+    comp = {
         "tuxml_version": __get_tuxml_version(),
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
-        "core_used": tset.NB_CORES,
-        "incremental_mod": tset.INCREMENTAL_MOD
+        "core_used": str(tset.NB_CORES),
+        "incremental_mod": str(tset.INCREMENTAL_MOD)
     }
-    return env
+    return comp
 
 
 # author : LE FLEM Erwan
@@ -165,30 +176,47 @@ def export_as_csv(os_details, hw_details, comp_details):
 
 # author : LEBRETON Mickaël
 #
-# Return all the environment details as a triplet.
+# Display all the environment's details
+def environment_pprinter(env_details):
+    for dico in env_details:
+        print(" " * 4 + "==> "+ dico)
+        for key in env_details[dico]:
+            print(" " * 6 + "--> " + key + ": " + env_details[dico][key])
+
+
+# author : LEBRETON Mickaël
+#
+# Get all the environment's details thanks to the getters, print them and return
+# the result as a dictionnary.
+#
+# The keys are :
+#   - system Result of the system getter function
+#   - hardware Result of the hardware getter function
+#   - compilation Result of the compilation getter function
+#
+# return value :
+#   env The dictionary
 def get_environment_details():
     tcom.pprint(2, "Getting environment details")
-    os   = get_os_details()
-    hw   = get_hardware_details()
-    comp = get_compilation_details()
+    env = {
+        "system": get_os_details(),
+        "hardware": get_hardware_details(),
+        "compilation": get_compilation_details()
+    }
 
-    # TODO pretty pretting
     if tset.VERBOSE > 0:
-        print(os)
-        print(hw)
-        print(comp)
+        environment_pprinter(env)
 
-    export_as_csv(os, hw, comp)
-    return os, hw, comp
+    # TODO changer ça car c'est très moche :
+    export_as_csv(env["system"], env["hardware"], env["compilation"])
+
+    return env
 
 
-# Code de test (temporaire).
+# Test code (temp)
 def main():
-    os, hw, comp = get_environment_details()
-    print(os)
-    print(hw)
-    print(comp)
-    export_as_csv(os, hw, comp)
+    env = get_environment_details()
+    environment_pprinter(env)
 
 # ============================================================================ #
 
