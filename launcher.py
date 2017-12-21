@@ -141,12 +141,10 @@ def main():
         if docker_run_image(i % len(DOCKER_IMGS), launch_time) != 0:
             sys.exit(-1)
 
-        # docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
-        # if docker_cp_logfiles(docker_id, launch_time) != 0:
-        #     sys.exit(-1)
+        docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
+        if docker_cp_logfiles(docker_id, launch_time) != 0:
+            sys.exit(-1)
 
-
-    print("end")
 
 # ============================================================================ #
 
