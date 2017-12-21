@@ -11,7 +11,7 @@ def pprint(s, message):
     # success, error, message, debug, warning
     status = ["[+]", "[-]", "[*]", "[#]", "[!]"]
 
-    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
+    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.localtime(time.time()))
 
     if tset.VERBOSE > 0:
         print(status[s] + " " + date + message)

@@ -19,7 +19,6 @@ import tuxml_environment as tenv
 # This function installs the missing packages
 #
 # return value :
-#   -2 sys update failed
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
@@ -138,7 +137,7 @@ def args_handler():
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
 
-    parser.add_argument("-v", "--verbose", help=v_help, type=int, default=1, choices=[0,1,2])
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
@@ -153,12 +152,12 @@ def args_handler():
 
     # manage level of verbosity
     if args.verbose:
-        tset.VERBOSE  = args.verbose
+        tset.VERBOSE = args.verbose
 
         if tset.VERBOSE > 1:
             tset.OUTPUT = sys.__stdout__
     else:
-        tset.VERBOSE  = False
+        tset.VERBOSE = 1
 
     # store the linux source path in a global var
     if not os.path.exists(args.source_path):
