@@ -109,7 +109,7 @@ def get_hardware_details():
         "ram": memory,
         "arch": os.uname().machine,
         "cpu_cores": str(multiprocessing.cpu_count()),
-        "mecanical_drive": __get_type_of_disk()
+        # "mecanical_drive": __get_type_of_disk()
     }
 
     return hw
