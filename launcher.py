@@ -6,14 +6,15 @@ import time
 import subprocess
 import argparse
 
-NB_DOCKERS = 0
+
+NB_DOCKERS  = 0
 DOCKER_IMGS = ["micleb/debiantuxml:latest"] # list of docker images
-VERBOSE = 1
-OUTPUT = subprocess.DEVNULL
-TUXML_PATH = "/TuxML/"
-TUXLOGS = TUXML_PATH + "Logs/"
-KDIR = TUXML_PATH + "linux-4.13.3/"
-KLOGS = KDIR + "logs/"
+VERBOSE     = 1
+OUTPUT      = subprocess.DEVNULL
+TDIR        = "/TuxML/"
+TLOGS       = TDIR + "logs/"
+KDIR        = TDIR + "linux-4.13.3/"
+KLOGS       = KDIR + "logs/"
 
 
 def args_handler():
@@ -24,7 +25,7 @@ def args_handler():
     n_help  = "number of dockers to launch, minimum 1, maximum 50"
     v_help  = "increase or decrease output verbosity\n"
     v_help += " " * 2 + "0 : quiet\n"
-    v_help += " " * 2 + "1 : normal\n"
+    v_help += " " * 2 + "1 : normal (default)\n"
     v_help += " " * 2 + "2 : chatty\n"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
@@ -59,7 +60,7 @@ def args_handler():
         VERBOSE = 1
 
 
-def docker_pull_image(i):
+def start_container(i):
     print("==> Recovering latest docker image")
     status = subprocess.call(["docker pull " + DOCKER_IMGS[i]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -71,32 +72,10 @@ def docker_pull_image(i):
         return 0
 
 
-def git_fetch_and_checkout(docker_id, i):
-    print("==> Downloading TuxML repository")
-
-    git_cmd = "'cd " + TUXML_PATH + "; git fetch; git checkout dev'"
-    cmd = "docker run -it " + DOCKER_IMGS[i] + " sh -c " + git_cmd
-    status = subprocess.call([cmd], stdout=OUTPUT, stderr=OUTPUT, shell=True)
-
-    if status != 0:
-        print("--> Error\n")
-        return -1
-    else:
-        print("--> Done\n")
-        return 0
-
-
-def docker_run_image(i, launch_time):
-    sh  = "'cd " + TUXML_PATH + ";"
-    sh += "git fetch;"
-    sh += "git checkout dev;"
-    sh += "./tuxLogs.py | tee output.log'"
-
-    cmd = "docker run -it " + DOCKER_IMGS[i] + " bash -c " + sh
-
+def start_tuxml(docker_id, i):
     print("==> Running docker #{0:02d} ".format(i+1))
-    print(cmd)
     print("+" + "-" * 78 + "+")
+    cmd = "docker run -it " + docker_id + "./launcher.sh"
     status = subprocess.call([cmd], shell=True)
     print("+" + "-" * 78 + "+")
 
@@ -106,12 +85,14 @@ def docker_run_image(i, launch_time):
         return 0
 
 
-def docker_cp_logfiles(docker_id, launch_time):
-    print("==> Copying logfiles to " + TUXLOGS + launch_time + "/ ...")
-    logfiles = [KLOGS + "std.log", KLOGS + "err.log", KDIR + ".config", TUXML_PATH + "output.log"]
+def get_logfiles(docker_id, launch_time):
+    print("==> Copying log files to " + TLOGS + launch_time + "/")
+
+    os.makedirs(TLOGS + launch_time)
+    logfiles = [KLOGS + "std.log", KLOGS + "err.log", KDIR + ".config", TLOGS + "output.log"]
 
     for logfile in logfiles:
-        cmd = "docker cp " + docker_id + ":" + logfile + " " + TUXLOGS + launch_time + "/"
+        cmd = "docker cp " + docker_id + ":" + logfile + " " + TLOGS + launch_time + "/"
         status = subprocess.call([cmd], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     if status != 0:
@@ -121,28 +102,37 @@ def docker_cp_logfiles(docker_id, launch_time):
         print("--> Done\n")
         return 0
 
+def clean_containers():
+    print("==> Cleaning containers")
+    status = subprocess.call(["docker rm -v $(docker ps -aq)"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+
+    if status != 0:
+        print("--> Error\n")
+        return -1
+    else:
+        print("--> Done\n")
+        return 0
 
 def main():
     args_handler()
 
-    if not os.path.exists(TUXLOGS):
-        os.makedirs(TUXLOGS)
+    if not os.path.exists(TLOGS):
+        os.makedirs(TLOGS)
 
     for i in range(0, NB_DOCKERS):
-        if docker_pull_image(i % len(DOCKER_IMGS)) != 0:
-            sys.exit(-1)
-
-        if git_fetch_and_checkout(i % len(DOCKER_IMGS)) != 0:
-            sys.exit(-1)
-
-        launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        os.makedirs(TUXLOGS + launch_time)
-
-        if docker_run_image(i % len(DOCKER_IMGS), launch_time) != 0:
+        if start_container(i % len(DOCKER_IMGS)) != 0:
             sys.exit(-1)
 
         docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
-        if docker_cp_logfiles(docker_id, launch_time) != 0:
+        launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
+
+        if start_tuxml(docker_id, i % len(DOCKER_IMGS)) != 0:
+            sys.exit(-1)
+
+        if get_logfiles(docker_id, launch_time) != 0:
+            sys.exit(-1)
+
+        if clean_containers() != 0:
             sys.exit(-1)
 
 
