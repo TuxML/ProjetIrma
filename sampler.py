@@ -75,8 +75,7 @@ def docker_pull(i):
 def docker_run(i):
     print("==> Running docker #{0:02d} ".format(i+1))
     print("+" + "-" * 78 + "+")
-    cmd = "docker run -it " + docker_id + "./launcher.sh"
-    status = subprocess.call([cmd], shell=True)
+    status = subprocess.call(["docker run -it " + DOCKER_IMGS[i] + "./launcher.sh"], shell=True)
     print("+" + "-" * 78 + "+")
 
     if status != 0:
