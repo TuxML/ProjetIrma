@@ -78,7 +78,7 @@ def docker_run(i):
     cmd += "git fetch;"
     cmd += "git checkout dev;"
     cmd += "mkdir logs;"
-    cmd += "./core/tuxml.py linux-4.13.3/ | tee logs/output.log;"
+    cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;"
 
     print("+" + "-" * 78 + "+")
     status = subprocess.call(["docker run -it " + DOCKER_IMGS[i] + " sh -c " + cmd], shell=True)
