@@ -1,6 +1,7 @@
 #!/bin/sh
 
-cd /Tuxml;
+ls -ail;
+cd /TuxML;
 git fetch;
 git checkout dev;
 mkdir logs;
