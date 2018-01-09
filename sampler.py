@@ -96,7 +96,7 @@ def docker_run(i):
 
 
 def docker_cp(docker_id, launch_time):
-    print("==> Copying log files to " + TLOGS + launch_time + "/")
+    print("==> Copying log files to ./logs/" + launch_time + "/")
 
     if not os.path.exists("logs/"):
         os.makedirs("logs/")
