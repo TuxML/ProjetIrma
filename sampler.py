@@ -74,14 +74,16 @@ def docker_pull(i):
 
 def docker_run(i):
     print("==> Running docker #{0:02d} ".format(i+1))
-    cmd  = "cd /TuxML;"
+
+    cmd  = "'cd /TuxML;ls -ail;"
     cmd += "git fetch;"
     cmd += "git checkout dev;"
     cmd += "mkdir logs;"
-    cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;"
+    cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
     print("+" + "-" * 78 + "+")
-    status = subprocess.call(["docker run -it " + DOCKER_IMGS[i] + " sh -c " + cmd], shell=True)
+    print(cmd)
+    status = subprocess.call(["docker run -it " + DOCKER_IMGS[i] + " bash -c " + cmd], shell=True)
     print("+" + "-" * 78 + "+")
 
     if status != 0:
