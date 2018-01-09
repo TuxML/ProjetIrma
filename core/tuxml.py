@@ -44,7 +44,7 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    nc_help = "do not erase files from previous compilations."
+    nc_help = "do not erase files from previous compilations"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)

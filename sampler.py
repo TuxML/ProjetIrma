@@ -15,7 +15,7 @@ TDIR        = "/TuxML/"
 TLOGS       = TDIR + "logs/"
 KDIR        = TDIR + "linux-4.13.3/"
 KLOGS       = KDIR + "logs/"
-
+NO_CLEAN    = False
 
 def args_handler():
     global NB_DOCKERS, OUTPUT
@@ -27,11 +27,13 @@ def args_handler():
     v_help += " " * 2 + "0 : quiet\n"
     v_help += " " * 2 + "1 : normal (default)\n"
     v_help += " " * 2 + "2 : chatty\n"
+    nc_help = "do not clean containers"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("nbdockers", help=n_help, metavar="NB_DOCKERS", type=int)
 
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
+    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -58,6 +60,8 @@ def args_handler():
             OUTPUT = sys.__stdout__
     else:
         VERBOSE = 1
+
+    NO_CLEAN = args.no_clean
 
 
 def docker_pull(i):
@@ -137,8 +141,9 @@ def main():
         if docker_cp(docker_id, launch_time) != 0:
             sys.exit(-1)
 
-        if clean_containers() != 0:
-            sys.exit(-1)
+        if not NO_CLEAN:
+            if clean_containers() != 0:
+                sys.exit(-1)
 
 
 # ============================================================================ #
