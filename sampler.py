@@ -100,12 +100,17 @@ def docker_cp(docker_id, launch_time):
 
     if not os.path.exists("logs/"):
         os.makedirs("logs/")
-        
+
     os.makedirs("./logs/" + launch_time)
     logfiles = [KLOGS + "std.log", KLOGS + "err.log", KDIR + ".config", TLOGS + "output.log"]
 
-    for logfile in logfiles:
-        cmd = "docker cp " + docker_id + ":" + logfile + " ./logs/" + launch_time + "/"
+    for srcfile in logfiles:
+        if srcfile == KDIR + ".config":
+            destfile = launch_time + ".config"
+        else:
+            destfile = os.path.basename(srcfile)
+
+        cmd = "docker cp " + docker_id + ":" + srcfile + " ./logs/" + launch_time + "/" + destfile
         status = subprocess.call([cmd], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     if status != 0:
