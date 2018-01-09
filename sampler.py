@@ -60,7 +60,7 @@ def args_handler():
         VERBOSE = 1
 
 
-def start_container(i):
+def docker_pull(i):
     print("==> Recovering latest docker image")
     status = subprocess.call(["docker pull " + DOCKER_IMGS[i]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -72,7 +72,7 @@ def start_container(i):
         return 0
 
 
-def start_tuxml(docker_id, i):
+def docker_run(i):
     print("==> Running docker #{0:02d} ".format(i+1))
     print("+" + "-" * 78 + "+")
     cmd = "docker run -it " + docker_id + "./launcher.sh"
@@ -85,7 +85,7 @@ def start_tuxml(docker_id, i):
         return 0
 
 
-def get_logfiles(docker_id, launch_time):
+def docker_cp(docker_id, launch_time):
     print("==> Copying log files to " + TLOGS + launch_time + "/")
 
     os.makedirs(TLOGS + launch_time)
@@ -120,16 +120,15 @@ def main():
         os.makedirs(TLOGS)
 
     for i in range(0, NB_DOCKERS):
-        if start_container(i % len(DOCKER_IMGS)) != 0:
+        if docker_pull(i % len(DOCKER_IMGS)) != 0:
+            sys.exit(-1)
+
+        launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
+        if docker_run(i % len(DOCKER_IMGS)) != 0:
             sys.exit(-1)
 
         docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
-        launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-
-        if start_tuxml(docker_id, i % len(DOCKER_IMGS)) != 0:
-            sys.exit(-1)
-
-        if get_logfiles(docker_id, launch_time) != 0:
+        if docker_cp(docker_id, launch_time) != 0:
             sys.exit(-1)
 
         if clean_containers() != 0:

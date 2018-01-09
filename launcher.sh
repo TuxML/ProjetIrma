@@ -1,6 +1,5 @@
 #!/bin/sh
 
-ls -ail;
 cd /TuxML;
 git fetch;
 git checkout dev;
