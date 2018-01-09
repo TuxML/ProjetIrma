@@ -18,9 +18,9 @@ KLOGS       = KDIR + "logs/"
 NO_CLEAN    = False
 
 def args_handler():
-    global NB_DOCKERS, OUTPUT
+    global NB_DOCKERS, OUTPUT, NO_CLEAN
 
-    msg  = "Welcome, this is the launcher.\n\n"
+    msg  = "The sampler allows you to run tuxml.py on many docker images.\n\n"
 
     n_help  = "number of dockers to launch, minimum 1, maximum 50"
     v_help  = "increase or decrease output verbosity\n"
@@ -98,11 +98,14 @@ def docker_run(i):
 def docker_cp(docker_id, launch_time):
     print("==> Copying log files to " + TLOGS + launch_time + "/")
 
-    os.makedirs(TLOGS + launch_time)
+    if not os.path.exists("logs/"):
+        os.makedirs("logs/")
+        
+    os.makedirs("./logs/" + launch_time)
     logfiles = [KLOGS + "std.log", KLOGS + "err.log", KDIR + ".config", TLOGS + "output.log"]
 
     for logfile in logfiles:
-        cmd = "docker cp " + docker_id + ":" + logfile + " " + TLOGS + launch_time + "/"
+        cmd = "docker cp " + docker_id + ":" + logfile + " ./logs/" + launch_time + "/"
         status = subprocess.call([cmd], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     if status != 0:
@@ -136,6 +139,7 @@ def main():
         launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
         if docker_run(i % len(DOCKER_IMGS)) != 0:
             sys.exit(-1)
+
 
         docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
         if docker_cp(docker_id, launch_time) != 0:
