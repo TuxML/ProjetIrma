@@ -75,7 +75,7 @@ def docker_pull(i):
 def docker_run(i):
     print("==> Running docker #{0:02d} ".format(i+1))
 
-    cmd  = "'cd /TuxML;
+    cmd  = "'cd /TuxML;"
     cmd += "git fetch;"
     cmd += "git checkout dev;"
     cmd += "mkdir logs;"
