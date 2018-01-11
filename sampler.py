@@ -5,12 +5,14 @@ import os
 import time
 import subprocess
 import argparse
+import random
 
 # TODO ajouter image fedora
 # TODO commentaires
 
 NB_DOCKERS  = 0
-DOCKER_IMGS = ["micleb/debian_tuxml_{}:latest", "micleb/arch_tuxml_{}:latest"]
+DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
+                "micleb/arch_tuxml_{}:latest"]
 IMAGE       = ""
 BRANCH      = ""
 VERBOSE     = 1
@@ -80,9 +82,9 @@ def args_handler():
         VERBOSE = 1
 
 
-def docker_pull(i):
+def docker_pull(docker_img):
     print("==> Recovering latest docker image")
-    status = subprocess.call(["docker pull " + DOCKER_IMGS[i].format(IMAGE)], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    status = subprocess.call(["docker pull " + docker_img], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     if status != 0:
         print("--> Error\n")
@@ -92,8 +94,8 @@ def docker_pull(i):
         return 0
 
 
-def docker_run(i):
-    print("==> Running docker #{0:02d} ".format(i+1))
+def docker_run(docker_img, i):
+    print("==> Running docker #{0:02d}".format(i+1) + " on " + docker_img)
 
     cmd  = "'cd /TuxML;"
     cmd += "git fetch;"
@@ -102,7 +104,7 @@ def docker_run(i):
     cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
     print("+" + "-" * 78 + "+")
-    status = subprocess.call(["docker run -it " + DOCKER_IMGS[i].format(IMAGE) + " bash -c " + cmd], shell=True)
+    status = subprocess.call(["docker run -it " + docker_img + " bash -c " + cmd], shell=True)
     print("+" + "-" * 78 + "+")
 
     if status != 0:
@@ -157,11 +159,13 @@ def main():
         os.makedirs(TLOGS)
 
     for i in range(0, NB_DOCKERS):
-        if docker_pull(i % len(DOCKER_IMGS)) != 0:
+        img = DOCKER_IMGS[random.randrange(0, len(DOCKER_IMGS), 1)].format(IMAGE)
+
+        if docker_pull(img) != 0:
             sys.exit(-1)
 
         launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        if docker_run(i % len(DOCKER_IMGS)) != 0:
+        if docker_run(img, i) != 0:
             sys.exit(-1)
 
 
