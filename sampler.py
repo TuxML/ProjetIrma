@@ -134,7 +134,9 @@ def docker_cp(docker_id, launch_time):
             return -1
         else:
             print("--> Done : {}".format(srcfile))
-            return 0
+
+    print("")
+    return 0
 
 def clean_containers():
     print("==> Cleaning containers")
