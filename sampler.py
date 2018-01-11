@@ -97,7 +97,7 @@ def docker_run(i):
 
     cmd  = "'cd /TuxML;"
     cmd += "git fetch;"
-    cmd += "git checkout dev;"
+    cmd += "git checkout {};".format(BRANCH)
     cmd += "mkdir logs;"
     cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
