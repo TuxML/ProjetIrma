@@ -46,14 +46,14 @@ def args_handler():
     c_help += "cores on the system."
     nc_help = "do not erase files from previous compilations"
 
-    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description="", formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
 
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
-    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
+    parser.add_argument("--no-clean", help=nc_help, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials

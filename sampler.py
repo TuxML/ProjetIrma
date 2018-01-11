@@ -5,10 +5,16 @@ import os
 import time
 import subprocess
 import argparse
+import random
 
+# TODO ajouter image fedora
+# TODO commentaires
 
 NB_DOCKERS  = 0
-DOCKER_IMGS = ["micleb/debiantuxml:latest"] # list of docker images
+DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
+                "micleb/arch_tuxml_{}:latest"]
+IMAGE       = ""
+BRANCH      = ""
 VERBOSE     = 1
 OUTPUT      = subprocess.DEVNULL
 TDIR        = "/TuxML/"
@@ -18,22 +24,39 @@ KLOGS       = KDIR + "logs/"
 NO_CLEAN    = False
 
 def args_handler():
-    global NB_DOCKERS, OUTPUT, NO_CLEAN
+    global NB_DOCKERS, OUTPUT, NO_CLEAN, VERBOSE, BRANCH, IMAGE
 
-    msg  = "The sampler allows you to run tuxml.py on many docker images.\n\n"
+    msg  = "The  sampler  allows   you   to   run  tuxml.py   through   many  docker  images\n"
+    msg += "sequentially.\n"
+    msg += "At  the  end  of  the tuxml execution, the  sampler retrieves  the  logs (stdout,\n"
+    msg += "stderr, tuxml's output and kconfig file) from the docker container and saved them\n"
+    msg += "to the Tuxml/logs folder.\n\n"
 
-    n_help  = "number of dockers to launch, minimum 1, maximum 50"
+    n_help  = "number of dockers to launch, minimum 1"
     v_help  = "increase or decrease output verbosity\n"
     v_help += " " * 2 + "0 : quiet\n"
     v_help += " " * 2 + "1 : normal (default)\n"
     v_help += " " * 2 + "2 : chatty\n"
     nc_help = "do not clean containers"
+    i_help  = "two kinds of images are available\n"
+    i_help += " " * 2 + "prod : TuxML is  already included  in the docker\n"
+    i_help += " " * 9 + "image. This is the fastest way. (default)\n"
+    i_help += " " * 2 + "dev  : download  TuxML  repository  from  GitHub\n"
+    i_help += " " * 9 + "before starting the compilation\n"
+    b_help  = "choose which  version of TuxML to  execute between\n"
+    b_help += "master and dev\n"
+    b_help += " " * 2 + "master : last stable version (default)\n"
+    b_help += " " * 2 + "dev    : last up-to-date version\n"
+    V_help  = "display the sampler version and exit"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("nbdockers", help=n_help, metavar="NB_DOCKERS", type=int)
 
+    parser.add_argument("-b", "--branch", help=b_help, metavar="BRANCH", choices=["master", "dev"], default="master")
+    parser.add_argument("-i", "--image", help=i_help, metavar="IMAGE", choices=["prod", "dev"], default="prod")
+    parser.add_argument("--no-clean", help=nc_help, action="store_true")
+    parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.3')
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
-    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -46,11 +69,14 @@ def args_handler():
     if args.nbdockers < v_min:
         parser.error("Minimum value for NB_DOCKERS is {}".format(v_min))
 
-    v_max = 50
-    if args.nbdockers > v_max:
-        parser.error("Maximum value for NB_DOCKERS is {}".format(v_max))
-
     NB_DOCKERS = args.nbdockers
+    IMAGE      = args.image
+    BRANCH     = args.branch
+    NO_CLEAN   = args.no_clean
+
+    if args.image == "prod":
+        print("Prod images are currently not availables")
+        sys.exit(-1)
 
     # manage level of verbosity
     if args.verbose:
@@ -61,12 +87,10 @@ def args_handler():
     else:
         VERBOSE = 1
 
-    NO_CLEAN = args.no_clean
 
-
-def docker_pull(i):
+def docker_pull(docker_img):
     print("==> Recovering latest docker image")
-    status = subprocess.call(["docker pull " + DOCKER_IMGS[i]], stdout=OUTPUT, stderr=OUTPUT, shell=True)
+    status = subprocess.call(["docker pull " + docker_img], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
     if status != 0:
         print("--> Error\n")
@@ -76,17 +100,17 @@ def docker_pull(i):
         return 0
 
 
-def docker_run(i):
-    print("==> Running docker #{0:02d} ".format(i+1))
+def docker_run(docker_img, i):
+    print("==> Running docker #{0:02d}".format(i+1) + " on " + docker_img)
 
     cmd  = "'cd /TuxML;"
     cmd += "git fetch;"
-    cmd += "git checkout dev;"
+    cmd += "git checkout {};".format(BRANCH)
     cmd += "mkdir logs;"
     cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
     print("+" + "-" * 78 + "+")
-    status = subprocess.call(["docker run -it " + DOCKER_IMGS[i] + " bash -c " + cmd], shell=True)
+    status = subprocess.call(["docker run -it " + docker_img + " bash -c " + cmd], shell=True)
     print("+" + "-" * 78 + "+")
 
     if status != 0:
@@ -96,7 +120,7 @@ def docker_run(i):
 
 
 def docker_cp(docker_id, launch_time):
-    print("==> Copying log files to " + TLOGS + launch_time + "/")
+    print("==> Copying log files to ./logs/" + launch_time + "/")
 
     if not os.path.exists("logs/"):
         os.makedirs("logs/")
@@ -113,12 +137,14 @@ def docker_cp(docker_id, launch_time):
         cmd = "docker cp " + docker_id + ":" + srcfile + " ./logs/" + launch_time + "/" + destfile
         status = subprocess.call([cmd], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
-    if status != 0:
-        print("--> Error\n")
-        return -1
-    else:
-        print("--> Done\n")
-        return 0
+        if status != 0:
+            print("--> Error : {}".format(srcfile))
+            return -1
+        else:
+            print("--> Done : {}".format(srcfile))
+
+    print("")
+    return 0
 
 def clean_containers():
     print("==> Cleaning containers")
@@ -131,6 +157,7 @@ def clean_containers():
         print("--> Done\n")
         return 0
 
+
 def main():
     args_handler()
 
@@ -138,11 +165,13 @@ def main():
         os.makedirs(TLOGS)
 
     for i in range(0, NB_DOCKERS):
-        if docker_pull(i % len(DOCKER_IMGS)) != 0:
+        img = DOCKER_IMGS[random.randrange(0, len(DOCKER_IMGS), 1)].format(IMAGE)
+
+        if docker_pull(img) != 0:
             sys.exit(-1)
 
         launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        if docker_run(i % len(DOCKER_IMGS)) != 0:
+        if docker_run(img, i) != 0:
             sys.exit(-1)
 
 
