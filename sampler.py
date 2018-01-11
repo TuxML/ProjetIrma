@@ -26,7 +26,11 @@ NO_CLEAN    = False
 def args_handler():
     global NB_DOCKERS, OUTPUT, NO_CLEAN, VERBOSE, BRANCH, IMAGE
 
-    msg  = "The sampler allows you to run tuxml.py through many docker images.\n\n"
+    msg  = "The  sampler  allows   you   to   run  tuxml.py   through   many  docker  images\n"
+    msg += "sequentially.\n"
+    msg += "At  the  end  of  the tuxml execution, the  sampler retrieves  the  logs (stdout,\n"
+    msg += "stderr, tuxml's output and kconfig file) from the docker container and saved them\n"
+    msg += "to the Tuxml/logs folder.\n\n"
 
     n_help  = "number of dockers to launch, minimum 1"
     v_help  = "increase or decrease output verbosity\n"
@@ -36,21 +40,23 @@ def args_handler():
     nc_help = "do not clean containers"
     i_help  = "two kinds of images are available\n"
     i_help += " " * 2 + "prod : TuxML is  already included  in the docker\n"
-    i_help += " " * 9 + "image (faster than dev)\n"
+    i_help += " " * 9 + "image. This is the fastest way. (default)\n"
     i_help += " " * 2 + "dev  : download  TuxML  repository  from  GitHub\n"
     i_help += " " * 9 + "before starting the compilation\n"
     b_help  = "choose which  version of TuxML to  execute between\n"
     b_help += "master and dev\n"
-    b_help += " " * 2 + "master : last stable version\n"
+    b_help += " " * 2 + "master : last stable version (default)\n"
     b_help += " " * 2 + "dev    : last up-to-date version\n"
+    V_help  = "display the sampler version and exit"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("nbdockers", help=n_help, metavar="NB_DOCKERS", type=int)
-    parser.add_argument("image", help=i_help, metavar="IMAGE", choices=["prod", "dev"])
-    parser.add_argument("branch", help=b_help, metavar="BRANCH", choices=["master", "dev"])
 
-    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
+    parser.add_argument("-b", "--branch", help=b_help, metavar="BRANCH", choices=["master", "dev"], default="master")
+    parser.add_argument("-i", "--image", help=i_help, metavar="IMAGE", choices=["prod", "dev"], default="prod")
     parser.add_argument("--no-clean", help=nc_help, action="store_true")
+    parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.3')
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
     args = parser.parse_args()
 
     # ask root credentials
