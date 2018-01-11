@@ -26,9 +26,9 @@ NO_CLEAN    = False
 def args_handler():
     global NB_DOCKERS, OUTPUT, NO_CLEAN, VERBOSE, BRANCH, IMAGE
 
-    msg  = "The sampler allows you to run tuxml.py on many docker images.\n\n"
+    msg  = "The sampler allows you to run tuxml.py through many docker images.\n\n"
 
-    n_help  = "number of dockers to launch, minimum 1, maximum 50"
+    n_help  = "number of dockers to launch, minimum 1"
     v_help  = "increase or decrease output verbosity\n"
     v_help += " " * 2 + "0 : quiet\n"
     v_help += " " * 2 + "1 : normal (default)\n"
@@ -63,14 +63,14 @@ def args_handler():
     if args.nbdockers < v_min:
         parser.error("Minimum value for NB_DOCKERS is {}".format(v_min))
 
-    v_max = 50
-    if args.nbdockers > v_max:
-        parser.error("Maximum value for NB_DOCKERS is {}".format(v_max))
-
     NB_DOCKERS = args.nbdockers
     IMAGE      = args.image
     BRANCH     = args.branch
     NO_CLEAN   = args.no_clean
+
+    if args.image == "prod":
+        print("Prod images are currently not availables")
+        sys.exit(-1)
 
     # manage level of verbosity
     if args.verbose:
