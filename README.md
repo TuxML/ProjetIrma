@@ -1,72 +1,62 @@
-# py-scripts
+# TuxML
 
-## tuxml.py
+## sampler.py script
+### Goal
+The sampler allows you to run tuxml.py through many docker images sequentially.
+
+At the end of the tuxml execution, the sampler retrieves the logs (standard, error, tuxml's output and kconfig file) from the docker container and saved them to the Tuxml/logs folder.
+
+### How to use ?
 ```
-[*] USE : sudo ./tuxml.py </path/to/sources/directory> [option1 option2 ...]
-[*] Available options :
-        -d  --debug             TuxML is more verbose
-        -h  --help              Print this
-            --no-randconfig     Do not generate a new config file
-        -v  --version           Display the version of TuxML
-```
+usage: sampler.py [-h] [-v {0,1,2}] [--no-clean] NB_DOCKERS IMAGE BRANCH
 
-Expected output :
+positional arguments:
+  NB_DOCKERS            number of dockers to launch, minimum 1
+  IMAGE                 two kinds of images are available
+                          prod : TuxML is  already included  in the docker
+                                 image (faster than dev)
+                          dev  : download  TuxML  repository  from  GitHub
+                                 before starting the compilation
+  BRANCH                choose which  version of TuxML to  execute between
+                        master and dev
+                          master : last stable version
+                          dev    : last up-to-date version
 
-```
-[*] Cleaning previous compilation
-[*] Generating random config
-[*] Checking dependencies
-[*] Compilation in progress
-[+] Compilation done
-[+] Testing the kernel config
-[+] Successfully compiled in 00:10:45, sending data
-[*] Sending config file and status to database
-[+] Successfully sent info to db
-```
-
-### Changelog v0.2
-**\*** Refactoring du code : le script tuxml.py a été préparé pour pouvoir diviser le dev sur plusieurs branches (master, arch-support-addition, redhat-support-addition, etc) --> fonctions build_dependencies_\*()  
-**\*** Certaines parties de tuxml.py ont été remplacées par des fonctions développées pour installDependencies.py (install_missing_packages())  
-**\*** Les fichiers de logs sont désormais de la forme *err_\<timestamp\>.logs* et *std_\<timestamp\>.logs*  
-**\+** tuxml_common.py : contient les fonctions communes à plusieurs scripts  
-**\+** tuxml_settings.py : contient les variables globales  
-**\+** Ajout de la date et de l'heure en mode debug dans les logs de tuxml.py (désormais il faut utiliser le pretty printer)  
-**\-** L'appel à sendDB a été désactivé temporairement car le site est H.S
-
-**TODO :**
-
-* ~~renommer sendDB.py en tuxml_sendDB.py~~
-* ~~renommer installDependencies.py en tuxml_depman.py~~
-* ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
-* utiliser tuxml_settings.py dans tuxml_sendDB.py
-* "fusionner" get_distro() et get_package_manager()
-
-## MLfood.py
-
-Script used to fill the DataBase which "feed" the Machine Learning algorithm.
-Allows to start automatically the tuxml.py command on different dockers by calling
-the script tuxLogs.py which write the tuxml.logs.
-
-Command should be :
-
-    ./MLfood.py <Integer> [Options]
-
-It will start \<Integer\> number of compilation sequentially.
-
-```
-Options : -c, --clean     Delete past containers
-          -h, --help      Prompt Options
-          --reset-logs    Delete all the logs in Logs/
+optional arguments:
+  -h, --help            show this help message and exit
+  -v {0,1,2}, --verbose {0,1,2}
+                        increase or decrease output verbosity
+                          0 : quiet
+                          1 : normal (default)
+                          2 : chatty
+  --no-clean            do not clean containers
 ```
 
-[UPDATE] The script will now retrieves the logs file err.logs, std.logs and output.logs in the Logs/ folder.
-thanks to tuxLogs.py.
+## tuxml.py script
+### Goal
+The goal of TuxML is to  automatically  compile Linux kernel sources in order to build a database for a machine learning algorithm.  
+If the compilation crashes, TuxML  analyzes the error log file  to determine the causes. There are two possible ways:  
 
-## TPDIM(WIP)
+* it is a missing  package : TuxML will install it and  resume the compilation
+* the error can't be fixed : the compilation stops
 
-This script/program is design to help people using TuxML easly manage there docker image or container.
+Then TuxML sends the results of the compilation to the TuxML database.
 
-At the moment the script can do :
+You can run TuxML independantly from the sampler.
 
-* Build the docker image tuxml/tuxmldebian
-* Push this image on the repository tuxml on
+### How to use ?
+```
+usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
+
+positional arguments:
+  source_path           path to the Linux source directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         increase output verbosity
+  -V, --version         display TuxML version and exit
+  -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
+                        debug a given  kconfig seed. If no seed is given, TuxML
+                        will use the existing kconfig file in  the linux source
+                        directory
+```
