@@ -46,7 +46,7 @@ def args_handler():
     c_help += "cores on the system."
     nc_help = "do not erase files from previous compilations"
 
-    parser = argparse.ArgumentParser(description="", formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
 
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])

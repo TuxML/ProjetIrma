@@ -9,6 +9,7 @@ import random
 
 # TODO ajouter image fedora
 # TODO commentaires
+# TODO mettre les commentaires des options à 80 char
 
 NB_DOCKERS  = 0
 DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
@@ -28,8 +29,8 @@ def args_handler():
 
     msg  = "The  sampler  allows   you   to   run  tuxml.py   through   many  docker  images\n"
     msg += "sequentially.\n"
-    msg += "At  the  end  of  the tuxml execution, the  sampler retrieves  the  logs (stdout,\n"
-    msg += "stderr, tuxml's output and kconfig file) from the docker container and saved them\n"
+    msg += "At the end of the compilation, the sampler retrieves  the  logs (stdout, stderr,\n"
+    msg += "tuxml's output  and  kconfig file)  from  the  docker  container  and  save them\n"
     msg += "to the Tuxml/logs folder.\n\n"
 
     n_help  = "number of dockers to launch, minimum 1"
@@ -39,10 +40,10 @@ def args_handler():
     v_help += " " * 2 + "2 : chatty\n"
     nc_help = "do not clean containers"
     i_help  = "two kinds of images are available\n"
-    i_help += " " * 2 + "prod : TuxML is  already included  in the docker\n"
-    i_help += " " * 9 + "image. This is the fastest way. (default)\n"
-    i_help += " " * 2 + "dev  : download  TuxML  repository  from  GitHub\n"
-    i_help += " " * 9 + "before starting the compilation\n"
+    i_help += " " * 2 + "prod : TuxML is  already included in the docker image.\n"
+    i_help += " " * 9 + "This is the fastest way. (default)\n"
+    i_help += " " * 2 + "dev  : download  TuxML repository  from  GitHub before\n"
+    i_help += " " * 9 + "starting the compilation\n"
     b_help  = "choose which  version of TuxML to  execute between\n"
     b_help += "master and dev\n"
     b_help += " " * 2 + "master : last stable version (default)\n"
