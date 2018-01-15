@@ -104,7 +104,7 @@ def docker_pull(docker_img):
 def docker_run(docker_img, i):
     print("==> Running docker #{0:02d}".format(i+1) + " on " + docker_img)
 
-    cmd  = "'cd /TuxML;"
+    cmd  = "'cd {};".format(TDIR)
     cmd += "git fetch;"
     cmd += "git checkout {};".format(BRANCH)
     cmd += "mkdir logs;"
