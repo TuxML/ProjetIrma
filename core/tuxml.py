@@ -136,14 +136,7 @@ def args_handler():
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
-    build_dependencies = {
-        "apt-get": tdep.build_dependencies_debian,
-        "pacman":  tdep.build_dependencies_arch,
-        "dnf":     tdep.build_dependencies_redhat,
-        "yum":     tdep.build_dependencies_redhat
-    }
-
-    if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
+    if tdep.build_dependencies(missing_files, missing_packages) != 0:
         return -1
 
     if tcom.install_packages(missing_packages) != 0:

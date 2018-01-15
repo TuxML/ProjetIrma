@@ -5,56 +5,22 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 
 
-# author : LE FLEM Erwan
+# author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
-# Find the missing packages (ArchLinux distribution)
-#
-# return value :
-#   -1 package not found
-#    0 installation OK
-def build_dependencies_arch(missing_files, missing_packages):
-    if tset.VERBOSE > 0:
-        tcom.pprint(3, "Arch based distro")
-
-    cmd_check   = "pacman -Fs {}"
-    cmd_search  = "pkgfile -d {}" #pkgfile -s openssl/bio.h ne marche pas
-
-    for mf in missing_files:
-        if tset.DEBUG:
-            print(" " * 3 + mf)
-
-        mf = mf.replace("/", " ")
-        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
-
-        # Sometimes the  output gives  several packages. The  program takes  the
-        # first one and check if the package is already installed. If not, tuxml
-        # installs it else it installs the next one
-        lines = output.decode("utf-8").splitlines()
-        i = 0
-        status = 0
-        while i < len(lines) and status == 0:
-            # 0: package already installed
-            # 1: package not installed
-            status = subprocess.call([cmd_check.format(lines[i])], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
-            if status == 1:
-                missing_packages.append(lines[i])
-            i += 1
-
-    return missing_packages
-
-# author : LEBRETON Mickael
-#
-# Find the missing packages (Debian distribution)
+# Find the missing packages
 #
 # return value :
 #   -1 package not found
 #    0 installation OK
-def build_dependencies_debian(missing_files, missing_packages):
-    if tset.VERBOSE > 0:
-        tcom.pprint(3, "Debian based distro")
-
-    cmd_search  = "apt-file search {}" # cherche dans quel paquet est le fichier
-    cmd_check   = "dpkg-query -l | grep {}" # vérifie si le paquet est présent sur le système
+def build_dependencies(missing_files, missing_packages):
+    cmds = {
+        "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
+        "pacman"  : ["pkgfile -d {}", "pacman -Fs {}"],
+        "dnf"     : [],
+        "yum"     : []
+        # "emerge": [],
+        # "zypper": []
+    }
 
     if tset.VERBOSE > 0 and len(missing_files) > 0:
         tcom.pprint(3, "Those files are missing :")
@@ -63,8 +29,11 @@ def build_dependencies_debian(missing_files, missing_packages):
         if tset.VERBOSE > 0:
             print(" " * 3 + mf)
 
+        if (tset.PKG_MANAGER is "pacman"):
+            mf = mf.replace("/", " ")
+
         try:
-            output = subprocess.check_output([cmd_search.format(mf)], shell=True, universal_newlines=True)
+            output = subprocess.check_output([cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
         except subprocess.CalledProcessError:
             tcom.pprint(1, "Unable to find the missing package(s)")
             return -1
@@ -79,7 +48,7 @@ def build_dependencies_debian(missing_files, missing_packages):
             package = lines[i].split(":")[0]
             # 0: package already installed
             # 1: package not installed
-            status = subprocess.call([cmd_check.format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            status = subprocess.call([cmds[tset.PKG_MANAGER][1].format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
             if status == 1:
                 missing_packages.append(package)
             i += 1
@@ -91,20 +60,6 @@ def build_dependencies_debian(missing_files, missing_packages):
             return -1
 
     tcom.pprint(0, "Dependencies built")
-    return 0
-
-
-# author :
-#
-# Find the missing packages (RedHat distribution)
-#
-# return value :
-#   -1 package not found
-#    0 installation OK
-def build_dependencies_redhat(missing_files, missing_packages):
-    if tset.VERBOSE > 0:
-        tcom.pprint(3, "RedHat based distro")
-
     return 0
 
 
