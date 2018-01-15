@@ -16,8 +16,31 @@ def build_dependencies_arch(missing_files, missing_packages):
     if tset.VERBOSE > 0:
         tcom.pprint(3, "Arch based distro")
 
-    return 0
+    cmd_check   = "pacman -Fs {}"
+    cmd_search  = "pkgfile -d {}" #pkgfile -s openssl/bio.h ne marche pas
 
+    for mf in missing_files:
+        if tset.DEBUG:
+            print(" " * 3 + mf)
+
+        mf = mf.replace("/", " ")
+        output = subprocess.check_output([cmd_search.format(mf)], shell=True)
+
+        # Sometimes the  output gives  several packages. The  program takes  the
+        # first one and check if the package is already installed. If not, tuxml
+        # installs it else it installs the next one
+        lines = output.decode("utf-8").splitlines()
+        i = 0
+        status = 0
+        while i < len(lines) and status == 0:
+            # 0: package already installed
+            # 1: package not installed
+            status = subprocess.call([cmd_check.format(lines[i])], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            if status == 1:
+                missing_packages.append(lines[i])
+            i += 1
+
+    return missing_packages
 
 # author : LEBRETON Mickael
 #
