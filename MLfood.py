@@ -60,7 +60,7 @@ if nb <= 0:
     exit(0)
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["tuxml/tuxmldebian:latest"]
+images = ["tuxml/tuxmldebian:prod"]
 
 # The image list must not be empty.
 if len(images) == 0:
