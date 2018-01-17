@@ -6,17 +6,14 @@ import tuxml_settings as tset
 
 # author : LEBRETON Mickael
 #
-# Pretty Printer
-#
-# return value :
-#
+# Pretty Printer which allow us to print the date in VERBOSE mod
 def pprint(s, message):
     # success, error, message, debug, warning
     status = ["[+]", "[-]", "[*]", "[#]", "[!]"]
 
-    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.gmtime(time.time()))
+    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.localtime(time.time()))
 
-    if tset.DEBUG:
+    if tset.VERBOSE > 0:
         print(status[s] + " " + date + message)
     else:
         print(status[s] + " " + message)
@@ -30,12 +27,12 @@ def pprint(s, message):
 #    String The name of the first supported package manager
 #    None   If no supported packages manager has been found
 def get_package_manager():
-    pprint(0, "Finding package manager")
+    pprint(2, "Finding package manager")
 
     pkg_managers = ["apt-get", "pacman", "dnf", "yum", "emerge", "zypper"]
     for manager in pkg_managers:
         if shutil.which(manager): # remplacer par shutil.which(manager) ???
-            pprint(3, "Package manager is " + manager)
+            pprint(0, "Package manager is " + manager)
             return manager
 
     pprint(1, "Unsupported package manager")
@@ -50,8 +47,8 @@ def get_package_manager():
 #   -2 Package manager not supported
 #   -1 Unable to install the packages
 #    0 Successfull install
-def install_packages(pkg_manager, missing_packages):
-    pprint(2, "Installing missing packages : " + " ".join(missing_packages))
+def install_packages(missing_packages):
+    pprint(2, "Installing packages : " + " ".join(missing_packages))
 
     manager_to_cmd = {
         "apt-get": " -y install ",
@@ -62,13 +59,13 @@ def install_packages(pkg_manager, missing_packages):
         "zypper": " --non-interactive install "
     }
 
-    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager] + " ".join(missing_packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(missing_packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Some packages were not found, installation stoped")
         return -1
     else:
-        pprint(0, "All the missing packages were found and installed")
+        pprint(0, "All the packages were found and installed")
         return 0
 
 
@@ -79,8 +76,10 @@ def install_packages(pkg_manager, missing_packages):
 # return value :
 #   -1 Unable to update the package databate
 #    0 Successfull update
-def update_system(pkg_manager):
-    # TODO : check on https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported about potential issues using -Sy instead of -Syu before installing pkgs.
+def update_system():
+    # TODO : check on
+    # https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
+    # about potential issues using -Sy instead of -Syu before installing pkgs.
 
     pprint(2, "Updating packages repositories")
 
@@ -93,11 +92,11 @@ def update_system(pkg_manager):
         "zypper": " refresh"
     }
 
-    status = subprocess.call([pkg_manager + manager_to_cmd[pkg_manager]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Error while updating packages repositories")
         return -1
     else:
-        pprint(0, "Updated packages repositories")
+        pprint(0, "Packages repositories updated")
         return 0
