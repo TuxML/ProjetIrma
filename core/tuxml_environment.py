@@ -43,13 +43,13 @@ def get_os_details():
 
 def __get_partition():
         path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.run(["stat", "--format=%m", path], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.call(["stat", "--format=%m", path], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.split('\n')[0].strip()
 
 
 def __get_mount_point():
         #spaces near {} are here to handle the case where the partition where tuxml is used is \
-        result = subprocess.run(["cat /proc/mounts |grep \" {} \" ".format(__get_partition())],
+        result = subprocess.call(["cat /proc/mounts |grep \" {} \" ".format(__get_partition())],
         shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.split(' ')[0].strip()
 
@@ -58,7 +58,7 @@ def __get_type_of_disk():
     #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
     disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
     disk = disk.split("/")[2]
-    result = subprocess.run(["cat", "/sys/block/{}/queue/rotational".format(disk)], stdout=subprocess.PIPE, universal_newlines=True).stdout
+    result = subprocess.call(["cat", "/sys/block/{}/queue/rotational".format(disk)], stdout=subprocess.PIPE, universal_newlines=True).stdout
     return result.split('\n')[0].strip()
 
 
@@ -117,19 +117,19 @@ def get_hardware_details():
 
 # TODO enlever la parenthèse à la fin
 def __get_libc_version():
-        result = subprocess.run(["ldd", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.call(["ldd", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.strip().split(' ')[3].split('\n')[0]
 
 
 # TODO enlever la parenthèse à la fin
 def __get_gcc_version():
-        result = subprocess.run(["gcc", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.call(["gcc", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.strip().split(' ')[2].split('\n')[0]
 
 
 def __get_tuxml_version():
         path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.run([path + "/tuxml.py", "-V"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.call([path + "/tuxml.py", "-V"], stdout=subprocess.PIPE, universal_newlines=True).stdout
         return result.split('.py')[1].split('\n')[0].strip()
 
 
