@@ -7,7 +7,6 @@ import subprocess
 import argparse
 import random
 
-# TODO ajouter image fedora
 # TODO commentaires
 # TODO mettre les help des options à 80 char
 
