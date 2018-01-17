@@ -16,8 +16,8 @@ def build_dependencies(missing_files, missing_packages):
     cmds = {
         "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
         "pacman"  : ["pkgfile -d {}", "pacman -Fs {}"],
-        "dnf"     : [],
-        "yum"     : []
+        "dnf"     : ["dnf whatprovides *{}", "rpm -qa | grep {}"],
+        "yum"     : ["yum whatprovides *{}", "rpm -qa | grep {}"]
         # "emerge": [],
         # "zypper": []
     }
