@@ -1,5 +1,8 @@
 # Scripts
 ## Core
+### tuxml_common.py
+* dnf, yum : faire un ~~check-update~~ au lieu d'un update
+
 ### tuxml_environment.py
 * ~~ajouter dans l'environnement *compilation* les infos : **branch** (dev/master) et **image** (dev/prod)~~
 * supprimer la parenthèse dans libc_version et gcc_version (env compilation) quand on est sur Debian
