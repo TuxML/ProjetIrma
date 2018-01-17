@@ -86,8 +86,8 @@ def update_system():
     manager_to_cmd = {
         "apt-get": " update && apt-file update",
         "pacman": " -Sy",
-        "dnf": " check-update",
-        "yum": " check-update",
+        "dnf": " -y update",
+        "yum": " -y update",
         "emerge" : " --sync",
         "zypper": " refresh"
     }
