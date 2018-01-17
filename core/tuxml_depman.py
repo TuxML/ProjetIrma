@@ -3,6 +3,7 @@ import subprocess
 import shutil
 import tuxml_common as tcom
 import tuxml_settings as tset
+import tuxml_depLog as tdepl
 
 
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
@@ -50,15 +51,21 @@ def build_dependencies(missing_files, missing_packages):
             # 1: package not installed
             status = subprocess.call([cmds[tset.PKG_MANAGER][1].format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
             if status == 1:
+                tdepl.log_install(mf, package)
                 missing_packages.append(package)
             i += 1
 
         # if tuxml reaches the end of the packages list without installing any package
         # it means that there is a problem with mf, so it returns an error
         if i > len(lines) and status == 0:
+            tdepl.log_status(mf, False)
             tcom.pprint(1, "Unable to find the missing package(s)")
             return -1
+        else:
+            tdepl.log_status(mf, True)
 
+    tcom.pprint(0, "Exporting missing package resolution log file")
+    tdepl.export_as_csv()
     tcom.pprint(0, "Dependencies built")
     return 0
 
