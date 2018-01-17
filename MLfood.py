@@ -10,8 +10,10 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("Try: ./MLfood.py <Integer> [Options]")
     print("")
     print("Options: --no-clean   Do not delete past containers")
+    print("Options: --no-clean    Do not delete past containers")
     print("         -h, --help    Prompt Options")
     print("         --reset-logs  Delete all the saved logs")
+    print("         --dev         Use images in current developpement")
     print("")
     exit(0)
 
@@ -60,7 +62,13 @@ if nb <= 0:
     exit(0)
 
 # Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["tuxml/tuxmldebian:prod"]
+images = []
+dev = ""
+if "--dev" in argv:
+    images = ["tuxml/tuxmldebian:dev"]
+    dev = "--dev"
+else:
+    images = ["tuxml/tuxmldebian:prod"]
 
 # The image list must not be empty.
 if len(images) == 0:
@@ -83,7 +91,7 @@ for i in range(nb):
         os.makedirs("Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.log'
+    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + dev + '| tee Logs/' + logsFolder + '/output.log'
     print("\n=============== Docker n°" + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
@@ -102,12 +110,12 @@ for i in range(nb):
     os.system(configFile)
 
     # Clean all the containers used previously.
-    if not "--no-clean" in argv:
+    if "--no-clean" not in argv:
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
     else:
-        print("Option " + argv[2] + " unknown.")
+        print("Option unknown.")
         exit(0)
 
     print("")
