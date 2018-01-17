@@ -13,7 +13,8 @@ import random
 
 NB_DOCKERS  = 0
 DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
-                "micleb/arch_tuxml_{}:latest"]
+                "micleb/arch_tuxml_{}:latest",
+                "micleb/centos_tuxml_{}:latest"]
 IMAGE       = ""
 BRANCH      = ""
 VERBOSE     = 1
