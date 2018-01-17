@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import os
-from sys import argv
 import argparse
 
 # We define the function use in the script
@@ -24,6 +23,13 @@ def dockerPush():
         str3 = 'sudo docker login'
         os.system(str3)
 
+
+def DockerGenerate(originImage, *dependencesFile):
+    dockerFile = open("DockerfileTest", "w")
+    dockerFile.write("FROM {}".format(originImage))
+    dockerFile.close()
+
+
 # Start of the script
 
 
@@ -36,3 +42,12 @@ if __name__ == "__main__":
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
 
 args = parser.parse_args()
+
+if args.generate:
+    DocPre = os.listdir('.')
+    if "Dockerfile" in DocPre:
+        print("Il semblerait qu'il existe déjà un fichier DockerFile, veuillez le déplacer ou la génération va le réécrire, souhaitez vous continuer ?")
+    if args.dependences:
+        DockerGenerate(args.generate, args.dependences)
+    else:
+        DockerGenerate(args.generate)
