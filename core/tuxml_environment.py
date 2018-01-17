@@ -160,6 +160,7 @@ def get_compilation_details():
     return comp
 
 
+
 # author : LE FLEM Erwan
 #
 # Export the environment detail in a csvfile.
@@ -168,7 +169,10 @@ def get_compilation_details():
 # you are when executing this script.
 def export_as_csv(os_details, hw_details, comp_details):
     with open('tuxml_environment.csv', 'w', newline='') as csvfile:
-        merged_dict = {**hw_details, **os_details, **comp_details}
+        # merged_dict = {**hw_details, **os_details, **comp_details}
+        merged_dict = hw_details.copy()
+        merged_dict.update(os_details)
+        merged_dict.update(comp_details)
         writer = csv.DictWriter(csvfile, merged_dict.keys())
         writer.writeheader()
         writer.writerow(merged_dict)

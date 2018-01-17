@@ -9,7 +9,7 @@ import random
 
 # TODO ajouter image fedora
 # TODO commentaires
-# TODO mettre les commentaires des options à 80 char
+# TODO mettre les help des options à 80 char
 
 NB_DOCKERS  = 0
 DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
@@ -23,6 +23,7 @@ TLOGS       = TDIR + "logs/"
 KDIR        = TDIR + "linux-4.13.3/"
 KLOGS       = KDIR + "logs/"
 NO_CLEAN    = False
+
 
 def args_handler():
     global NB_DOCKERS, OUTPUT, NO_CLEAN, VERBOSE, BRANCH, IMAGE
@@ -89,7 +90,7 @@ def args_handler():
         VERBOSE = 1
 
 
-def docker_pull(docker_img):
+def download_docker_image(docker_img):
     print("==> Recovering latest docker image")
     status = subprocess.call(["docker pull " + docker_img], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -101,7 +102,7 @@ def docker_pull(docker_img):
         return 0
 
 
-def docker_run(docker_img, i):
+def run_tuxml(docker_img, i):
     print("==> Running docker #{0:02d}".format(i+1) + " on " + docker_img)
 
     cmd  = "'cd {};".format(TDIR)
@@ -120,7 +121,7 @@ def docker_run(docker_img, i):
         return 0
 
 
-def docker_cp(docker_id, launch_time):
+def retrieve_logs(docker_id, launch_time):
     print("==> Copying log files to ./logs/" + launch_time + "/")
 
     if not os.path.exists("logs/"):
@@ -147,6 +148,7 @@ def docker_cp(docker_id, launch_time):
     print("")
     return 0
 
+
 def clean_containers():
     print("==> Cleaning containers")
     status = subprocess.call(["docker rm -v $(docker ps -aq)"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
@@ -168,16 +170,16 @@ def main():
     for i in range(0, NB_DOCKERS):
         img = DOCKER_IMGS[random.randrange(0, len(DOCKER_IMGS), 1)].format(IMAGE)
 
-        if docker_pull(img) != 0:
+        if download_docker_image(img) != 0:
             sys.exit(-1)
 
         launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        if docker_run(img, i) != 0:
+        if run_tuxml(img, i) != 0:
             sys.exit(-1)
 
 
         docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
-        if docker_cp(docker_id, launch_time) != 0:
+        if retrieve_logs(docker_id, launch_time) != 0:
             sys.exit(-1)
 
         if not NO_CLEAN:
