@@ -46,7 +46,7 @@ def args_handler():
     c_help += "cores on the system."
     nc_help = "do not erase files from previous compilations"
 
-    parser = argparse.ArgumentParser(description="", formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
 
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
@@ -136,14 +136,7 @@ def args_handler():
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
-    build_dependencies = {
-        "apt-get": tdep.build_dependencies_debian,
-        "pacman":  tdep.build_dependencies_arch,
-        "dnf":     tdep.build_dependencies_redhat,
-        "yum":     tdep.build_dependencies_redhat
-    }
-
-    if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
+    if tdep.build_dependencies(missing_files, missing_packages) != 0:
         return -1
 
     if tcom.install_packages(missing_packages) != 0:

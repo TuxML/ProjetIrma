@@ -7,29 +7,31 @@ import subprocess
 import argparse
 import random
 
-# TODO ajouter image fedora
 # TODO commentaires
+# TODO mettre les help des options à 80 char
 
 NB_DOCKERS  = 0
 DOCKER_IMGS = [ "micleb/debian_tuxml_{}:latest",
-                "micleb/arch_tuxml_{}:latest"]
+                "micleb/arch_tuxml_{}:latest",
+                "micleb/centos_tuxml_{}:latest"]
 IMAGE       = ""
 BRANCH      = ""
 VERBOSE     = 1
 OUTPUT      = subprocess.DEVNULL
-TDIR        = "/TuxML/"
+TDIR        = "/tuxml/"
 TLOGS       = TDIR + "logs/"
 KDIR        = TDIR + "linux-4.13.3/"
 KLOGS       = KDIR + "logs/"
 NO_CLEAN    = False
+
 
 def args_handler():
     global NB_DOCKERS, OUTPUT, NO_CLEAN, VERBOSE, BRANCH, IMAGE
 
     msg  = "The  sampler  allows   you   to   run  tuxml.py   through   many  docker  images\n"
     msg += "sequentially.\n"
-    msg += "At  the  end  of  the tuxml execution, the  sampler retrieves  the  logs (stdout,\n"
-    msg += "stderr, tuxml's output and kconfig file) from the docker container and saved them\n"
+    msg += "At the end of the compilation, the sampler retrieves  the  logs (stdout, stderr,\n"
+    msg += "tuxml's output  and  kconfig file)  from  the  docker  container  and  save them\n"
     msg += "to the Tuxml/logs folder.\n\n"
 
     n_help  = "number of dockers to launch, minimum 1"
@@ -39,10 +41,10 @@ def args_handler():
     v_help += " " * 2 + "2 : chatty\n"
     nc_help = "do not clean containers"
     i_help  = "two kinds of images are available\n"
-    i_help += " " * 2 + "prod : TuxML is  already included  in the docker\n"
-    i_help += " " * 9 + "image. This is the fastest way. (default)\n"
-    i_help += " " * 2 + "dev  : download  TuxML  repository  from  GitHub\n"
-    i_help += " " * 9 + "before starting the compilation\n"
+    i_help += " " * 2 + "prod : TuxML is  already included in the docker image.\n"
+    i_help += " " * 9 + "This is the fastest way. (default)\n"
+    i_help += " " * 2 + "dev  : download  TuxML repository  from  GitHub before\n"
+    i_help += " " * 9 + "starting the compilation\n"
     b_help  = "choose which  version of TuxML to  execute between\n"
     b_help += "master and dev\n"
     b_help += " " * 2 + "master : last stable version (default)\n"
@@ -88,7 +90,7 @@ def args_handler():
         VERBOSE = 1
 
 
-def docker_pull(docker_img):
+def download_docker_image(docker_img):
     print("==> Recovering latest docker image")
     status = subprocess.call(["docker pull " + docker_img], stdout=OUTPUT, stderr=OUTPUT, shell=True)
 
@@ -100,13 +102,14 @@ def docker_pull(docker_img):
         return 0
 
 
-def docker_run(docker_img, i):
+def run_tuxml(docker_img, i):
     print("==> Running docker #{0:02d}".format(i+1) + " on " + docker_img)
 
-    cmd  = "'cd /TuxML;"
+    cmd  = "'cd {};".format(TDIR)
     cmd += "git fetch;"
     cmd += "git checkout {};".format(BRANCH)
     cmd += "mkdir logs;"
+    cmd += "echo \"TUXML_BRANCH = {}\nTUXML_IMAGE = {}\" > tuxml.conf;".format(BRANCH, IMAGE)
     cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
     print("+" + "-" * 78 + "+")
@@ -119,7 +122,7 @@ def docker_run(docker_img, i):
         return 0
 
 
-def docker_cp(docker_id, launch_time):
+def retrieve_logs(docker_id, launch_time):
     print("==> Copying log files to ./logs/" + launch_time + "/")
 
     if not os.path.exists("logs/"):
@@ -146,6 +149,7 @@ def docker_cp(docker_id, launch_time):
     print("")
     return 0
 
+
 def clean_containers():
     print("==> Cleaning containers")
     status = subprocess.call(["docker rm -v $(docker ps -aq)"], stdout=OUTPUT, stderr=OUTPUT, shell=True)
@@ -167,16 +171,16 @@ def main():
     for i in range(0, NB_DOCKERS):
         img = DOCKER_IMGS[random.randrange(0, len(DOCKER_IMGS), 1)].format(IMAGE)
 
-        if docker_pull(img) != 0:
+        if download_docker_image(img) != 0:
             sys.exit(-1)
 
         launch_time = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        if docker_run(img, i) != 0:
+        if run_tuxml(img, i) != 0:
             sys.exit(-1)
 
 
         docker_id = os.popen("docker ps -lq", "r").read()[0:-1]
-        if docker_cp(docker_id, launch_time) != 0:
+        if retrieve_logs(docker_id, launch_time) != 0:
             sys.exit(-1)
 
         if not NO_CLEAN:

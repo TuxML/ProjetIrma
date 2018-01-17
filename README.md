@@ -1,35 +1,61 @@
 # TuxML
-
-## sampler.py script
+## MLfood.py script
 ### Goal
-The sampler allows you to run tuxml.py through many docker images sequentially.
 
-At the end of the tuxml execution, the sampler retrieves the logs (standard, error, tuxml's output and kconfig file) from the docker container and saved them to the Tuxml/logs folder.
+`MLfood.py` is the first command to run on your host machine.
+
+At the beginning, it will ask you the super user privileges in order to run docker.
+
+This script is used to fill the DataBase which "feed" the Machine Learning algorithm and allows to start automatically the `tuxml.py` command on different dockers by calling the script `tuxLogs.py` which write the tuxml.logs.
+
+./MLfood n will start n docker sequentially, each docker run `tuxlogs.py` which run `tuxml.py`
+
+Command should be :
+
+    ./MLfood.py <Integer> [Options]
+
+It will start \<Integer\> number of compilation sequentially.
+
+```
+Options : --no-clean      Do not delete past containers
+          --reset-logs    Delete all the logs in Logs/
+          -h, --help      Prompt Options for MLfood.py
+```
+
+The script retrieves the logs file err.logs, std.logs and output.logs as well as the `.config` file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
+
+`MLfood.py` now use "tee" to create the output.logs from `tuxLogs.py` to prompt the output and create the `output.logs` which is the tuxml.py's one.
+
+See `tuxLogs.py`
 
 ### How to use ?
 ```
-usage: sampler.py [-h] [-v {0,1,2}] [--no-clean] NB_DOCKERS IMAGE BRANCH
+usage: MLfood.py [-h] [-b BRANCH] [-i IMAGE] [--no-clean] [-V] [-v {0,1,2}]
+                 NB_DOCKERS
 
 positional arguments:
   NB_DOCKERS            number of dockers to launch, minimum 1
-  IMAGE                 two kinds of images are available
-                          prod : TuxML is  already included  in the docker
-                                 image (faster than dev)
-                          dev  : download  TuxML  repository  from  GitHub
-                                 before starting the compilation
-  BRANCH                choose which  version of TuxML to  execute between
-                        master and dev
-                          master : last stable version
-                          dev    : last up-to-date version
 
 optional arguments:
   -h, --help            show this help message and exit
+  -b BRANCH, --branch BRANCH
+                        choose which  version of TuxML to  execute between
+                        master and dev
+                          master : last stable version (default)
+                          dev    : last up-to-date version
+  -i IMAGE, --image IMAGE
+                        two kinds of images are available
+                          prod : TuxML is  already included in the docker image.
+                                 This is the fastest way. (default)
+                          dev  : download  TuxML repository  from  GitHub before
+                                 starting the compilation
+  --no-clean            do not clean containers
+  -V, --version         display the sampler version and exit
   -v {0,1,2}, --verbose {0,1,2}
                         increase or decrease output verbosity
                           0 : quiet
                           1 : normal (default)
                           2 : chatty
-  --no-clean            do not clean containers
 ```
 
 ## tuxml.py script
@@ -60,3 +86,12 @@ optional arguments:
                         will use the existing kconfig file in  the linux source
                         directory
 ```
+
+## TPDIM.py (WIP)
+
+This script/program is design to help people using TuxML easly manage there docker image or container.
+
+At the moment the script can do :
+
+* Build the docker image tuxml/tuxmldebian
+* Push this image on the repository tuxml on
