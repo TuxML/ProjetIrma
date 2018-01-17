@@ -150,10 +150,16 @@ def __get_tuxml_version():
 # return value :
 #   comp The dictionary
 def get_compilation_details():
-    brim = []
-    with open(tset.CONF_FILE, "r") as conf_file:
-        for line in conf_file:
-            brim.append(line.split("=")[1][1:-1]) #format : OPTION = value
+    brim = ["N/A", "N/A"]
+    try:
+        with open(tset.CONF_FILE, "r") as conf_file:
+            i = 0
+            for line in conf_file:
+                brim[i] = line.split("=")[1][1:-1] #format : OPTION = value
+                i += 1
+    except EnvironmentError:
+        tcom.pprint(1, "Unable to find {}".format(tset.CONF_FILE))
+
     comp = {
         "tuxml_version": __get_tuxml_version(),
         "libc_version": __get_libc_version(),
