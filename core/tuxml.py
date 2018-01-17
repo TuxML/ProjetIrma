@@ -16,94 +16,6 @@ import tuxml_environment as tenv
 
 # author : LEBRETON Mickael
 #
-# This function installs the missing packages
-#
-# return value :
-#   -1 package(s) not found
-#    0 installation OK
-def install_missing_packages(missing_files, missing_packages):
-    build_dependencies = {
-        "apt-get": tdep.build_dependencies_debian,
-        "pacman":  tdep.build_dependencies_arch,
-        "dnf":     tdep.build_dependencies_redhat,
-        "yum":     tdep.build_dependencies_redhat
-    }
-
-    if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
-        return -1
-
-    if tcom.install_packages(missing_packages) != 0:
-        return -1
-
-    return 0
-
-
-# author : LEBRETON Mickael
-#
-# This function analyzes the error log file and try to find the missing packages
-# and the missings files
-#
-# return value :
-#   -1 the program wasn't able to find the missing package(s)
-#    0 the program was able to find the missing package(s)
-def log_analysis(missing_files, missing_packages):
-    tcom.pprint(2, "Analyzing error log file")
-
-    with open(tset.PATH + tset.ERR_LOG_FILE, "r") as err_logs:
-        for line in err_logs:
-            if re.search("fatal error", line):
-                # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
-                missing_files.append(line.split(":")[4])
-            elif re.search("Command not found", line):
-                # case "make[4]: <command> : command not found"
-                missing_packages.append(line.split(":")[1])
-            elif re.search("not found", line):
-                if len(line.split(":")) == 4:
-                    # case "/bin/sh: 1: <command>: not found"
-                    missing_files.append(line.split(":")[2])
-                else:
-                    # ./scripts/gcc-plugin.sh: 11: ./scripts/gcc-plugin.sh: <package>: not found
-                    missing_packages.append(line.split(":")[3])
-            else:
-                pass
-
-    if len(missing_files) > 0 or len(missing_packages) > 0:
-        tcom.pprint(0, "Missing file(s)/package(s) found")
-        return 0
-    else:
-        tcom.pprint(1, "Unable to find the missing package(s)")
-        return -1
-
-
-# author : LEBRETON Mickael
-#
-# This  function  starts the  compilation and redirects  the  logs to  the files
-# std.logs and err.logs
-#
-# return value :
-#   -1 compilation has failed
-#    0 no error (time to compile in seconds)
-def compilation():
-    tcom.pprint(2, "Compilation in progress")
-
-    # TODO barre de chargement [ ##########-------------------- ] 33%
-
-    if not os.path.exists(tset.PATH + tset.LOG_DIR):
-        os.makedirs(tset.PATH + tset.LOG_DIR)
-
-    with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call(["make", "-C", tset.PATH, "-j" + str(tset.NB_CORES)], stdout=std_logs, stderr=err_logs)
-
-    if status == 0:
-        tcom.pprint(0, "Compilation done")
-        return 0
-    else:
-        tcom.pprint(2, "Compilation failed, exit status : {}".format(status))
-        return -1
-
-
-# author : LEBRETON Mickael
-#
 # This function handles the arguments of the ./tuxml.py command
 def args_handler():
     msg  = "Welcome, this is the TuxML core program.\n\n"
@@ -123,7 +35,7 @@ def args_handler():
     p_help  = "path to the Linux source directory"
     v_help  = "increase or decrease output verbosity\n"
     v_help += " " * 2 + "0 : quiet\n"
-    v_help += " " * 2 + "1 : normal\n"
+    v_help += " " * 2 + "1 : normal (default)\n"
     v_help += " " * 2 + "2 : chatty\n"
     V_help  = "display TuxML version and exit"
     d_help  = "debug a given KCONFIG_SEED  or  KCONFIG_FILE. If no seed\n"
@@ -132,7 +44,7 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    nc_help = "do not erase files from previous compilations."
+    nc_help = "do not erase files from previous compilations"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
@@ -141,7 +53,7 @@ def args_handler():
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
-    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
+    parser.add_argument("--no-clean", help=nc_help, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -214,6 +126,87 @@ def args_handler():
         except ValueError:
             tcom.pprint(1, "Wrong number of CPU cores value")
             sys.exit(-1)
+
+
+# author : LEBRETON Mickael
+#
+# This function installs the missing packages
+#
+# return value :
+#   -1 package(s) not found
+#    0 installation OK
+def install_missing_packages(missing_files, missing_packages):
+    if tdep.build_dependencies(missing_files, missing_packages) != 0:
+        return -1
+
+    if tcom.install_packages(missing_packages) != 0:
+        return -1
+
+    return 0
+
+
+# author : LEBRETON Mickael
+#
+# This function analyzes the error log file and try to find the missing packages
+# and the missings files
+#
+# return value :
+#   -1 the program wasn't able to find the missing package(s)
+#    0 the program was able to find the missing package(s)
+def log_analysis(missing_files, missing_packages):
+    tcom.pprint(2, "Analyzing error log file")
+
+    with open(tset.PATH + tset.ERR_LOG_FILE, "r") as err_logs:
+        for line in err_logs:
+            if re.search("fatal error", line):
+                # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
+                missing_files.append(line.split(":")[4])
+            elif re.search("Command not found", line):
+                # case "make[4]: <command> : command not found"
+                missing_packages.append(line.split(":")[1])
+            elif re.search("not found", line):
+                if len(line.split(":")) == 4:
+                    # case "/bin/sh: 1: <command>: not found"
+                    missing_files.append(line.split(":")[2])
+                else:
+                    # ./scripts/gcc-plugin.sh: 11: ./scripts/gcc-plugin.sh: <package>: not found
+                    missing_packages.append(line.split(":")[3])
+            else:
+                pass
+
+    if len(missing_files) > 0 or len(missing_packages) > 0:
+        tcom.pprint(0, "Missing file(s)/package(s) found")
+        return 0
+    else:
+        tcom.pprint(1, "Unable to find the missing package(s)")
+        return -1
+
+
+# author : LEBRETON Mickael
+#
+# This  function  starts the  compilation and redirects  the  logs to  the files
+# std.logs and err.logs
+#
+# return value :
+#   -1 compilation has failed
+#    0 no error (time to compile in seconds)
+def compilation():
+    tcom.pprint(2, "Compilation in progress")
+
+    # TODO barre de chargement [ ##########-------------------- ] 33%
+
+    if not os.path.exists(tset.PATH + tset.LOG_DIR):
+        os.makedirs(tset.PATH + tset.LOG_DIR)
+
+    with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
+        status = subprocess.call(["make", "-C", tset.PATH, "-j" + str(tset.NB_CORES)], stdout=std_logs, stderr=err_logs)
+
+    if status == 0:
+        tcom.pprint(0, "Compilation done")
+        return 0
+    else:
+        tcom.pprint(2, "Compilation failed, exit status : {}".format(status))
+        return -1
 
 
 # author : LEBRETON Mickael
