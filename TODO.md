@@ -1,8 +1,9 @@
 # Scripts
 ## Core
 ### tuxml_environment.py
-* ajouter dans l'environnement *compilation* les infos : **branch** (dev/master) et **image** (dev/prod)
+* ~~ajouter dans l'environnement *compilation* les infos : **branch** (dev/master) et **image** (dev/prod)~~
 * supprimer la parenthèse dans libc_version et gcc_version (env compilation) quand on est sur Debian
+* récupérer le type de disque
 
 ### tuxml_depman.py
 * fusionner les fonctions build_dependencies : debian, arch, redhat
@@ -17,8 +18,8 @@
 
 # Docker
 * Créer les images (dev) :
-  - fedora
-  - centos
+  - ~~fedora~~
+  - ~~centos~~
   - ubuntu
   - manjaro
 

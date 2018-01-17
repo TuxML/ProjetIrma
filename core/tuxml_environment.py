@@ -43,14 +43,14 @@ def get_os_details():
 
 def __get_partition():
         path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.call(["stat", "--format=%m", path], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.check_output(["stat", "--format=%m", path], universal_newlines=True)
         return result.split('\n')[0].strip()
 
 
 def __get_mount_point():
         #spaces near {} are here to handle the case where the partition where tuxml is used is \
-        result = subprocess.call(["cat /proc/mounts |grep \" {} \" ".format(__get_partition())],
-        shell=True, stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.check_output(["cat /proc/mounts | grep \" {} \" ".format(__get_partition())],
+        shell=True, universal_newlines=True)
         return result.split(' ')[0].strip()
 
 
@@ -58,7 +58,7 @@ def __get_type_of_disk():
     #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
     disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
     disk = disk.split("/")[2]
-    result = subprocess.call(["cat", "/sys/block/{}/queue/rotational".format(disk)], stdout=subprocess.PIPE, universal_newlines=True).stdout
+    result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], shell=True, universal_newlines=True)
     return result.split('\n')[0].strip()
 
 
@@ -117,19 +117,19 @@ def get_hardware_details():
 
 # TODO enlever la parenthèse à la fin
 def __get_libc_version():
-        result = subprocess.call(["ldd", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.check_output(["ldd", "--version"], universal_newlines=True)
         return result.strip().split(' ')[3].split('\n')[0]
 
 
 # TODO enlever la parenthèse à la fin
 def __get_gcc_version():
-        result = subprocess.call(["gcc", "--version"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.check_output(["gcc", "--version"], universal_newlines=True)
         return result.strip().split(' ')[2].split('\n')[0]
 
 
 def __get_tuxml_version():
         path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.call([path + "/tuxml.py", "-V"], stdout=subprocess.PIPE, universal_newlines=True).stdout
+        result = subprocess.check_output([path + "/tuxml.py", "-V"], universal_newlines=True)
         return result.split('.py')[1].split('\n')[0].strip()
 
 
@@ -150,12 +150,18 @@ def __get_tuxml_version():
 # return value :
 #   comp The dictionary
 def get_compilation_details():
+    brim = []
+    with open(tset.CONF_FILE, "r") as conf_file:
+        for line in conf_file:
+            brim.append(line.split("=")[1][1:-1]) #format : OPTION = value
     comp = {
         "tuxml_version": __get_tuxml_version(),
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
         "core_used": str(tset.NB_CORES),
-        "incremental_mod": str(tset.INCREMENTAL_MOD)
+        "incremental_mod": str(tset.INCREMENTAL_MOD),
+        "branch": brim[0],
+        "image": brim[1]
     }
     return comp
 
@@ -220,7 +226,6 @@ def get_environment_details():
 # Test code (temp)
 def main():
     env = get_environment_details()
-    environment_pprinter(env)
 
 # ============================================================================ #
 
