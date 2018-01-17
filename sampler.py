@@ -110,7 +110,7 @@ def run_tuxml(docker_img, i):
     cmd += "git fetch;"
     cmd += "git checkout {};".format(BRANCH)
     cmd += "mkdir logs;"
-    cmd += "echo 'TUXML_BRANCH = {}\nTUXML_IMAGE = {}' > tuxml.conf;".format(BRANCH, IMAGE)
+    cmd += "echo \"TUXML_BRANCH = {}\nTUXML_IMAGE = {}\" > tuxml.conf;".format(BRANCH, IMAGE)
     cmd += "python3 -u ./core/tuxml.py linux-4.13.3/ | tee logs/output.log;'"
 
     print("+" + "-" * 78 + "+")
