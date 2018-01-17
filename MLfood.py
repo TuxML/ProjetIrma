@@ -9,7 +9,6 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
     print("Try: ./MLfood.py <Integer> [Options]")
     print("")
-    print("Options: --no-clean   Do not delete past containers")
     print("Options: --no-clean    Do not delete past containers")
     print("         -h, --help    Prompt Options")
     print("         --reset-logs  Delete all the saved logs")
