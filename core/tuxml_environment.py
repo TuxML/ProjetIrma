@@ -166,8 +166,8 @@ def get_compilation_details():
         "gcc_version": __get_gcc_version(),
         "core_used": str(tset.NB_CORES),
         "incremental_mod": str(tset.INCREMENTAL_MOD),
-        "branch": brim[0],
-        "image": brim[1]
+        "git_branch": brim[0],
+        "docker_image": brim[1]
     }
     return comp
 
