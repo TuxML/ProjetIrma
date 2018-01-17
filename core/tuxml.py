@@ -44,7 +44,7 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    nc_help = "do not erase files from previous compilations."
+    nc_help = "do not erase files from previous compilations"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
@@ -53,7 +53,7 @@ def args_handler():
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
-    parser.add_argument("--no-clean", help=nc_help, action ="store_true")
+    parser.add_argument("--no-clean", help=nc_help, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -136,14 +136,7 @@ def args_handler():
 #   -1 package(s) not found
 #    0 installation OK
 def install_missing_packages(missing_files, missing_packages):
-    build_dependencies = {
-        "apt-get": tdep.build_dependencies_debian,
-        "pacman":  tdep.build_dependencies_arch,
-        "dnf":     tdep.build_dependencies_redhat,
-        "yum":     tdep.build_dependencies_redhat
-    }
-
-    if build_dependencies[tset.PKG_MANAGER](missing_files, missing_packages) != 0:
+    if tdep.build_dependencies(missing_files, missing_packages) != 0:
         return -1
 
     if tcom.install_packages(missing_packages) != 0:

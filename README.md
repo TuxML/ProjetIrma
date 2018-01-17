@@ -1,14 +1,6 @@
 # TuxML
-
-
-## How to Use
-
-To run the main command on a host machine, you just need to download `MLfood.py`, the folders "core" and "csvgen" are contained in the image for docker.
-Running `MLfood.py` download the latest image with the TuxML folder.
-
-
-
-## MLfood.py
+## MLfood.py script
+### Goal
 
 `MLfood.py` is the first command to run on your host machine.
 
@@ -36,32 +28,51 @@ The script retrieves the logs file err.logs, std.logs and output.logs as well as
 
 See `tuxLogs.py`
 
-## tuxLogs.py
+### How to use ?
+```
+usage: MLfood.py [-h] [-b BRANCH] [-i IMAGE] [--no-clean] [-V] [-v {0,1,2}]
+                 NB_DOCKERS
 
-Script contained in the docker image in the folder/TuxML, this is the script which run the command `/TuxML/core/tuxml.py /TuxML/linux-4.13.3 -v` directly.
+positional arguments:
+  NB_DOCKERS            number of dockers to launch, minimum 1
 
-This script exist only to allow `MLfood.py` to create the output log of `tuxml.py` with the stack trace.
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BRANCH, --branch BRANCH
+                        choose which  version of TuxML to  execute between
+                        master and dev
+                          master : last stable version (default)
+                          dev    : last up-to-date version
+  -i IMAGE, --image IMAGE
+                        two kinds of images are available
+                          prod : TuxML is  already included in the docker image.
+                                 This is the fastest way. (default)
+                          dev  : download  TuxML repository  from  GitHub before
+                                 starting the compilation
+  --no-clean            do not clean containers
+  -V, --version         display the sampler version and exit
+  -v {0,1,2}, --verbose {0,1,2}
+                        increase or decrease output verbosity
+                          0 : quiet
+                          1 : normal (default)
+                          2 : chatty
+```
 
-See `MLfood.py`
+## tuxml.py script
+### Goal
+The goal of TuxML is to  automatically  compile Linux kernel sources in order to build a database for a machine learning algorithm.  
+If the compilation crashes, TuxML  analyzes the error log file  to determine the causes. There are two possible ways:  
 
+* it is a missing  package : TuxML will install it and  resume the compilation
+* the error can't be fixed : the compilation stops
 
-## tuxml.py
+Then TuxML sends the results of the compilation to the TuxML database.
+
+You can run TuxML independantly from the sampler.
+
+### How to use ?
 ```
 usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
-
-Welcome, this is the TuxML core program.
-
-The goal of TuxML is to  automatically  compile Linux kernel sources in order to
-build a database for a machine learning algorithm.
-If the compilation crashes, TuxML  analyzes the error log file  to determine the
-causes. There are two possible ways:
-  * it is a missing  package : TuxML will install it and  resume the compilation
-  * the error can't be fixed : the compilation stops
-Then TuxML sends the results of the compilation to the database.
-
-Keep in mind that the program is currently  in developpement stage. Please visit
-our Github at https://github.com/TuxML in order to report any issue.
-Thanks !
 
 positional arguments:
   source_path           path to the Linux source directory
@@ -75,38 +86,6 @@ optional arguments:
                         will use the existing kconfig file in  the linux source
                         directory
 ```
-
-### Expected output
-
-```
-[*] Cleaning previous compilation
-[*] Generating random config
-[*] Checking dependencies
-[*] Compilation in progress
-[+] Compilation done
-[+] Testing the kernel config
-[+] Successfully compiled in 00:10:45, sending data
-[*] Sending config file and status to database
-[+] Successfully sent info to db
-```
-
-### Changelog v0.2
-**\*** Refactoring du code : le script tuxml.py a été préparé pour pouvoir diviser le dev sur plusieurs branches (master, arch-support-addition, redhat-support-addition, etc) --> fonctions build_dependencies_\*()  
-**\*** Certaines parties de tuxml.py ont été remplacées par des fonctions développées pour installDependencies.py (install_missing_packages())  
-**\*** Les fichiers de logs sont désormais de la forme *err_\<timestamp\>.logs* et *std_\<timestamp\>.logs*  
-**\+** tuxml_common.py : contient les fonctions communes à plusieurs scripts  
-**\+** tuxml_settings.py : contient les variables globales  
-**\+** Ajout de la date et de l'heure en mode debug dans les logs de tuxml.py (désormais il faut utiliser le pretty printer)  
-**\-** L'appel à sendDB a été désactivé temporairement car le site est H.S
-
-### Todolist
-
-* ~~renommer sendDB.py en tuxml_sendDB.py~~
-* ~~renommer installDependencies.py en tuxml_depman.py~~
-* ~~adapter tuxml_depman.py aux nouvelles fonctions de tuxml_common.py~~
-* ~~utiliser tuxml_settings.py dans tuxml_sendDB.py~~
-* ~~"fusionner" get_distro() et get_package_manager()~~
-* ~~étendre l'argument `--debug` pour qu'il supporte aussi un chemin vers un .config spécifique.~~
 
 ## TPDIM.py (WIP)
 
