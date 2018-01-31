@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python3
 import subprocess
 import shutil
 import tuxml_common as tcom
@@ -74,9 +74,38 @@ def build_dependencies(missing_files, missing_packages):
     tcom.pprint(0, "Dependencies built")
     return 0
 
-
 # authors : LE FLEM Erwan, MERZOUK Fahim
 #
+# Check which package are preinstalled amongst the list of given package.
+# Useful to know which of the dependencies where already installed.
+# return
+# the list of already installed package amongst the list of given package.
+def get_installed_packages(dependencies):
+    installed_packages = list()
+
+    cmds = {
+        "apt-get" : "",
+        "pacman"  : "pacman -Qs {} | grep \"/{} \"",
+        "dnf"     : "",
+        "yum"     : [""]
+        # "emerge": [],
+        # "zypper": []
+    }
+
+    for dep in dependencies:
+        try:
+            status = subprocess.call([cmds[tset.PKG_MANAGER][0].format(dep,dep)], shell=True, universal_newlines=True)
+            #status = subprocess.call([cmds.get("pacman").format(dep, dep)], shell=True, universal_newlines=True)
+            if (status == 0):
+                installed_packages.append(dep)
+        except subprocess.CalledProcessError:
+            tcom.pprint(1, "Unable to build the list of installed packages.")
+            return None
+
+    return installed_packages
+
+# authors : LE FLEM Erwan, MERZOUK Fahim    output
+#    output
 # Install packages of required dependencies to compile the kernel
 #
 # return
@@ -89,7 +118,6 @@ def install_default_dependencies():
     common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
     # Now installation of packages with name that vary amongs distributions
-    # TODO ajouter les paquets python3-pip, mysql-client?, libmariadbclient-dev, mysql-server?
     debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
     arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
     redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
@@ -109,3 +137,13 @@ def install_default_dependencies():
         return -1
     else:
         return 0
+
+# Test code (temp)
+def main():
+    cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
+    print(get_installed_packages(cps))
+
+# ============================================================================ #
+
+if __name__ == '__main__':
+    main()
