@@ -84,7 +84,7 @@ def get_installed_packages(dependencies):
     installed_packages = list()
 
     cmds = {
-        "apt-get" : "",
+        "apt-get" : "dpkg -s  {}",
         "pacman"  : "pacman -Qs {} | grep \"/{} \"",
         "dnf"     : "",
         "yum"     : [""]
@@ -94,14 +94,13 @@ def get_installed_packages(dependencies):
 
     for dep in dependencies:
         try:
-            status = subprocess.call([cmds[tset.PKG_MANAGER][0].format(dep,dep)], shell=True, universal_newlines=True)
-            #status = subprocess.call([cmds.get("pacman").format(dep, dep)], shell=True, universal_newlines=True)
+            status = subprocess.call([cmds[tset.PKG_MANAGER][0].format(dep,dep)], shell=True, universal_newlines=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            #status = subprocess.call([cmds.get("apt-get").format(dep, dep)], shell=True, universal_newlines=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             if (status == 0):
                 installed_packages.append(dep)
         except subprocess.CalledProcessError:
             tcom.pprint(1, "Unable to build the list of installed packages.")
             return None
-
     return installed_packages
 
 # authors : LE FLEM Erwan, MERZOUK Fahim    output
