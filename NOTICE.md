@@ -2,7 +2,7 @@
 
 ## Contributors
 
-### TuxML Team
+### TuxML Team
 - Corentin "*Heartbroken-Git*" CHÉDOTAL
 - Gwendal "*CaptainMexiko*" DIDOT
 - Dorian "*Aexelion*" DUMANGET
@@ -12,5 +12,5 @@
 - Mickaël "*micleb*" LEBRETON
 - Fahim "*fahimmerzouk*" MERZOUK
 
-### TuxML Team Supervising Professor
+### TuxML Team Supervising Professor
 - Mathieu "*FAMILIAR-project*" ACHER
