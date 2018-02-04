@@ -113,8 +113,10 @@ for i in range(nb):
         print("Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
-    else:
-        print("Option unknown.")
+        print("")
+    elif argv[2] != null:
+        print("Option " + argv[2] + " unknown.")
+        print("")
         exit(0)
 
     print("")
