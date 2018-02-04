@@ -150,7 +150,7 @@ def __get_tuxml_version():
 # return value :
 #   comp The dictionary
 def get_compilation_details():
-    brim = ["N/A", "N/A"]
+    brim = ["", ""]
     try:
         with open(tset.CONF_FILE, "r") as conf_file:
             i = 0

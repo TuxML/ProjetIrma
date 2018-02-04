@@ -44,16 +44,15 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    nc_help = "do not erase files from previous compilations"
+    i_help  = "do not erase files from previous compilations"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
-
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
-    parser.add_argument("--no-clean", help=nc_help, action="store_true")
+    parser.add_argument("--no-clean",      help=i_help, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -79,9 +78,11 @@ def args_handler():
         tset.PATH = args.source_path
 
     # enable or disable incremental mod (clean or not clean, that's the question)
-    tset.INCREMENTAL_MOD = args.no_clean
-    if not args.no_clean:
+    if args.no_clean:
+        tset.INCREMENTAL_MOD = 1
+    else:
         # cleaning previous compilation
+        tset.INCREMENTAL_MOD = 0
         tcom.pprint(2, "Cleaning previous compilation")
         subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
@@ -232,13 +233,16 @@ def main():
         sys.exit(-1)
 
     # launching compilation
-    start_time = time.time()
+    start_compil_time   = time.time()
+    install_time = 0
     status = -1
     while status == -1:
         missing_packages = []
         missing_files    = []
 
         if compilation() == -1:
+            start_install_time = time.time()
+
             if log_analysis(missing_files, missing_packages) == 0:
                 if install_missing_packages(missing_files, missing_packages) == 0:
                     tcom.pprint(0, "Restarting compilation")
@@ -247,21 +251,28 @@ def main():
                     status = -3
             else:
                 status = -2
+
+            stop_install_time = time.time()
+            install_time += stop_install_time - start_install_time
+            if (tset.VERBOSE > 1):
+                tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
         else:
             status = 0
-    end_time = time.time()
+    end_compil_time = time.time()
 
-    # testing kernel
     if status == 0:
-        status = end_time - start_time
+        status = end_compil_time - start_compil_time - install_time
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
-        # TODO tests
+        # TODO kernel tests
     else:
         tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
     # sending data to IrmaDB
-    tsen.send_data(tset.PATH, tset.ERR_LOG_FILE, status)
+    if tsen.send_data(status) != 0:
+        sys.exit(-1)
+
+    sys.exit(0)
 
 
 # ============================================================================ #
