@@ -35,11 +35,11 @@ def bootTry(path):
 				status = 1
 			
 			if re.search("(initramfs)", fileData):
-				print("Shell detected, kernel successfully booted")
+				print("Shell detected, kernel successfully booted !")
 				status = 0
 				
-			if rndCounter == 201:
-				print("More than 200 attempts at reading, possible infinite loop, interrupting")
+			if rndCounter == 61:
+				print("More than 60 attempts at reading, possible infinite loop in boot process, interrupting")
 				status = 99
 				
 			rndCounter = rndCounter + 1
