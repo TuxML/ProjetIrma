@@ -26,6 +26,6 @@ if not os.path.exists("ConfigFile/"):
 # Allow to create a given number of config files.
 for i in range(nb):
     rc = "KCONFIG_ALLCONFIG= $(pwd)/../core/tuxml.config make -C " + path + " randconfig"
-    way = "cp " + path + ".config ConfigFile/" + str(i) + ".config"
+    way = "cp " + path + "/.config ConfigFile/" + str(i) + ".config"
     os.system(rc)
     os.system(way)
