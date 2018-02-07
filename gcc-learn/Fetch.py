@@ -16,4 +16,4 @@ except Exception as e:
     exit(1)
 
 for i in range(100):
-        os.system("../core/tuxml.py ../linux-4.13.3 -d ../gcc-learn/config/" + str(i) + ".config -c " + str(n))
+        os.system("../core/tuxml.py ../linux-4.13.3/ -d ConfigFile/" + str(i) + ".config -c " + str(n))
