@@ -2,9 +2,9 @@ __pycache__
 .config
 vmlinux
 vmlinuz
-linux-4.13.3
 tuxml/
 Logs/
+linux-4.13.3
 configs
 tuxml_environment.csv
 linux-4.13.3.tar.xz
