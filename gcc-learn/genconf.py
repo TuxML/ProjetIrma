@@ -3,6 +3,9 @@
 import os
 from sys import argv
 
+
+# Script which generate n number of .config files
+
 if len(argv) == 1:
     print("Try: ./genconf.py [Integer]")
     exit(1)
