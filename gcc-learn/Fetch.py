@@ -15,5 +15,15 @@ except Exception as e:
     print("You need to give an integer")
     exit(1)
 
+# Used to differenciate the Fetch run by users with Fetch called in a docker
+# It runs with a different behavior
+if "--comp" in argv:
+    os.system("../core/tuxml.py ../linux-4.13.3/ -d ConfigFile/" + str(i) + ".config -c " + str(n))
+    exit(0)
+
+# Compile all the .config file
 for i in range(100):
-        os.system("../core/tuxml.py ../linux-4.13.3/ -d ConfigFile/" + str(i) + ".config -c " + str(n))
+    print("Docker num" + str(i))
+    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev /TuxML/Fetch.py ' + n + '--comp'
+    os.system(chaine)
+    print("")
