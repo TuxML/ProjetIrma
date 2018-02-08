@@ -24,6 +24,6 @@ if "--comp" in argv:
 # Compile all the .config file
 for i in range(1):
     print("Docker num " + str(i))
-    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev cd /TuxML; echo "cd done"; git pull; git checkout GCC-Learning; echo "checkout done"; cd gcc-learn/; chmod +x Fetch.py; echo "chmod done"; ./Fetch.py ' + str(n) + ' --comp' + num
+    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev cd /TuxML; echo "cd done"; git pull; git checkout GCC-Learning; echo "checkout done"; cd gcc-learn/; chmod +x Fetch.py; echo "chmod done"; ./Fetch.py ' + str(n) + ' --comp' + str(i)
     os.system(chaine)
     print("")
