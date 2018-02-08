@@ -18,12 +18,12 @@ except Exception as e:
 # Used to differenciate the Fetch run by users with Fetch called in a docker
 # It runs with a different behavior
 if "--comp" in argv:
-    os.system("../core/tuxml.py ../linux-4.13.3/ -d ConfigFile/" + str(i) + ".config -c " + str(n))
+    os.system("../core/tuxml.py ../linux-4.13.3/ -d ConfigFile/" + argv[3] + ".config -c " + str(n))
     exit(0)
 
 # Compile all the .config file
 for i in range(1):
     print("Docker num " + str(i))
-    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev "cd /TuxML; echo "cd done"; git pull; git checkout GCC-Learning; echo "checkout done"; cd gcc-learn/; chmod +x Fetch.py; echo "chmod done"; ./Fetch.py ' + str(n) + ' --comp"'
+    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev cd /TuxML; echo "cd done"; git pull; git checkout GCC-Learning; echo "checkout done"; cd gcc-learn/; chmod +x Fetch.py; echo "chmod done"; ./Fetch.py ' + str(n) + ' --comp' + num
     os.system(chaine)
     print("")
