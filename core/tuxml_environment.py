@@ -233,7 +233,7 @@ def get_environment_details():
 
 
 def overlay_to_partition():
-    inode = subprocess.check_output(["df -i | grep overlay | awk '{print $2}' "], shell=True, universal_newlines=True).strip()
+    inode = subprocess.check_output(["df -i | grep overlay | awk '{print $3}' "], shell=True, universal_newlines=True).strip()
     result = subprocess.check_output(["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
     return result.split('\n')[0].strip()
 
