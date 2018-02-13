@@ -57,8 +57,11 @@ def __get_mount_point():
 def __get_type_of_disk():
     #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
     disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
+    if disk.strip() == "overlay" or disk == "overlay2":
+        disk = overlay_to_partition()
     disk = disk.split("/")[2]
-    result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], shell=True, universal_newlines=True)
+    disk = ''.join(i for i in disk if not i.isdigit())
+    result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
     return result.split('\n')[0].strip()
 
 
@@ -109,7 +112,7 @@ def get_hardware_details():
         "ram": memory,
         "arch": os.uname().machine,
         "cpu_cores": str(multiprocessing.cpu_count()),
-        # "mecanical_drive": __get_type_of_disk()
+        "mecanical_drive": __get_type_of_disk()
     }
 
     return hw
@@ -227,6 +230,12 @@ def get_environment_details():
     export_as_csv(env["system"], env["hardware"], env["compilation"])
 
     return env
+
+
+def overlay_to_partition():
+    inode = subprocess.check_output(["df -i | grep overlay | awk '{print $2}' "], shell=True, universal_newlines=True).strip()
+    result = subprocess.check_output(["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
+    return result.split('\n')[0].strip()
 
 
 # Test code (temp)
