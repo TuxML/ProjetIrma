@@ -7,6 +7,7 @@ import re
 import shutil
 import time
 import argparse
+import curses
 import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset
@@ -34,9 +35,10 @@ def args_handler():
 
     p_help  = "path to the Linux source directory"
     v_help  = "increase or decrease output verbosity\n"
-    v_help += " " * 2 + "0 : quiet\n"
-    v_help += " " * 2 + "1 : normal (default)\n"
-    v_help += " " * 2 + "2 : chatty\n"
+    v_help += " " * 2 + "1 : very quiet\n"
+    v_help += " " * 2 + "2 : quiet\n"
+    v_help += " " * 2 + "3 : chatty (default)\n"
+    v_help += " " * 2 + "4 : very chatty\n"
     V_help  = "display TuxML version and exit"
     d_help  = "debug a given KCONFIG_SEED  or  KCONFIG_FILE. If no seed\n"
     d_help += "or file are  given, the script  will  use  the  existing\n"
@@ -48,7 +50,7 @@ def args_handler():
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
-    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=[0,1,2])
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=range(1,5))
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
@@ -65,10 +67,10 @@ def args_handler():
     if args.verbose:
         tset.VERBOSE = args.verbose
 
-        if tset.VERBOSE > 1:
+        if tset.VERBOSE > 3:
             tset.OUTPUT = sys.__stdout__
     else:
-        tset.VERBOSE = 1
+        tset.VERBOSE = 3
 
     # store the linux source path in a global var
     if not os.path.exists(args.source_path):
@@ -84,7 +86,11 @@ def args_handler():
         # cleaning previous compilation
         tset.INCREMENTAL_MOD = 0
         tcom.pprint(2, "Cleaning previous compilation")
-        subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+        status = subprocess.call(["make", "-C", tset.PATH, "mrproper"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+
+        if status != 0:
+            tcom.pprint(1, "Unable to clean previous compilation")
+            sys.exit(-1)
 
     # handle debug mode
     if args.debug:
@@ -104,7 +110,11 @@ def args_handler():
 
             if kconfig_seed != -1:
                 tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + args.debug)
-                output = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+                status = subprocess.call(["KCONFIG_SEED=" + args.debug + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+
+                if status != 0:
+                    tcom.pprint(1, "Unable to generate KCONFIG_FILE")
+                    sys.exit(-1)
             else:
                 # debug config with given KCONFIG_FILE
                 if os.path.exists(args.debug):
@@ -115,8 +125,12 @@ def args_handler():
                     sys.exit(-1)
     else:
         # generating new KConfig file
-        tcom.pprint(2, "Randomising new config file")
-        output = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+        tcom.pprint(2, "Randomising new KCONFIG_FILE")
+        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+
+        if status != 0:
+            tcom.pprint(1, "Unable to generate KCONFIG_FILE")
+            sys.exit(-1)
 
     # set the number of cores
     if args.cores:
@@ -233,44 +247,52 @@ def main():
         sys.exit(-1)
 
     # launching compilation
-    start_compil_time   = time.time()
-    install_time = 0
-    status = -1
-    while status == -1:
-        missing_packages = []
-        missing_files    = []
+    while 1:
+        start_compil_time   = time.time()
+        install_time = 0
+        status = -1
+        while status == -1:
+            missing_packages = []
+            missing_files    = []
 
-        if compilation() == -1:
-            start_install_time = time.time()
+            if compilation() == -1:
+                start_install_time = time.time()
 
-            if log_analysis(missing_files, missing_packages) == 0:
-                if install_missing_packages(missing_files, missing_packages) == 0:
-                    tcom.pprint(0, "Restarting compilation")
-                    status = -1
+                if log_analysis(missing_files, missing_packages) == 0:
+                    if install_missing_packages(missing_files, missing_packages) == 0:
+                        tcom.pprint(0, "Restarting compilation")
+                        status = -1
+                    else:
+                        status = -3
                 else:
-                    status = -3
+                    status = -2
+
+                stop_install_time = time.time()
+                install_time += stop_install_time - start_install_time
+                if (tset.VERBOSE > 1):
+                    tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
             else:
-                status = -2
+                status = 0
+        end_compil_time = time.time()
 
-            stop_install_time = time.time()
-            install_time += stop_install_time - start_install_time
-            if (tset.VERBOSE > 1):
-                tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
+        if status == 0:
+            status = end_compil_time - start_compil_time - install_time
+            compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
+            tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
+            # TODO kernel tests
         else:
-            status = 0
-    end_compil_time = time.time()
+            tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
-    if status == 0:
-        status = end_compil_time - start_compil_time - install_time
-        compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
-        tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
-        # TODO kernel tests
-    else:
-        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+        # sending data to IrmaDB
+        if tsen.send_data(status) != 0:
+            sys.exit(-1)
 
-    # sending data to IrmaDB
-    if tsen.send_data(status) != 0:
-        sys.exit(-1)
+        if tset.INCREMENTAL_MOD == 1:
+            val = input("Press ENTER to go on or type ':q' to quit")
+            if val == ":q":
+                break;
+        else:
+            break;
 
     sys.exit(0)
 

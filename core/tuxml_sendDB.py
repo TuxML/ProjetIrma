@@ -51,43 +51,33 @@ def send_data(compile_time):
         cursor = conn.cursor()
 
         # Values for request
-        entries = {
+        parameters = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time())),
-            "compilation_time": compile_time,
-            "config_file": base64.b64encode(open(logfiles[0], "rb").read()).decode("utf-8"),
-            "stdlog_file": base64.b64encode(open(logfiles[1], "rb").read()).decode("utf-8"),
-            "errlog_file": base64.b64encode(open(logfiles[2], "rb").read()).decode("utf-8"),
-            "core_size": get_kernel_size(),
+            "compilation_time": str(compile_time),
+            "config_file": open(logfiles[0], "r").read(),
+            "stdlog_file": open(logfiles[1], "r").read(),
+            "errlog_file": open(logfiles[2], "r").read(),
+            "core_size": str(get_kernel_size()),
             "dependencies": "",
-            "mechanical_drive": 0
+            "mechanical_drive": '0'
         }
 
         for dico in tset.TUXML_ENV:
-            entries.update(tset.TUXML_ENV[dico])
+            parameters.update(tset.TUXML_ENV[dico])
 
-        # Request
-        keys   = []
-        values = []
-        for key, value in entries.items():
-            keys.append(str(key))
-            if type(value) in [int, bool]:
-                values.append(str(value))
-            else:
-                values.append("\"" + str(value) + "\"")
+        keys   = ",".join(parameters.keys())
+        values = ','.join(['%s'] * len(parameters.values()))
 
-        keys   = ",".join(entries.keys())
-        values = ",".join(values)
+        query  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
 
-        request  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
-
-        cursor.execute(request, entries)
+        cursor.execute(query, list(parameters.values()))
         conn.commit()
         conn.close()
 
         tcom.pprint(0, "Successfully sent info to db")
         return 0
     except MySQLdb.Error as err:
-        tcom.pprint(1, "Can't send info to db : {}".format(err.args[1]))
+        tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
 
 
@@ -109,5 +99,4 @@ if __name__ == "__main__":
         tset.PATH = args.source_path
 
     tset.TUXML_ENV = tenv.get_environment_details()
-
     send_data(123)

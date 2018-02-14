@@ -155,7 +155,7 @@ def get_compilation_details():
         with open(tset.CONF_FILE, "r") as conf_file:
             i = 0
             for line in conf_file:
-                brim[i] = line.split("=")[1][1:-1] #format : OPTION = value
+                brim[i] = line.split("=")[1][1:-1] #format : OPTION=value
                 i += 1
     except EnvironmentError:
         tcom.pprint(1, "Unable to find {}".format(tset.CONF_FILE))
@@ -194,11 +194,11 @@ def export_as_csv(os_details, hw_details, comp_details):
 #
 # Display all the environment's details
 def environment_pprinter(env_details):
+    print(tset.GRAY, end='')
     for dico in env_details:
         print(" " * 4 + "==> "+ dico)
         for key in env_details[dico]:
             print(" " * 6 + "--> " + key + ": " + env_details[dico][key])
-
 
 # author : LEBRETON Mickaël
 #
@@ -220,7 +220,7 @@ def get_environment_details():
         "compilation": get_compilation_details()
     }
 
-    if tset.VERBOSE > 0:
+    if tset.VERBOSE > 1:
         environment_pprinter(env)
 
     # TODO changer ça car c'est très moche :
