@@ -42,7 +42,7 @@ if "--reset-logs" in argv:
 # If the number is above 50, the scrypt will ask for a confirmation
 try:
     nb = int(argv[1])
-    if nb >= 50 :
+    if nb >= 50:
         print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
         print('Canceling it would take as much Ctrl+C as the remaining number of compiling.')
         ok = input()
@@ -91,7 +91,7 @@ for i in range(nb):
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + dev + '| tee Logs/' + logsFolder + '/output.log'
-    print("\n=============== Docker n°" + str(i + 1)+ " ===============")
+    print("\n=============== Docker number " + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
     os.system(chaine)
