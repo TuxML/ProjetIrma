@@ -1,41 +1,104 @@
 #!/usr/bin/python3
 
 import os
-from sys import argv
+import argparse
 
 # We define the function use in the script
-def dockerBuild():
-    print("Update of the docker image tuxml/tuxmldebian")
-    # Build the choosen docker image
-    str1 = 'sudo docker build -t tuxml/tuxmldebian .'
-    os.system(str1)
 
-def dockerPush():
+
+def DockerBuild(image, *location):
+    print("Update of the docker image")
+    # Build the choosen docker image
+    if location in args:
+        strBuild = 'sudo docker build -t {} {}'.format(image, location)
+        print(strBuild)
+        pass
+    else:
+        strBuild = 'sudo docker build -t tuxml/tuxml{} .'.format(image)
+    os.system(strBuild)
+
+
+def DockerPush(repository):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
-    strpush = 'sudo docker push tuxml/tuxmldebian'
+    strpush = 'sudo docker push tuxml/tuxml{}'.format(repository)
     rstrpush = os.system(strpush)
     # If needed, login to the repository
     if rstrpush == 256:
+        print("You need to login on Docker hub")
         str3 = 'sudo docker login'
         os.system(str3)
 
+
+def DockerGenerate(originImage, *dependencesFile):
+    newImage = 'tuxml/{}tuxml:prod'.format(originImage)
+    os.chdir('BuildImageInter')
+    # strPres = 'sudo docker search tuxml | grep {}tuxml > present.txt'.format(originImage)
+    # os.system(strPres)
+    # presentText = open("present.txt", "r")
+    # res = presentText.readline()
+    # if not res:
+    dockerFileI = open("Dockerfile", "w")
+    if dependencesFile in args:
+        dep = open(dependencesFile, "r")
+        for i in len(dep):
+            
+            pass
+    dockerFileI.write("FROM {}:latest\n".format(originImage))
+    dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\nRUN apt-get update\nRUN apt-get -qq -y install python3 apt-file apt-utils gcc make binutils util-linux kmod e2fsprogs jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool nfs-kernel-server procps mcelog libcrypto++6 python3-dev default-libmysqlclient-dev git wget\nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World")
+    dockerFileI.close()
+    strBuildI = 'sudo docker build -t tuxml/{}tuxml:prod .'.format(originImage)
+    os.system(strBuildI)
+    strPushI = 'sudo docker push tuxml/{}tuxml:prod'.format(originImage)
+    os.system(strPushI)
+    # else:
+    # print("tuxml/{}tuxml:prod already exist".format(originImage))
+    os.chdir('..')
+    dockerFile = open("Dockerfile", "w")
+    dockerFile.write("FROM {}\n".format(newImage))
+    dockerFile.write("ADD core /TuxML\nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.close()
+
+
 # Start of the script
 
-# Refactor needed with the use of argparse
-# We check if the script have an option to it, if not we run the program with GUI (not yet implement)
-if len(argv) == 1:
-    print("The graphical mode of TPDIM is not implemented yet.")
-    exit(0)
 
-# Show the options if the user ask for it
-if "-h" in argv or "--help" in argv:
-    print("")
-    print("Options : -b [.|directory path], --build     Build an image with the folder give in option, the folder must have a valid DockerFile")
-    print("          -g <parent image> [dependances text file], --generate <parent_image> [dependances text file]    Generate a DockerFile, suit for TuxML, with the parent image and add the optional dependances.")
-    exit(0)
+if __name__ == "__main__":
 
-# We check if the user is a super-user.
-if os.getuid() != 0:
-    print('Docker needs to be launch with super user rights')
-    exit(1)
+    parser = argparse.ArgumentParser(description="test", formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument('-b', '--build', help="Image that you want to build, use -f to give the folder where is the TuxML project scripts and a valid dockerfile, default is [.]")
+    parser.add_argument('-f', '--folder', help="Folder where is locate a valid docker file use to build a docker image, default is  [.] ", default=".")
+    parser.add_argument('-g', '--generate', help="Image use to generate a docker file")
+    parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
+    parser.add_argument('-p', '--push', help="Push the image on the distant repository")
+
+args = parser.parse_args()
+
+if args.generate:
+    DocPre = os.listdir('.')
+    if "Dockerfile" in DocPre:
+        print("It seems that a DockerFile already exist, please move it away or I'll be delete by the generation, do wish to continue ? (y/n)")
+        rep = input()
+        rep.lower()
+        if rep == "y":
+            if args.dependences:
+                DockerGenerate(args.generate, args.dependences)
+            else:
+                DockerGenerate(args.generate)
+        else:
+            print("Canceled")
+            exit(0)
+
+if args.push:
+    DockerPush(args.push)
+if args.build:
+    if args.folder:
+        DocPre = os.listdir(args.folder)
+        if "Dockerfile" not in DocPre:
+            print("Please give a folder with a valid Dockerfile")
+            exit(-1)
+        else:
+            DockerBuild(args.build, args.folder)
+    else:
+        DockerBuild(args.image)

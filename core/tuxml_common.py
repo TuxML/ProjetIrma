@@ -11,7 +11,7 @@ def pprint(s, message):
     # success, error, message, debug, warning
     status = ["[+]", "[-]", "[*]", "[#]", "[!]"]
 
-    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.localtime(time.time()))
+    date = time.strftime("%Y-%m-%d %H:%M:%S GMT | ", time.localtime(time.time()))
 
     if tset.VERBOSE > 0:
         print(status[s] + " " + date + message)
@@ -86,8 +86,8 @@ def update_system():
     manager_to_cmd = {
         "apt-get": " update && apt-file update",
         "pacman": " -Sy",
-        "dnf": " update",
-        "yum": " update",
+        "dnf": " -y update",
+        "yum": " -y update",
         "emerge" : " --sync",
         "zypper": " refresh"
     }
