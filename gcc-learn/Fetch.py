@@ -15,6 +15,9 @@ except Exception as e:
     print("You need to give an integer")
     exit(1)
 
+print("Retrieves last image...")
+os.system("sudo docker pull tuxml/tuxmldebian:dev")
+	
 # Compile all the .config file
 for i in range(1):
     print("Docker num " + str(i))
