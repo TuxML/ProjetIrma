@@ -4,7 +4,8 @@ import time
 import math
 import os
 
-# ===== GLOBALS =====
+# GLOBALS
+## MISC
 PATH            = ""                       # Path to the linux sources
 LOG_DIR         = "/logs"                  # Path to the log directory
 STD_LOG_FILE    = LOG_DIR + "/std.log"     # Path to the standard log file
@@ -17,14 +18,15 @@ PKG_MANAGER     = ""                       # Package manager of the system
 TUXML_ENV       = None                     # Environment details
 INCREMENTAL_MOD = 0                        # By default we don't use the files from the previous compilations
 
-WHITE           = "\033[0m"                # Default
-GRAY            = "\033[38;5;7m"
+## COLORS
+WHITE           = "\033[0m"                # Default color
+GRAY            = "\033[38;5;7m"           # Debug
 BLACK           = "\033[38;5;16m"
-RED             = "\033[38;5;1m"           # Success
+RED             = "\033[38;5;1m"           # Errors messages
 LIGHT_RED       = "\033[38;5;9m"
-GREEN           = "\033[38;5;2m"           # Error
+GREEN           = "\033[38;5;2m"           # Success messages
 LIGHT_GREEN     = "\033[38;5;10m"
-ORANGE          = "\033[38;5;3m"           # Warning
+ORANGE          = "\033[38;5;3m"           #
 LIGHT_ORANGE    = "\033[38;5;11m"
 BLUE_1          = "\033[38;5;4m"
 LIGHT_BLUE_1    = "\033[38;5;12m"
@@ -32,3 +34,16 @@ BLUE_2          = "\033[38;5;6m"
 LIGHT_BLUE_2    = "\033[38;5;14m"
 PURPLE          = "\033[38;5;5m"
 LIGHT_PURPLE    = "\033[38;5;13m"
+
+## REMOTE ACCESS
+HOST            = "148.60.11.195"
+### DATABASE
+DB_USER         = "script2"
+DB_PASSWD       = "ud6cw3xNRKnrOz6H"
+DB_NAME         = "IrmaDB_prod"
+### SFTP
+SFTP_USER       = "tuxml"
+SFTP_PASSWD     = "ProjetIrma"
+SFTP_PORT       = 22
+SFTP_DIR        = "/var/www/html/files/"
+SFTP_LOGS       = "/tmp/tuxml_sftp.log"

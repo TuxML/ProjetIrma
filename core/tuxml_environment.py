@@ -112,7 +112,7 @@ def get_hardware_details():
         "ram": memory,
         "arch": os.uname().machine,
         "cpu_cores": str(multiprocessing.cpu_count()),
-        "mecanical_drive": __get_type_of_disk()
+        "mechanical_drive": __get_type_of_disk()
     }
 
     return hw
@@ -197,11 +197,10 @@ def export_as_csv(os_details, hw_details, comp_details):
 #
 # Display all the environment's details
 def environment_pprinter(env_details):
-    print(tset.GRAY, end='')
     for dico in env_details:
-        print(" " * 4 + "==> "+ dico)
+        print(tset.GRAY + " " * 4 + "==> "+ dico)
         for key in env_details[dico]:
-            print(" " * 6 + "--> " + key + ": " + env_details[dico][key])
+            print(tset.GRAY + " " * 6 + "--> " + key + ": " + env_details[dico][key])
 
 # author : LEBRETON Mickaël
 #
