@@ -40,7 +40,7 @@ HOST            = "148.60.11.195"
 ### DATABASE
 DB_USER         = "script2"
 DB_PASSWD       = "ud6cw3xNRKnrOz6H"
-DB_NAME         = "IrmaDB_prod"
+DB_NAME         = "IrmaDB_"
 ### SFTP
 SFTP_USER       = "tuxml"
 SFTP_PASSWD     = "ProjetIrma"

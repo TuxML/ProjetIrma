@@ -29,7 +29,7 @@ def get_kernel_size():
 # author : LEBRETON Mickaël
 #
 # Function used to upload logfiles on the server
-# /!\ NOT IN USE CURRENTLY /!\
+# /!\ CURRENTLY NOT IN USE /!\
 #
 # return value :
 #   -1 Fail
@@ -88,7 +88,7 @@ def send_data(compile_time):
 
         # Values for request
         date = time.gmtime(time.time())
-        parameters = {
+        args = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", date),
             "compilation_time": str(compile_time),
             # "config_file": time.strftime("%Y%m%d_%H%M%S", date) + "/.config",
@@ -102,14 +102,14 @@ def send_data(compile_time):
         }
 
         for dico in tset.TUXML_ENV:
-            parameters.update(tset.TUXML_ENV[dico])
+            args.update(tset.TUXML_ENV[dico])
 
-        keys   = ",".join(parameters.keys())
-        values = ','.join(['%s'] * len(parameters.values()))
+        keys   = ",".join(args.keys())
+        values = ','.join(['%s'] * len(args.values()))
 
         query  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
 
-        cursor.execute(query, list(parameters.values()))
+        cursor.execute(query, list(args.values()))
         socket.commit()
         socket.close()
 

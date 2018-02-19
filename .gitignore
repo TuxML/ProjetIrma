@@ -12,3 +12,4 @@ tuxml_environment.csv
 *.xz
 pax_global_header
 *.tar
+inctests/files/

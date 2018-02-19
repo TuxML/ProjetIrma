@@ -47,6 +47,7 @@ def args_handler():
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
     i_help  = "do not erase files from previous compilations"
+    s_help  = "choose on which database send the compilation results"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("source_path",     help=p_help)
@@ -55,13 +56,17 @@ def args_handler():
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
     parser.add_argument("--no-clean",      help=i_help, action="store_true")
+    parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
     args = parser.parse_args()
 
     # ask root credentials
     if os.getuid() != 0:
-          sudo_args = ["sudo", "-k", sys.executable] + sys.argv + [os.environ]
-          os.execlpe('sudo', *sudo_args)
-          sys.exit(-1)
+        sudo_args = ["sudo", "-k", sys.executable] + sys.argv + [os.environ]
+        os.execlpe('sudo', *sudo_args)
+        sys.exit(-1)
+
+    # setting up the database
+    tset.DB_NAME += args.database
 
     # manage level of verbosity
     if args.verbose:
