@@ -4,7 +4,7 @@ import time
 import os
 import MySQLdb
 import argparse
-import paramiko
+# import paramiko
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_environment as tenv
@@ -108,8 +108,13 @@ def send_data(compile_time):
         values = ','.join(['%s'] * len(args.values()))
 
         query  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
-
         cursor.execute(query, list(args.values()))
+
+        if tset.INCREMENTAL_MOD:
+            query  = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin)"
+            query += "SELECT cid, {} FROM Compilations ORDER BY cid DESC LIMIT 1".format(tset.CONFIG_ID)
+            cursor.execute(query)
+
         socket.commit()
         socket.close()
 
@@ -120,6 +125,7 @@ def send_data(compile_time):
     except MySQLdb.Error as err:
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
+
 
 
 if __name__ == "__main__":
@@ -140,6 +146,9 @@ if __name__ == "__main__":
         tset.PATH = args.source_path
 
     tset.VERBOSE = 3
+    tset.DB_NAME = "IrmaDB_prod"
+    tset.INCREMENTAL_MOD = 1
+    tset.CONFIG_ID = 4
 
     tset.TUXML_ENV = tenv.get_environment_details()
     send_data(123)

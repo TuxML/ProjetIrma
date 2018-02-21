@@ -46,7 +46,9 @@ def args_handler():
     c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    i_help  = "do not erase files from previous compilations"
+    i_help  = "incremental  mod does  not  erase  files  from  previous\n"
+    i_help += "compilations. The CID correspond to the ID of the origi-\n"
+    i_help += "nal compilation."
     s_help  = "choose on which database send the compilation results"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
@@ -55,7 +57,7 @@ def args_handler():
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG", nargs='?', const=-1)
-    parser.add_argument("--no-clean",      help=i_help, action="store_true")
+    parser.add_argument("--inc-mod",       help=i_help, type=int, metavar="CID")
     parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
     args = parser.parse_args()
 
@@ -85,8 +87,9 @@ def args_handler():
         tset.PATH = args.source_path
 
     # enable or disable incremental mod (clean or not clean, that's the question)
-    if args.no_clean:
+    if args.inc_mod:
         tset.INCREMENTAL_MOD = 1
+        tset.CONFIG_ID = args.inc_mod
     else:
         # cleaning previous compilation
         tset.INCREMENTAL_MOD = 0
@@ -252,52 +255,44 @@ def main():
         sys.exit(-1)
 
     # launching compilation
-    while 1:
-        start_compil_time   = time.time()
-        install_time = 0
-        status = -1
-        while status == -1:
-            missing_packages = []
-            missing_files    = []
+    start_compil_time   = time.time()
+    install_time = 0
+    status = -1
+    while status == -1:
+        missing_packages = []
+        missing_files    = []
 
-            if compilation() == -1:
-                start_install_time = time.time()
+        if compilation() == -1:
+            start_install_time = time.time()
 
-                if log_analysis(missing_files, missing_packages) == 0:
-                    if install_missing_packages(missing_files, missing_packages) == 0:
-                        tcom.pprint(0, "Restarting compilation")
-                        status = -1
-                    else:
-                        status = -3
+            if log_analysis(missing_files, missing_packages) == 0:
+                if install_missing_packages(missing_files, missing_packages) == 0:
+                    tcom.pprint(0, "Restarting compilation")
+                    status = -1
                 else:
-                    status = -2
-
-                stop_install_time = time.time()
-                install_time += stop_install_time - start_install_time
-                if (tset.VERBOSE > 1):
-                    tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
+                    status = -3
             else:
-                status = 0
-        end_compil_time = time.time()
+                status = -2
 
-        if status == 0:
-            status = end_compil_time - start_compil_time - install_time
-            compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
-            tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
-            # TODO kernel tests
+            stop_install_time = time.time()
+            install_time += stop_install_time - start_install_time
+            if (tset.VERBOSE > 1):
+                tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
         else:
-            tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+            status = 0
+    end_compil_time = time.time()
 
-        # sending data to IrmaDB
-        if tsen.send_data(status) != 0:
-            sys.exit(-1)
+    if status == 0:
+        status = end_compil_time - start_compil_time - install_time
+        compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
+        tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
+        # TODO kernel tests
+    else:
+        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
-        if tset.INCREMENTAL_MOD == 1:
-            val = input("Press ENTER to go on or type ':q' to quit")
-            if val == ":q":
-                break;
-        else:
-            break;
+    # sending data to IrmaDB
+    if tsen.send_data(status) != 0:
+        sys.exit(-1)
 
     sys.exit(0)
 
