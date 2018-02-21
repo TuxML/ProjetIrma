@@ -3,6 +3,8 @@
 import os
 from sys import argv
 
+# Author Alexis LE MASLE
+
 if "--dev" in argv:
     # Update the image to the latest dev version
     print('Retrieves latest version of TuxML scritps...')
