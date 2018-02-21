@@ -11,5 +11,5 @@ if len(argv) < 3:
 
 # Used to differentiate the Fetch run by users with Fetch called in a docker
 # It runs with a different behavior
-cmd = "../tuxml.py ../linux-4.13.3/ -d ConfigFile/" + argv[2] + ".config -c " + argv[1]
+cmd = "../tuxml.py ../linux-4.13.3/ -d " + argv[2] + ".config -c " + argv[1]
 os.system(cmd)
