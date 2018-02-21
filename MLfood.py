@@ -4,6 +4,8 @@ import os
 import time
 from sys import argv
 
+# Author Alexis LE MASLE
+
 # Error if there is no argument "number" of compilation to run.
 if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")

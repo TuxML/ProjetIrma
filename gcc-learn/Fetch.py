@@ -3,6 +3,8 @@
 import os
 from sys import argv
 
+# Author Alexis LE MASLE
+
 if len(argv) < 2:
     print("Please, enter a non-zero positive number of core to use")
     print("Try ./Fetch.py [Integer]")
@@ -16,8 +18,8 @@ except Exception as e:
     exit(1)
 
 print("Retrieves last image...")
-os.system("sudo docker pull tuxml/tuxmldebian:dev")
-	
+os.system("sudo docker pull tuxml/tuxmldebian")
+
 # Compile all the .config file
 for i in range(1):
     print("Docker num " + str(i))
