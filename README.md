@@ -109,7 +109,6 @@ optional arguments:
 * ~~étendre l'argument `--debug` pour qu'il supporte aussi un chemin vers un .config spécifique.~~
 
 ## TPDIM.py (WIP)
-<<<<<<< HEAD
 
 This script/program is design to help people using TuxML easly manage there docker image or container.
 
@@ -121,12 +120,3 @@ At the moment the script can do :
 ## License
 
 The TuxML project is licensed under the terms of the **Apache License 2.0** as available in the `LICENSE` file and [online here](http://www.apache.org/licenses/LICENSE-2.0.txt). A list of contributors and other details are available in the `NOTICE.md` file.
-=======
-
-This script/program is design to help people using TuxML easly manage there docker image or container.
-
-At the moment the script can do :
-
-* Build the docker image tuxml/tuxmldebian
-* Push this image on the repository tuxml on
->>>>>>> 48a1dddd0a0c8d66d7b16ba305d3ef3a8c338f1a
