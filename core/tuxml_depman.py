@@ -1,4 +1,5 @@
 #!/bin/python
+<<<<<<< HEAD
 
 #   Copyright 2018 TuxML Team
 #
@@ -14,6 +15,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+=======
+>>>>>>> 48a1dddd0a0c8d66d7b16ba305d3ef3a8c338f1a
 import subprocess
 import shutil
 import tuxml_common as tcom
