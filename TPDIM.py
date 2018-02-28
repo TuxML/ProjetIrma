@@ -34,7 +34,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
     os.chdir('BuildImageInter')
     dockerFileI = open("Dockerfile", "w")
-    dockerFileI.write("FROM {}:{}\n".format(originImage, tag))
+    dockerFileI.write("FROM {}:latest\n".format(originImage))
     depText = ""
     if len(dependencesFile) != 0:
         depText = dependencesFile[0]
@@ -46,7 +46,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.system(strPushI)
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
-    dockerFile.write("FROM {}\n".format(newImage))
+    dockerFile.write("FROM {}:{}\n".format(newImage, tag))
     dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
