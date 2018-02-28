@@ -71,7 +71,7 @@ args = parser.parse_args()
 if args.generate:
     DocPre = os.listdir('.')
     if "Dockerfile" in DocPre:
-        print("It seems that a DockerFile already exist, please move it away or I'll be delete by the generation, do wish to continue ? (y/n)")
+        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
         rep = input()
         rep.lower()
         if rep == "y":
@@ -92,7 +92,7 @@ if args.build:
     if args.folder:
         DocPre = os.listdir(args.folder)
         if "Dockerfile" not in DocPre:
-            print("Please give a folder with a vdevalid Dockerfile")
+            print("Please give a folder with a valid Dockerfile")
             exit(-1)
         else:
             DockerBuild(args.build, args.tag, args.folder)
