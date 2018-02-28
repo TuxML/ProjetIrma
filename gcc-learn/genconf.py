@@ -3,7 +3,7 @@
 import os
 from sys import argv
 
-
+# Author Alexis LE MASLE
 # Script which generate n number of .config files
 
 if len(argv) == 1:

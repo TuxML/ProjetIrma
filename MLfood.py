@@ -4,6 +4,8 @@ import os
 import time
 from sys import argv
 
+# Author Alexis LE MASLE
+
 # Error if there is no argument "number" of compilation to run.
 if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
@@ -90,7 +92,7 @@ for i in range(nb):
         os.makedirs("Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -i ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + dev + '| tee Logs/' + logsFolder + '/output.log'
+    chaine = 'sudo docker run -i ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + dev + ' | tee Logs/' + logsFolder + '/output.log'
     print("\n=============== Docker number " + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")

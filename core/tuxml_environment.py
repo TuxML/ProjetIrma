@@ -59,6 +59,8 @@ def __get_type_of_disk():
     disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
     if disk.strip() == "overlay" or disk == "overlay2":
         disk = overlay_to_partition()
+    elif len(disk.split("/")) < 2:
+        disk = getHostFS()
     disk = disk.split("/")[2]
     disk = ''.join(i for i in disk if not i.isdigit())
     result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
@@ -234,6 +236,14 @@ def get_environment_details():
 def overlay_to_partition():
     inode = subprocess.check_output(["df -i | grep overlay | awk '{print $3}' "], shell=True, universal_newlines=True).strip()
     result = subprocess.check_output(["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
+    return result.split('\n')[0].strip()
+
+#Récupère la partition réelle où se trouve la racine / de l'environnement docker
+#Néccessaire dans le cas de récupération du type de disque dans docker qui utilise des systèmes de fichier particuliers.abs
+#Lorsqu'on récupère où se trouve un fichier, on ne récupère pas le système de fichier réelle mais celui utilisé par docker.abs
+#Mais la récupération du type de disque via /sys/block/nom_disk/queue/rotational require un nom de disque physique.
+def getHostFS():
+    result = subprocess.check_output(["df -i | grep /etc/hosts | awk '{{print $1}}'"], shell=True, universal_newlines=True)
     return result.split('\n')[0].strip()
 
 
