@@ -161,7 +161,7 @@ def get_compilation_details():
                 brim[i] = line.split("=")[1][1:-1] #format : OPTION=value
                 i += 1
     except EnvironmentError:
-        tcom.pprint(1, "Unable to find {}".format(tset.CONF_FILE))
+        tcom.pprint(4, "Unable to find {}".format(tset.CONF_FILE))
 
     comp = {
         "tuxml_version": __get_tuxml_version(),

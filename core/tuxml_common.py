@@ -10,16 +10,16 @@ import tuxml_settings as tset
 # Pretty Printer which allow us to print the date in VERBOSE mod
 def pprint(s, message):
     code = [
-        tset.GREEN,     # success
-        tset.RED,       # error
-        tset.WHITE,     # default
-        tset.GRAY,      # debug
-        tset.ORANGE     # warning
+        tset.LIGHT_GREEN,     # success
+        tset.LIGHT_RED,       # error
+        tset.WHITE,           # default
+        tset.GRAY,            # debug
+        tset.LIGHT_ORANGE     # warning
     ]
 
     NC = tset.WHITE
 
-    date    = tset.ORANGE + time.strftime("[%Y-%m-%d %H:%M:%S GMT] ", time.localtime(time.time()))
+    date    = tset.LIGHT_BLUE_1 + time.strftime("[%Y-%m-%d %H:%M:%S GMT] ", time.localtime(time.time()))
     func    = tset.GRAY + "[" + sys._getframe(1).f_code.co_name + "] "
     msg     = code[s] + message + NC
 

@@ -13,3 +13,4 @@ tuxml_environment.csv
 pax_global_header
 *.tar
 core/files/
+paramiko.log
