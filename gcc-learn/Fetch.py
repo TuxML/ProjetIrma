@@ -22,7 +22,10 @@ os.system("sudo docker pull tuxml/tuxmldebian:dev")
 
 # Compile all the .config file
 for i in range(1):
-    print("Docker num " + str(i))
-    chaine = 'sudo docker run -it tuxml/tuxmldebian:dev /TuxML/gcc-learn/ExecConfig.py ' + str(n) + ' ' + str(i)
+    print("------Docker num " + str(i) + "-------")
+    chaine = 'sudo docker run -t tuxml/tuxmldebian:dev /TuxML/gcc-learn/ExecConfig.py ' + str(n) + ' ' + str(i)
     os.system(chaine)
+    print("Cleaning containers . . .")
+    os.system("sudo docker rm -v $(sudo docker ps -aq)")
+    print("Clean done!")
     print("")
