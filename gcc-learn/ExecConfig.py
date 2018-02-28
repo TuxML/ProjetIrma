@@ -11,5 +11,5 @@ if len(argv) < 3:
 	exit(0)
 
 # It runs with a different behavior
-cmd = "./tuxml.py linux-4.13.3/ -d gcc-learn/" + argv[2] + ".config -c " + argv[1]
+cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[2] + ".config -c " + argv[1]
 os.system(cmd)
