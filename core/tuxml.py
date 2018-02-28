@@ -286,7 +286,15 @@ def main():
         status = end_compil_time - start_compil_time - install_time
         compile_time = time.strftime("%H:%M:%S", time.gmtime(status))
         tcom.pprint(0, "Successfully compiled in {}".format(compile_time))
-        # TODO kernel tests
+
+        # launching tests
+        start_time = time.time()
+        status = bootTry(tset.PATH)
+        end_time = time.time()
+        if status == 0:
+            boot_time = end_time - start_time
+        else:
+            boot_time = status
     else:
         tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
