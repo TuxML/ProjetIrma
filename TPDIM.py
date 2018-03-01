@@ -46,7 +46,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.system(strPushI)
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
-    dockerFile.write("FROM {}:{}\n".format(newImage, tag))
+    dockerFile.write("FROM {}\n".format(newImage))
     dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
