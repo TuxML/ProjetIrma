@@ -46,8 +46,8 @@ def launch_compilations():
             missing_files = []
 
             if tml.compilation() == -1:
-                if log_analysis(missing_files, missing_packages) == 0:
-                    if install_missing_packages(missing_files, missing_packages) == 0:
+                if tml.log_analysis(missing_files, missing_packages) == 0:
+                    if tml.install_missing_packages(missing_files, missing_packages) == 0:
                         tcom.pprint(0, "Restarting compilation")
                         status = -1
                     else:
