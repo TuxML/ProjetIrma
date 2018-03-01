@@ -8,7 +8,6 @@ import sys
 import MySQLdb
 import time
 
-
 # author : LEBRETON Mickael
 #
 # Main function
@@ -31,45 +30,38 @@ def main():
     if tdep.install_minimal_dependencies() != 0:
         sys.exit(-1)
 
-        launch_compilations()
+    launch_compilations()
 
-        # sending data to IrmaDB
-        if sendToDB() != 0:
-            sys.exit(-1)
-
-        if tset.INCREMENTAL_MOD == 1:
-            val = input("Press ENTER to go on or type ':q' to quit")
-            if val == ":q":
-                break;
-        else:
-            break;
+    # sending data to IrmaDB
+    if sendToDB() != 0:
+        sys.exit(-1)
 
     sys.exit(0)
 
 def launch_compilations():
         # launching compilation
-        while 1:
-            status = -1
-            while status == -1:
-                missing_packages = []
-                missing_files = []
+        status = -1
+        while status == -1:
+            missing_packages = []
+            missing_files = []
 
-                if tml.compilation() == -1:
-                    if log_analysis(missing_files, missing_packages) == 0:
-                        if install_missing_packages(missing_files, missing_packages) == 0:
-                            tcom.pprint(0, "Restarting compilation")
-                            status = -1
-                        else:
-                            status = -3
+            if tml.compilation() == -1:
+                if log_analysis(missing_files, missing_packages) == 0:
+                    if install_missing_packages(missing_files, missing_packages) == 0:
+                        tcom.pprint(0, "Restarting compilation")
+                        status = -1
                     else:
-                        status = -2
+                        status = -3
                 else:
-                    status = 0
-
-            if status == 0:
-                tcom.pprint(0, "Successfully compiled")
+                    status = -2
             else:
-                tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+                status = 0
+
+        if status == 0:
+            tcom.pprint(0, "Successfully compiled")
+        else:
+            tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+
 
 def sendToDB():
     try:
