@@ -5,6 +5,7 @@ import os
 import MySQLdb
 import argparse
 # import paramiko
+import bz2
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_environment as tenv
@@ -70,13 +71,14 @@ def file_upload(logfiles, date):
 # return value :
 #   -1 Fail
 #    0 Sucess
-def send_data(compile_time):
+def send_data(compile_time, boot_time):
     tcom.pprint(2, "Sending config file and status to database")
 
     # Log files
     logfiles = [tset.PATH + "/.config",
                 tset.PATH + tset.STD_LOG_FILE,
                 tset.PATH + tset.ERR_LOG_FILE]
+
     for logfile in logfiles:
         if not os.path.isfile(logfile):
             tcom.pprint(1, "{} not found".format(logfile))
@@ -94,9 +96,9 @@ def send_data(compile_time):
             # "config_file": time.strftime("%Y%m%d_%H%M%S", date) + "/.config",
             # "stdlog_file": time.strftime("%Y%m%d_%H%M%S", date) + "/std.log",
             # "errlog_file": time.strftime("%Y%m%d_%H%M%S", date) + "/err.log",
-            "config_file": open(logfiles[0], "r").read(),
-            "stdlog_file": open(logfiles[1], "r").read(),
-            "errlog_file": open(logfiles[2], "r").read(),
+            "config_file": bz2.compress(open(logfiles[0], "rb").read()),
+            "stdlog_file": bz2.compress(open(logfiles[1], "rb").read()),
+            "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_kernel_size()),
             "dependencies": "",
         }
@@ -110,10 +112,16 @@ def send_data(compile_time):
         query  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
         cursor.execute(query, list(args.values()))
 
+        query = "SELECT cid FROM Compilations ORDER BY cid DESC LIMIT 1"
+        cursor.execute(query)
+        cid = cursor.fetchall()
+
         if tset.INCREMENTAL_MOD:
-            query  = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin)"
-            query += "SELECT cid, {} FROM Compilations ORDER BY cid DESC LIMIT 1".format(tset.CONFIG_ID)
-            cursor.execute(query)
+            query  = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin) VALUES (%s, %s)"
+            cursor.execute(query, [cid, tset.CONFIG_ID])
+
+        query  = "INSERT INTO Tests(cid, test_date, boot_time) VALUES (%s, %s, %s)"
+        cursor.execute(query, [cid, time.strftime("%Y-%m-%d %H:%M:%S", date), boot_time])
 
         socket.commit()
         socket.close()
@@ -146,9 +154,9 @@ if __name__ == "__main__":
         tset.PATH = args.source_path
 
     tset.VERBOSE = 3
-    tset.DB_NAME = "IrmaDB_prod"
-    tset.INCREMENTAL_MOD = 1
-    tset.CONFIG_ID = 4
+    tset.DB_NAME = "IrmaDB_dev"
+    tset.INCREMENTAL_MOD = 0
+    tset.CONFIG_ID = 7
 
     tset.TUXML_ENV = tenv.get_environment_details()
-    send_data(123)
+    send_data(123, 456)

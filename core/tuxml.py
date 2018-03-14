@@ -13,6 +13,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
 import tuxml_environment as tenv
+import tuxml_bootCheck as tbch
 
 
 # author : LEBRETON Mickael
@@ -289,8 +290,9 @@ def main():
 
         # launching tests
         start_time = time.time()
-        status = bootTry(tset.PATH)
+        status = tbch.boot_try()
         end_time = time.time()
+        boot_time = -1
         if status == 0:
             boot_time = end_time - start_time
         else:
@@ -299,7 +301,7 @@ def main():
         tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
     # sending data to IrmaDB
-    if tsen.send_data(status) != 0:
+    if tsen.send_data(status, boot_time) != 0:
         sys.exit(-1)
 
     sys.exit(0)

@@ -5,21 +5,22 @@ import subprocess
 import time
 import re
 import tuxml_common as tcom
+import tuxml_settings as tset
+
 
 # Function used to boot up a given kernel
 # WARNING : USES qemu-system-x86_64 !
 # path is the path to the sources of the kernel
 # Returns 0 if the kernel did boot, -1 if it did not and -2 if the check timed out
 # Return -3 if the subprocess call failed for whatever reason
-def bootTry(path):
+def boot_try():
 	tcom.pprint(2, "Launching boot test on kernel")
 
 	cmd = "qemu-system-x86_64"
-	sbStatus = subprocess.call(["mkinitramfs","-o", path + "/arch/x86_64/boot/initrd.img-4.13.3"])
+	sbStatus = subprocess.call(["mkinitramfs","-o", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
 	if sbStatus == 0:
-
-		procId = subprocess.Popen([cmd, "-kernel", path + "/arch/x86_64/boot/bzImage", "-initrd", path + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"])
+		procId = subprocess.Popen([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
 		rndCounter = 1
 		status = 1
@@ -29,7 +30,7 @@ def bootTry(path):
 
 		while status == 1:
 			time.sleep(10)
-			tcom.pprint(3, "Reading output file for boot end, attempt", rndCounter)
+			# tcom.pprint(3, "Reading output file for boot end, attempt".format(rndCounter))
 			fileData = outFile.read()
 
 			if re.search("(initramfs)", fileData):
@@ -49,6 +50,5 @@ def bootTry(path):
 		procId.terminate() # <-- terminate the process
 		outFile.close()
 		return status
-
 	else:
 		return -3

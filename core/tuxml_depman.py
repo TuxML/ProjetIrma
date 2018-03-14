@@ -5,7 +5,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
-tdepLogger = tdepl
+
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
 # Find the missing packages
@@ -24,11 +24,11 @@ def build_dependencies(missing_files, missing_packages):
     }
 
     if tset.VERBOSE > 0 and len(missing_files) > 0:
-        tcom.pprint(3, "Those files are missing :")
+        tcom.pprint(3, "This or those files are missing :")
 
     for mf in missing_files:
         if tset.VERBOSE > 0:
-            print(" " * 3 + mf)
+            print(" " * 4 + "- " + mf)
 
         if (tset.PKG_MANAGER is "pacman"):
             mf = mf.replace("/", " ")
@@ -37,9 +37,8 @@ def build_dependencies(missing_files, missing_packages):
             output = subprocess.check_output([cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
         except subprocess.CalledProcessError:
             tdepl.log_status(mf, False)
-            tcom.pprint(1, "Unable to find the missing package(s)")
-            tcom.pprint(0, "Exporting missing package resolution log file")
             tdepl.export_as_csv()
+            tcom.pprint(1, "Unable to find the missing package")
             return -1
 
         # Sometimes the  output gives  several packages. The  program takes  the
@@ -62,14 +61,11 @@ def build_dependencies(missing_files, missing_packages):
         # it means that there is a problem with mf, so it returns an error
         if i > len(lines) and status == 0:
             tdepl.log_status(mf, False)
-            tcom.pprint(1, "Unable to find the missing package(s)")
-            tcom.pprint(0, "Exporting missing package resolution log file")
             tdepl.export_as_csv()
+            tcom.pprint(1, "Unable to find the missing package")
             return -1
-        else:
-            tdepl.log_status(mf, True)
 
-    tcom.pprint(0, "Exporting missing package resolution log file")
+    tdepl.log_status(mf, True)
     tdepl.export_as_csv()
     tcom.pprint(0, "Dependencies built")
     return 0
@@ -103,18 +99,7 @@ def get_installed_packages(dependencies):
             return None
     return installed_packages
 
-def install_minimal_dependencies():
-    tcom.pprint(2, "Installing minimal dependencies")
-    minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs"]
-
-    if tcom.install_packages(minimal_pkgs) != 0:
-        tcom.pprint(1, "Unable to install minimal dependencies.")
-        return -1
-    else:
-        tcom.pprint(0, "Minimal dependencies Successfully installed.")
-        return 0
-
-# authors : LE FLEM Erwan, MERZOUK Fahim
+# authors : LE FLEM Erwan, MERZOUK Fahim    output
 #    output
 # Install packages of required dependencies to compile the kernel
 #
@@ -122,11 +107,10 @@ def install_minimal_dependencies():
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    # Install packages common to all distributions
-    install_minimal_dependencies()
+    # Install packages common to all distro
     tcom.pprint(2, "Installing default dependencies")
 
-    common_pkgs = ["kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
+    common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
     # Now installation of packages with name that vary amongs distributions
     debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
@@ -145,10 +129,8 @@ def install_default_dependencies():
     }
 
     if tcom.install_packages(common_pkgs + specific_pkgs[tset.PKG_MANAGER]) != 0:
-        tcom.pprint(1, "Unable to install default dependencies.")
         return -1
     else:
-        tcom.pprint(0, "Default dependencies Successfully installed.")
         return 0
 
 # Test code (temp)
