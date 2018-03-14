@@ -84,8 +84,8 @@ def sendToDB():
         for missing_file in tdep.tdepLogger.log.keys():
             args_pkg = {
                 "cid":cursor.lastrowid,
-                "missing_files": missing_file,
-                "missing_packages":tdep.tdepLogger.log.get(missing_file),
+                "missing_files": str(missing_file),
+                "missing_packages": str(tdep.tdepLogger.log.get(missing_file)),
                 "resolution_successful":tdep.tdepLogger.status.get(missing_file)
             }
             keys   = ",".join(args_pkg.keys())
