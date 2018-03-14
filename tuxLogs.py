@@ -5,6 +5,14 @@ from sys import argv
 
 # Author Alexis LE MASLE
 
+if "--help" in argv:
+    print("Try: ./ExecConfig.py <Integer>")
+    print("<Integer> is the incremental factor ( 0 by default )")
+    print("--help       Display help")
+    print("")
+    exit(0)
+
+
 if "--dev" in argv:
     # Update the image to the latest dev version
     print('Retrieves latest version of TuxML scritps...')
@@ -12,7 +20,7 @@ if "--dev" in argv:
     os.system('git pull')
     os.system('git checkout dev')
 
-incr = 1
+incr = 0
 
 if len(argv) == 3:
     incr = int(argv[2])

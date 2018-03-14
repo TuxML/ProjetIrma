@@ -1,17 +1,18 @@
 #!/usr/bin/python3
 
 import os
+import colors as color
 from sys import argv
 
 # Author Alexis LE MASLE
 
 if len(argv) < 3:
-	print("Use:")
-	print("./ExecConfig.py [num .config] [nb core]")
+	print(color.LIGHT_BLUE_1 + "Use:")
+	print("./ExecConfig.py [num .config] [nb core]" + color.GRAY)
 	exit(0)
 
 if int(argv[2]) <= 0:
-	print("Please enter a non zero positive number of core.")
+	print(color.RED + "Please enter a non zero positive number of core." + color.GRAY)
 	exit(0)
 
 # It runs with a different behavior
