@@ -5,7 +5,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
-
+tdepLogger = tdepl
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
 # Find the missing packages
@@ -103,7 +103,18 @@ def get_installed_packages(dependencies):
             return None
     return installed_packages
 
-# authors : LE FLEM Erwan, MERZOUK Fahim    output
+def install_minimal_dependencies():
+    tcom.pprint(2, "Installing minimal dependencies")
+    minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs"]
+
+    if tcom.install_packages(minimal_pkgs) != 0:
+        tcom.pprint(1, "Unable to install minimal dependencies.")
+        return -1
+    else:
+        tcom.pprint(0, "Minimal dependencies Successfully installed.")
+        return 0
+
+# authors : LE FLEM Erwan, MERZOUK Fahim
 #    output
 # Install packages of required dependencies to compile the kernel
 #
@@ -111,10 +122,11 @@ def get_installed_packages(dependencies):
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
-    # Install packages common to all distro
+    # Install packages common to all distributions
+    install_minimal_dependencies()
     tcom.pprint(2, "Installing default dependencies")
 
-    common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
+    common_pkgs = ["kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
 
     # Now installation of packages with name that vary amongs distributions
     debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
@@ -133,8 +145,10 @@ def install_default_dependencies():
     }
 
     if tcom.install_packages(common_pkgs + specific_pkgs[tset.PKG_MANAGER]) != 0:
+        tcom.pprint(1, "Unable to install default dependencies.")
         return -1
     else:
+        tcom.pprint(0, "Default dependencies Successfully installed.")
         return 0
 
 # Test code (temp)
