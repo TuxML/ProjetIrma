@@ -41,9 +41,9 @@ def build_dependencies(missing_files, missing_packages):
             tcom.pprint(1, "Unable to find the missing package")
             return -1
 
-        # Sometimes the  output gives  several packages. The  program takes  the
+        # Sometimes the  output gives  several packages. The  program takes the
         # first one and check if the package is already installed. If not, tuxml
-        # installs it. Else it installs the next one
+        # installs it. Else it installs the next one.
         lines = output.splitlines()
         i = 0
         status = 0
@@ -64,8 +64,9 @@ def build_dependencies(missing_files, missing_packages):
             tdepl.export_as_csv()
             tcom.pprint(1, "Unable to find the missing package")
             return -1
+        else:
+            tdepl.log_status(mf, True)
 
-    tdepl.log_status(mf, True)
     tdepl.export_as_csv()
     tcom.pprint(0, "Dependencies built")
     return 0
