@@ -15,5 +15,5 @@ if int(argv[2]) <= 0:
 	exit(0)
 
 # It runs with a different behavior
-cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[2] + ".config -c " + argv[1]
+cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[1] + ".config -c " + argv[2]
 os.system(cmd)
