@@ -5,7 +5,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
-
+tdepLogger = tdepl
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
 # Find the missing packages
