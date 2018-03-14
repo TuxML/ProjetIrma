@@ -2,6 +2,8 @@
 
 import os
 import time
+import colors as color
+
 from sys import argv
 
 # Author Alexis LE MASLE
@@ -9,19 +11,23 @@ from sys import argv
 # Error if there is no argument "number" of compilation to run.
 if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("")
-    print("Try: ./MLfood.py <Integer> [Options]")
+    print(color.GRAY + "Try: ./MLfood.py <Integer> [<Integer>] [Options]")
     print("")
-    print("Options: --no-clean    Do not delete past containers")
-    print("         -h, --help    Prompt Options")
-    print("         --reset-logs  Delete all the saved logs")
-    print("         --dev         Use images in current developpement")
+    print(color.GRAY + "The first Integer run MLfood into the given number of containers")
+    print(color.GRAY + "The second Integer is optional, it is used in a case of incremental compiling with <Integer> compiling in a container")
+    print(color.GRAY + "The default number of compiling in a container is set as 1")
+    print("")
+    print(color.GRAY + "Options: --no-clean    Do not delete past containers")
+    print(color.GRAY + "         -h, --help    Prompt Options")
+    print(color.GRAY + "         --reset-logs  Delete all the saved logs")
+    print(color.GRAY + "         --dev         Use images in current developpement")
     print("")
     exit(0)
 
 # We check if the user is a super-user.
 # Restarting with sudo.
 if os.getuid() != 0:
-    print('Docker needs to start with sudo mode')
+    print(color.LIGHT_BLUE_1 + 'Docker needs to start with sudo mode')
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
@@ -39,6 +45,7 @@ if "--reset-logs" in argv:
         print("Logs are not deleted.")
         print("")
         exit(0)
+
 
 # Convert the parameter in an Integer which is the number of compilation to do.
 # If the number is above 50, the scrypt will ask for a confirmation
@@ -71,6 +78,12 @@ if "--dev" in argv:
 else:
     images = ["tuxml/tuxmldebian:prod"]
 
+incrN = 1
+
+if len(argv) == 3:
+    incrN = int(argv[2])
+
+
 # The image list must not be empty.
 if len(images) == 0:
     print("There is no images.")
@@ -86,13 +99,13 @@ for i in range(nb):
     os.system(str2)
 
     # Generation of the logs folder create thanks to the execution date
-    today = time.localtime(time.time())
+    today = time.localtime(time.time())/TuxML/gcc-learn/ExecConfig.py
     logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
     if not os.path.exists("Logs/"+logsFolder):
         os.makedirs("Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -i ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + dev + ' | tee Logs/' + logsFolder + '/output.log'
+    chaine = 'sudo docker run -i ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(incrN) + " " + dev + ' | tee Logs/' + logsFolder + '/output.log'
     print("\n=============== Docker number " + str(i + 1)+ " ===============")
     print(chaine)
     print("==========================================\n")
@@ -117,12 +130,12 @@ for i in range(nb):
         print("Clean done!")
         print("")
     elif argv[2] != null:
-        print("Option " + argv[2] + " unknown.")
+        print(color.RED + "Option " + argv[2] + " unknown.")
         print("")
         exit(0)
 
     print("")
 
 # The end
-print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!")
+print(color.LIGHT_BLUE_1 + "Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!")
 print("")
