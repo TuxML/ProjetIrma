@@ -135,8 +135,8 @@ for i in range(nb):
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
     chaine = 'sudo docker run -i ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(incrN) + " " + dev + ' | tee Logs/' + logsFolder + '/output.log'
     print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
-    print(chaine)
-    print("==========================================\n" + GRAY)
+    # print(chaine)
+    print("")
     os.system(chaine)
 
     # Get the logs std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -163,7 +163,7 @@ for i in range(nb):
         print("")
         exit(0)
 
-    print(GRAY)
+    print(LIGHT_BLUE_1 + "==========================================\n" + GRAY)
 
 # The end
 print(LIGHT_BLUE_1 + "Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!" + GRAY)

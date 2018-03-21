@@ -13,12 +13,12 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     exit(0)
 
 
-if "--dev" in argv:
-    # Update the image to the latest dev version
-    print('Retrieves latest version of TuxML scritps...')
-    os.system('cd /TuxML/')
-    os.system('git pull')
-    os.system('git checkout dev')
+# if "--dev" in argv:
+#     # Update the image to the latest dev version
+#     print('Retrieves latest version of TuxML scritps...')
+#     os.system('cd /TuxML/')
+#     os.system('git checkout dev')
+#     os.system('git pull')
 
 incr = 0
 
@@ -26,5 +26,7 @@ if len(argv) == 3:
     incr = int(argv[2])
 
 # Run tuxml.py and retrieves the output converted in a log file.
+print("")
 print('Starting tuxml.py ...')
+print("")
 os.system('/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + incr )
