@@ -84,14 +84,17 @@ optional arguments:
   -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
                         debug a given  kconfig seed. If no seed is given, TuxML
                         will use the existing kconfig file in  the linux source
-                        directory
+                        directhttps://github.com/TuxML/MCManagerory
 ```
 
-## TPDIM.py (WIP)
+## TPDIM.py
 
-This script/program is design to help people using TuxML easly manage there docker image or container.
+### Goal
+This script/program is design to help people using TuxML to easly manage there docker image or container.
 
-At the moment the script can do :
+### How to use ?
 
-* Build the docker image tuxml/tuxmldebian
-* Push this image on the repository tuxml on
+You have to use few command to build and push :
+* Build : ``` ./TPDIM -b [IMAGE_NAME : debian] -t [TAG_NAME]```
+* Push : ``` ./TPDIM -p [IMAGE_NAME : debian] -t [TAG_NAME]```
+* Generation : Use only when update Dockerfile or when adding new dependences to the image ``` ./TPDIM -g [IMAGE_NAME : debian] -dep dependences.txt -t [TAG_NAME]```
