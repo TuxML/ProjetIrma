@@ -59,7 +59,7 @@ def __get_type_of_disk():
     disk = __get_mount_point().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
     if disk.strip() == "overlay" or disk == "overlay2":
         disk = overlay_to_partition()
-    elif len(disk.split("/")) < 2:
+    elif len(disk.split("/")) < 2 or "mapper" in disk:
         disk = getHostFS()
     disk = disk.split("/")[2]
     disk = ''.join(i for i in disk if not i.isdigit())
