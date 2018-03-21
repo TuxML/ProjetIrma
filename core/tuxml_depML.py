@@ -84,16 +84,17 @@ def sendToDB():
         cursor.execute(query, list(args_env.values()))
 
         for missing_file in tdep.tdepLogger.log.keys():
-            args_pkg = {
-                "cid":cursor.lastrowid,
-                "missing_files": str(missing_file),
-                "missing_packages": str(tdep.tdepLogger.log.get(missing_file)),
-                "resolution_successful":tdep.tdepLogger.status.get(missing_file)
-            }
-            keys   = ",".join(args_pkg.keys())
-            values = ','.join(['%s'] * len(args_pkg.values()))
-            query  = "INSERT INTO packages({}) VALUES({})".format(keys, values)
-            cursor.execute(query, list(args_pkg.values()))
+			args_pkg = {
+				"cid":cursor.lastrowid,
+				"missing_files": str(missing_file),
+				"missing_packages": tdep.tdepLogger.log.get(missing_file),
+				"candidate_missing_packages": tdep.tdepLogger.candidates.get(missing_file)
+				"resolution_successful":tdep.tdepLogger.status.get(missing_file)
+			}
+			keys   = ",".join(args_pkg.keys())
+			values = ','.join(['%s'] * len(args_pkg.values()))
+			query  = "INSERT INTO packages({}) VALUES({})".format(keys, values)
+			cursor.execute(query, list(args_pkg.values()))
 
         socket.commit()
         socket.close()
