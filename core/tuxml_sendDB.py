@@ -72,7 +72,7 @@ def file_upload(logfiles, date):
 #   -1 Fail
 #    0 Sucess
 def send_data(compile_time, boot_time):
-    tcom.pprint(2, "Sending config file and status to database")
+    tcom.pprint(2, "Sending compilation and test results to database")
 
     # Log files
     logfiles = [tset.PATH + "/.config",
@@ -114,11 +114,11 @@ def send_data(compile_time, boot_time):
 
         query = "SELECT cid FROM Compilations ORDER BY cid DESC LIMIT 1"
         cursor.execute(query)
-        cid = cursor.fetchall()
+        cid = cursor.fetchone()[0]
 
-        if tset.INCREMENTAL_MOD:
+        if tset.INCREMENTAL_MOD and tset.BASE_CONFIG_ID != 0:
             query  = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin) VALUES (%s, %s)"
-            cursor.execute(query, [cid, tset.CONFIG_ID])
+            cursor.execute(query, [cid, tset.BASE_CONFIG_ID])
 
         query  = "INSERT INTO Tests(cid, test_date, boot_time) VALUES (%s, %s, %s)"
         cursor.execute(query, [cid, time.strftime("%Y-%m-%d %H:%M:%S", date), boot_time])
@@ -129,7 +129,7 @@ def send_data(compile_time, boot_time):
         # file_upload(logfiles, date)
 
         tcom.pprint(0, "Successfully sent info to db")
-        return 0
+        return cid
     except MySQLdb.Error as err:
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
