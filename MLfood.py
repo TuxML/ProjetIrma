@@ -146,7 +146,8 @@ for i in range(nb):
     stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
     errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
     configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
-    print(LIGHT_BLUE_1 + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
+    print("")
+    print(LIGHT_PURPLE + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
     os.system(stdlogs)
     os.system(errlogs)
     os.system(configFile)
