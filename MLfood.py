@@ -9,6 +9,8 @@ from sys import argv
 
 
 ## COLORS
+import color as color
+
 WHITE           = "\033[0m"                # Default color
 GRAY            = "\033[38;5;7m"           # Debug
 BLACK           = "\033[38;5;16m"
