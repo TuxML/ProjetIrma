@@ -9,8 +9,6 @@ from sys import argv
 
 
 ## COLORS
-import color as color
-
 WHITE           = "\033[0m"                # Default color
 GRAY            = "\033[38;5;7m"           # Debug
 BLACK           = "\033[38;5;16m"
@@ -46,11 +44,6 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("" + GRAY)
     exit(0)
 
-# We check if the user is a super-user.
-# Restarting with sudo.
-if os.getuid() != 0:
-    print(LIGHT_BLUE_1 + 'Docker needs to start with sudo mode' + GRAY)
-
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
@@ -81,8 +74,10 @@ try:
             print("Canceled")
             exit(0)
 except Exception as e:
-    print("Please specify a valide number of compilation to launch.")
+    print(ORANGE)
+    print("Please specify a valid number of compilation to launch.")
     print("Command ./MLfood.py <Integer> [Option]")
+    print(GRAY)
     exit(0)
 
 print(GRAY)
@@ -115,14 +110,21 @@ if len(images) == 0:
     print("There is no images.")
     exit(0)
 
+# We check if the user is a super-user.
+# Restarting with sudo.
+if os.getuid() != 0:
+    print(LIGHT_BLUE_1 + 'Docker needs to start with sudo mode' + GRAY)
+
+
 # For each url in the url list "images", we run a new docker which run the TuxML command nb times and saves the logs.
 for i in range(nb):
     print("")
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
-    print("Recovering the last docker image " + images[i % len(images)])
+    print(ORANGE + "Recovering the last docker image " + images[i % len(images)])
     os.system(str2)
+    print(GRAY)
 
     # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
@@ -144,10 +146,11 @@ for i in range(nb):
     stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
     errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
     configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
-    print(LIGHT_BLUE_1 + "Fetch logs and .config file to the folder ./Logs/" + logsFolder + " " + GRAY)
+    print(LIGHT_BLUE_1 + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
     os.system(stdlogs)
     os.system(errlogs)
     os.system(configFile)
+    print(GRAY)
 
     # Clean all the containers used previously.
     if "--no-clean" not in argv:

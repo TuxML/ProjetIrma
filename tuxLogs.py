@@ -5,10 +5,10 @@ from sys import argv
 
 # Author Alexis LE MASLE
 
-if "--help" in argv:
+if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("Try: ./ExecConfig.py <Integer>")
     print("<Integer> is the incremental factor ( 0 by default )")
-    print("--help       Display help")
+    print("-h, --help       Display help")
     print("")
     exit(0)
 
