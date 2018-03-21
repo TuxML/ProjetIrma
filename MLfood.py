@@ -47,6 +47,8 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 # list of options
 opts = {"-h","--help","--no-clean","--reset-logs","--dev"}
 
+
+# Check if arguments exists
 for i in range(1, len(argv)):
     try:
         int(argv[i])
