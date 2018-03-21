@@ -5,7 +5,6 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
-tdepLogger = tdepl
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
 # Find the missing packages
@@ -35,6 +34,7 @@ def build_dependencies(missing_files, missing_packages):
 
         try:
             output = subprocess.check_output([cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
+            tdepl.log_candidates_packages(mf, output)
         except subprocess.CalledProcessError:
             tdepl.log_status(mf, False)
             tdepl.export_as_csv()
