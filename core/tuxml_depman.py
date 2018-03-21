@@ -5,7 +5,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
-
+tdepLogger = tdepl
 # author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
 # Find the missing packages
@@ -41,9 +41,9 @@ def build_dependencies(missing_files, missing_packages):
             tcom.pprint(1, "Unable to find the missing package")
             return -1
 
-        # Sometimes the  output gives  several packages. The  program takes  the
+        # Sometimes the  output gives  several packages. The  program takes the
         # first one and check if the package is already installed. If not, tuxml
-        # installs it. Else it installs the next one
+        # installs it. Else it installs the next one.
         lines = output.splitlines()
         i = 0
         status = 0
@@ -64,8 +64,9 @@ def build_dependencies(missing_files, missing_packages):
             tdepl.export_as_csv()
             tcom.pprint(1, "Unable to find the missing package")
             return -1
+        else:
+            tdepl.log_status(mf, True)
 
-    tdepl.log_status(mf, True)
     tdepl.export_as_csv()
     tcom.pprint(0, "Dependencies built")
     return 0
@@ -99,6 +100,19 @@ def get_installed_packages(dependencies):
             return None
     return installed_packages
 
+
+def install_minimal_dependencies():
+    tcom.pprint(2, "Installing minimal dependencies")
+    minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs", "bc"]
+
+    if tcom.install_packages(minimal_pkgs) != 0:
+        tcom.pprint(2, "Unable to install minimal dependencies.")
+        return -1
+    else:
+        tcom.pprint(2, "Minimal dependencies successfully installed.")
+        return 0
+
+
 # authors : LE FLEM Erwan, MERZOUK Fahim    output
 #    output
 # Install packages of required dependencies to compile the kernel
@@ -107,10 +121,12 @@ def get_installed_packages(dependencies):
 #   -1 Unable to install some packages
 #    0 succes
 def install_default_dependencies():
+    if (install_minimal_dependencies() != 0):
+        return -1
     # Install packages common to all distro
     tcom.pprint(2, "Installing default dependencies")
 
-    common_pkgs = ["gcc", "make", "binutils", "util-linux", "kmod", "e2fsprogs", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl", "bc"]
+    common_pkgs = ["kmod", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl"]
 
     # Now installation of packages with name that vary amongs distributions
     debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
@@ -129,8 +145,10 @@ def install_default_dependencies():
     }
 
     if tcom.install_packages(common_pkgs + specific_pkgs[tset.PKG_MANAGER]) != 0:
+        tcom.pprint(2, "Unable to install default dependencies.")
         return -1
     else:
+        tcom.pprint(2, "Default dependencies successfully installed.")
         return 0
 
 # Test code (temp)
