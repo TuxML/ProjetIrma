@@ -41,7 +41,7 @@ def boot_try():
 				tcom.pprint(1, "Kernel panic detected, kernel probably failed to boot")
 				status = -1
 
-			if rndCounter == 61:
+			if rndCounter == 11: # default 51
 				tcom.pprint(1, "More than 60 attempts at reading, possible infinite loop in boot process, interrupting")
 				status = -2
 
