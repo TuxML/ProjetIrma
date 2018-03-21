@@ -176,6 +176,7 @@ for i in range(nb):
 
     print(LIGHT_BLUE_1 + "==========================================\n" + GRAY)
 
+
 # The end
-print(LIGHT_BLUE_1 + "Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!" + GRAY)
+print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(nb) + " compilation data, come back later to feed it!" + GRAY)
 print("")
