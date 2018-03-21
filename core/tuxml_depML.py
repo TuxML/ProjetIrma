@@ -7,12 +7,14 @@ import tuxml as tml
 import sys
 import MySQLdb
 import time
+import tuxml_depLog as tdepl
+import tuxml_argshandler as targs
 
 # author : LEBRETON Mickael
 #
 # Main function
 def main():
-    tml.args_handler()
+    targs.args_handler()
 
     # get environment details
     tset.TUXML_ENV = tenv.get_environment_details()
