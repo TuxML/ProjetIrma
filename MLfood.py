@@ -102,7 +102,11 @@ else:
 incrN = 0
 
 if len(argv) == 3:
-    incrN = int(argv[2])
+    try:
+        incrN = int(argv[2])
+    except Exception as e:
+        pass
+
 
 # The image list must not be empty.
 if len(images) == 0:
@@ -149,13 +153,13 @@ for i in range(nb):
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
         print("")
-    elif argv[2] != null:
+    elif argv[2] != None:
         print(RED + "Option " + argv[2] + " unknown." + GRAY)
         print("")
         exit(0)
 
-    print("" + GRAY)
+    print(GRAY)
 
 # The end
-print(color.LIGHT_BLUE_1 + "Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!" + color.GRAY)
+print(LIGHT_BLUE_1 + "Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!" + GRAY)
 print("")
