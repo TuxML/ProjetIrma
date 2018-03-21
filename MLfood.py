@@ -44,6 +44,20 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     print("" + GRAY)
     exit(0)
 
+# list of options
+opts = {"-h","--help","--no-clean","--reset-logs","--dev"}
+
+for i in range(1, len(argv)):
+    try:
+        int(argv[i])
+    except Exception as e:
+        if argv[i] not in opts:
+            print("")
+            print(RED + "Parameter \"" + argv[i] + "\" unknown.")
+            print("Execution abort")
+            print(GRAY)
+            exit(0)
+
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
     print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
@@ -159,10 +173,6 @@ for i in range(nb):
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
         print("")
-    elif argv[2] != None:
-        print(RED + "Option " + argv[2] + " unknown." + GRAY)
-        print("")
-        exit(0)
 
     print(LIGHT_BLUE_1 + "==========================================\n" + GRAY)
 
