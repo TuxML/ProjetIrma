@@ -17,7 +17,9 @@ NB_CORES        = 0                        # Number of cores used by TuxML
 PKG_MANAGER     = ""                       # Package manager of the system
 TUXML_ENV       = None                     # Environment details
 INCREMENTAL_MOD = 0                        # By default we don't use the files from the previous compilations
-CONFIG_ID       = 0                        # Config ID on which run the incremental tests
+INCITERS        = 0                        # Config ID on which run the incremental tests
+BASE_CONFIG_ID  = 0
+KCONFIG         = None
 
 ## COLORS
 WHITE           = "\033[0m"                # Default color
