@@ -12,10 +12,13 @@ import tuxml_settings as tset
 
 log = dict()
 status = dict()
+candidates = dict()
+
+def log_candidates_packages(missing_file, missing_packages):
+    candidates[missingFile] = missing_packages
 
 # Log the installation of the given missing package to solve the dependencie to the given missing file.
 # You should really call this method in the same order you download the given missing package as the order is relevent.
-
 
 def log_install(missingFile, missingPackage):
         mapping = log.get(missingFile)
