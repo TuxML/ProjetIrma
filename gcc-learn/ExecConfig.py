@@ -23,8 +23,10 @@ PURPLE          = "\033[38;5;5m"
 LIGHT_PURPLE    = "\033[38;5;13m"
 
 if len(argv) < 3:
+	print("")
 	print(LIGHT_BLUE_1 + "Use:")
 	print("./ExecConfig.py [num .config] [nb core]" + GRAY)
+	print("")
 	exit(0)
 
 if int(argv[2]) <= 0:
