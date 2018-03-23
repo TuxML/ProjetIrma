@@ -7,7 +7,6 @@ import tuxml as tml
 import sys
 import MySQLdb
 import time
-import tuxml_depLog as tdepl
 import tuxml_argshandler as targs
 
 # author : LEBRETON Mickael
@@ -84,6 +83,7 @@ def sendToDB():
         cursor.execute(query, list(args_env.values()))
 
         for missing_file in tdep.tdepLogger.log.keys():
+            print(tdep.tdepLogger.candidates.get(missing_file))
             args_pkg = {
                 "cid":cursor.lastrowid,
                 "missing_files": str(missing_file),
