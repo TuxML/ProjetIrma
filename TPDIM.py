@@ -28,6 +28,7 @@ def DockerPush(repository, tag):
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
         os.system(str3)
+        DockerPush(repository, tag)
 
 
 def DockerGenerate(originImage, tag, *dependencesFile):
@@ -35,10 +36,9 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.chdir('BuildImageInter')
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
-    depText = ""
-    if len(dependencesFile) != 0:
-        depText = dependencesFile[0]
-    dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\nRUN apt-get update && apt-get -qq -y install " + depText + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World")
+    depText = open("../dependences.txt", 'r')
+    text_dep = depText.read()
+    dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\nRUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World")
     dockerFileI.close()
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
     os.system(strBuildI)
@@ -47,7 +47,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
-    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD .git/ /TuxML/.git \nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
 
@@ -65,6 +65,7 @@ if __name__ == "__main__":
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
     parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push")
+    parser.add_argument('-a', '--all', help="Tag of the image")
 
 args = parser.parse_args()
 
@@ -98,3 +99,18 @@ if args.build:
             DockerBuild(args.build, args.tag, args.folder)
     else:
         DockerBuild(args.image, args.tag)
+
+if args.all:
+    linux_dir = os.listdir('./BuildImageInter')
+    if "linux-4.13.3" not in linux_dir:
+        os.chdir('./BuildImageInter')
+        os.getcwd()
+        wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
+        os.system(wget)
+        targz = "tar -xJf linux_4.13.3.tar.xz -C ."
+        os.system(targz)
+        pass
+    DockerGenerate("debian", args.all)
+    DockerBuild("debian", args.all)
+    DockerPush("debian", args.all)
+    pass

@@ -105,11 +105,16 @@ optional arguments:
                         choose on which database send the compilation results
 ```
 
-## TPDIM.py (WIP)
+## TPDIM.py
 
-This script/program is design to help people using TuxML easly manage there docker image or container.
+### Goal
+This script/program is design to help people using TuxML to easly manage there docker image or container.
 
-At the moment the script can do :
+### How to use ?
+You have to use few command to build and push :
+* Build : ``` ./TPDIM -b [IMAGE_NAME : debian] -t [TAG_NAME]```
+* Push : ``` ./TPDIM -p [IMAGE_NAME : debian] -t [TAG_NAME]```
+* Generation : Use only when update Dockerfile or when adding new dependences to the image ``` ./TPDIM -g [IMAGE_NAME : debian] -dep dependences.txt -t [TAG_NAME]```
 
-* Build the docker image tuxml/tuxmldebian
-* Push this image on the repository tuxml on
+## License
+The TuxML project is licensed under the terms of the **Apache License 2.0** as available in the `LICENSE` file and [online here](http://www.apache.org/licenses/LICENSE-2.0.txt). A list of contributors and other details are available in the `NOTICE.md` file.

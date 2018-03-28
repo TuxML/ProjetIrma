@@ -13,7 +13,6 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
     exit(0)
 
 incr = 0
-
 if len(argv) == 2:
     try:
         incr = int(argv[1])
@@ -24,4 +23,6 @@ if len(argv) == 2:
 print("")
 print('Starting tuxml.py ...')
 print("")
-os.system('/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(incr))
+chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(incr)
+print("")
+os.system(chaine)
