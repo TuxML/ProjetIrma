@@ -84,7 +84,7 @@ optional arguments:
   -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
                         debug a given  kconfig seed. If no seed is given, TuxML
                         will use the existing kconfig file in  the linux source
-                        directhttps://github.com/TuxML/MCManagerory
+                        directory
 ```
 
 ## TPDIM.py
