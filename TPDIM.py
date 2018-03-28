@@ -105,6 +105,7 @@ if args.all:
     linux_dir = os.listdir('./BuildImageInter')
     if "linux-4.13.3" not in linux_dir:
         os.chdir('./BuildImageInter')
+        os.getcwd()
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
         os.system(wget)
         targz = "tar -xJf linux_4.13.3.tar.xz -C ."
