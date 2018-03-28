@@ -28,6 +28,7 @@ def DockerPush(repository, tag):
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
         os.system(str3)
+        DockerPush(repository, tag)
 
 
 def DockerGenerate(originImage, tag, *dependencesFile):
@@ -65,6 +66,7 @@ if __name__ == "__main__":
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
     parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push")
+    parser.add_argument('-a', '--all', help="Tag of the image")
 
 args = parser.parse_args()
 
@@ -98,3 +100,17 @@ if args.build:
             DockerBuild(args.build, args.tag, args.folder)
     else:
         DockerBuild(args.image, args.tag)
+
+if args.all:
+    linux_dir = os.listdir('./BuildImageInter')
+    if "linux-4.13.3" not in linux_dir:
+        os.chdir('./BuildImageInter')
+        wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
+        os.system(wget)
+        targz = "tar zxvf linux_4.13.3.tar.xz -C ."
+        os.system(targz)
+        pass
+    DockerGenerate(debian, args.all)
+    DockerBuild(debian, args.all)
+    DockerPush(debian, args.all)
+    pass
