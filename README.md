@@ -6,20 +6,37 @@
 
 At the beginning, it will ask you the super user privileges in order to run docker.
 
-This script is used to fill the DataBase which "feed" the Machine Learning algorithm and allows to start automatically the `tuxml.py` command on different dockers by calling the script `tuxLogs.py` which write the tuxml.logs.
+This script is used to fill the DataBase which "feed" the Machine Learning algorithm and allows to start automatically the `tuxml.py` command on different dockers by calling the script `tuxLogs.py` which write output.log.
 
-./MLfood n will start n docker sequentially, each docker run `tuxlogs.py` which run `tuxml.py`
+`./MLfood <Integer>` will start n docker sequentially, each docker run `tuxlogs.py` which run `tuxml.py`
+
+### How to use ?
 
 Command should be :
 
-    ./MLfood.py <Integer> [Options]
+    ./MLfood.py <Integer> [<Integer>] [Options]
 
-It will start \<Integer\> number of compilation sequentially.
+    Example : ./MLfood 50 5 --dev
+
+This example will run 50 docker, each one will run 5 compiling in incremental mode, on the developpement docker image ("--dev").
 
 ```
-Options : --no-clean      Do not delete past containers
-          --reset-logs    Delete all the logs in Logs/
-          -h, --help      Prompt Options for MLfood.py
+A simple run command could be:
+
+./MLfood 100
+
+```
+
+It will start 100 compiling sequentially on the functionnal docker image.
+
+```
+  The first Integer run MLfood into the given number of containers
+  The second Integer is optional, it is used in a case of incremental compiling with <Integer> number of compiling in a container.
+  The default number of compiling in a container is set as 1
+  Options: --no-clean    Do not delete used containers
+           -h, --help    Prompt Options
+           --reset-logs  Delete all the saved logs
+           --dev         Use images in current developpement
 ```
 
 The script retrieves the logs file err.logs, std.logs and output.logs as well as the `.config` file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
@@ -28,7 +45,6 @@ The script retrieves the logs file err.logs, std.logs and output.logs as well as
 
 See `tuxLogs.py`
 
-### How to use ?
 ```
 usage: MLfood.py [-h] [-b BRANCH] [-i IMAGE] [--no-clean] [-V] [-v {0,1,2}]
                  NB_DOCKERS
