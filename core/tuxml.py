@@ -222,6 +222,8 @@ def launcher():
         else:
             boot_time = status
     else:
+        compile_time = status
+        boot_time = -1
         tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
     # sending data to IrmaDB
