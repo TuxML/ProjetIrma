@@ -76,31 +76,49 @@ optional arguments:
 
 ## tuxml.py script
 ### Goal
-The goal of TuxML is to  automatically  compile Linux kernel sources in order to build a database for a machine learning algorithm.  
-If the compilation crashes, TuxML  analyzes the error log file  to determine the causes. There are two possible ways:  
+The TuxML's goal is to automatically compile Linux kernel sources in order to build
+a database for a machine learning algorithm. If the compilation crashes, TuxML analyzes the error log file to determine the causes.
+
+There are two possible ways:  
 
 * it is a missing  package : TuxML will install it and  resume the compilation
 * the error can't be fixed : the compilation stops
 
-Then TuxML sends the results of the compilation to the TuxML database.
+If the compilation is a success, TuxML launch a kernel boot test.
 
-You can run TuxML independantly from the sampler.
+Then it sends the results to the TuxML database.
+
+You can run TuxML independantly from the MLfood.
 
 ### How to use ?
 ```
-usage: tuxml.py [-h] [-v] [-V] [-d [KCONFIG_SEED]] source_path
+usage: tuxml.py [-h] [-v {1,2,3,4}] [-V] [-c NB_CORES] [-d KCONFIG]
+                [--incremental NINC] [--database {prod,dev,alexis}]
+                source_path
 
 positional arguments:
   source_path           path to the Linux source directory
 
 optional arguments:
   -h, --help            show this help message and exit
-  -v, --verbose         increase output verbosity
+  -v {1,2,3,4}, --verbose {1,2,3,4}
+                        increase or decrease output verbosity
+                          1 : very quiet
+                          2 : quiet
+                          3 : chatty (default)
+                          4 : very chatty
   -V, --version         display TuxML version and exit
-  -d [KCONFIG_SEED], --debug [KCONFIG_SEED]
-                        debug a given  kconfig seed. If no seed is given, TuxML
-                        will use the existing kconfig file in  the linux source
-                        directory
+  -c NB_CORES, --cores NB_CORES
+                        define  the  number  of CPU  cores  to  use  during  the
+                        compilation. By default  TuxML  use all  the  availables
+                        cores on the system.
+  -d KCONFIG, --debug KCONFIG
+                        the KCONFIG_FILE given.
+  --incremental NINC    incremental  mod does  not  erase  files  from  previous
+                        compilations. The  NINC  parameter  corresponds  to  the
+                        number of incremental compilation to launch.
+  --database {prod,dev,alexis}
+                        choose on which database send the compilation results
 ```
 
 ## TPDIM.py
