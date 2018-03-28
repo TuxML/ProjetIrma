@@ -110,7 +110,7 @@ if args.all:
         targz = "tar -xJf linux_4.13.3.tar.xz -C ."
         os.system(targz)
         pass
-    DockerGenerate(debian, args.all)
-    DockerBuild(debian, args.all)
-    DockerPush(debian, args.all)
+    DockerGenerate("debian", args.all)
+    DockerBuild("debian", args.all)
+    DockerPush("debian", args.all)
     pass
