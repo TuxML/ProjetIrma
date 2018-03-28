@@ -45,6 +45,27 @@ if len(argv) == 1 or "-h" in argv or "--help" in argv:
 opts = {"-h","--help","--no-clean","--reset-logs","--dev"}
 
 
+# Must contain the list of differents systems images URLs with the execution tuxml script.
+images = []
+dev = ""
+if "--dev" in argv:
+    images = ["tuxml/tuxmldebian:dev"]
+    dev = "--dev"
+else:
+    print(ORANGE)
+    print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
+    print("With '--dev' it will use the current dev version tuxmldebian:dev")
+    print(GRAY)
+
+    yn = input("Are you sure you want to run MLfood without dev ? (y/n)")
+    yn.lower()
+
+    if yn == "y":
+        images = ["tuxml/tuxmldebian:prod"]
+    else:
+        print(ORANGE + "Abort" + GRAY)
+        exit(0)
+
 # Check if arguments exists
 for i in range(1, len(argv)):
     try:
@@ -99,15 +120,6 @@ print(GRAY)
 if nb <= 0:
     print(RED + "Please enter a non-zero positive integer." + GRAY)
     exit(0)
-
-# Must contain the list of differents systems images URLs with the execution tuxml script.
-images = []
-dev = ""
-if "--dev" in argv:
-    images = ["tuxml/tuxmldebian:dev"]
-    dev = "--dev"
-else:
-    images = ["tuxml/tuxmldebian:prod"]
 
 incrN = 0
 
