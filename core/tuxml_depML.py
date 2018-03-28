@@ -31,6 +31,7 @@ def main():
     if tdep.install_minimal_dependencies() != 0:
         sys.exit(-1)
 
+    tml.gen_config(tset.KCONFIG)
     launch_compilations()
 
     # sending data to IrmaDB
