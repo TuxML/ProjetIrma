@@ -15,6 +15,7 @@
 import subprocess
 import shutil
 import time
+import sys
 import tuxml_settings as tset
 
 
@@ -22,15 +23,26 @@ import tuxml_settings as tset
 #
 # Pretty Printer which allow us to print the date in VERBOSE mod
 def pprint(s, message):
-    # success, error, message, debug, warning
-    status = ["[+]", "[-]", "[*]", "[#]", "[!]"]
+    code = [
+        tset.LIGHT_GREEN,     # success
+        tset.LIGHT_RED,       # error
+        tset.WHITE,           # default
+        tset.GRAY,            # debug
+        tset.LIGHT_ORANGE     # warning
+    ]
 
-    date = time.strftime("%Y-%m-%d %H:%M:%S | ", time.localtime(time.time()))
+    NC = tset.WHITE
 
-    if tset.VERBOSE > 0:
-        print(status[s] + " " + date + message)
+    date    = tset.LIGHT_BLUE_1 + time.strftime("[%Y-%m-%d %H:%M:%S GMT] ", time.localtime(time.time()))
+    func    = tset.GRAY + "[" + sys._getframe(1).f_code.co_name + "] "
+    msg     = code[s] + message + NC
+
+    if tset.VERBOSE == 1:
+        print(msg)
+    elif tset.VERBOSE == 2:
+        print(date + msg)
     else:
-        print(status[s] + " " + message)
+        print(date + func + msg)
 
 
 # authors : LE FLEM Erwan, MERZOUK Fahim
@@ -100,12 +112,13 @@ def update_system():
     manager_to_cmd = {
         "apt-get": " update && apt-file update",
         "pacman": " -Sy",
-        "dnf": " update",
-        "yum": " update",
+        "dnf": " -y update",
+        "yum": " -y update",
         "emerge" : " --sync",
         "zypper": " refresh"
     }
 
+    print(tset.GRAY, end='')
     status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:

@@ -16,47 +16,105 @@
 
 import os
 import time
+
 from sys import argv
+
+# Author Alexis LE MASLE
+
+
+## COLORS
+WHITE           = "\033[0m"                # Default color
+GRAY            = "\033[38;5;7m"           # Debug
+BLACK           = "\033[38;5;16m"
+RED             = "\033[38;5;1m"           # Errors messages
+LIGHT_RED       = "\033[38;5;9m"
+GREEN           = "\033[38;5;2m"           # Success messages
+LIGHT_GREEN     = "\033[38;5;10m"
+ORANGE          = "\033[38;5;3m"
+LIGHT_ORANGE    = "\033[38;5;11m"
+BLUE_1          = "\033[38;5;4m"
+LIGHT_BLUE_1    = "\033[38;5;12m"
+BLUE_2          = "\033[38;5;6m"
+LIGHT_BLUE_2    = "\033[38;5;14m"
+PURPLE          = "\033[38;5;5m"
+LIGHT_PURPLE    = "\033[38;5;13m"
 
 # Error if there is no argument "number" of compilation to run.
 if len(argv) == 1 or "-h" in argv or "--help" in argv:
+    print(LIGHT_BLUE_1 + "")
+    print("Try: ./MLfood.py <Integer> [<Integer>] [Options]")
     print("")
-    print("Try: ./MLfood.py <Integer> [Options]")
+    print("The first Integer run MLfood into the given number of containers")
+    print("The second Integer is optional, it is used in a case of incremental compiling with <Integer> compiling in a container")
+    print("The default number of compiling in a container is set as 1")
     print("")
-    print("Options: --no-clean   Do not delete past containers")
+    print("Options: --no-clean    Do not delete past containers")
     print("         -h, --help    Prompt Options")
     print("         --reset-logs  Delete all the saved logs")
-    print("")
+    print("         --dev         Use images in current developpement")
+    print("" + GRAY)
     exit(0)
 
-# We check if the user is a super-user.
-# Restarting with sudo.
-if os.getuid() != 0:
-    print('Docker needs to start with sudo mode')
+# list of options
+opts = {"-h","--help","--no-clean","--reset-logs","--dev"}
+
+
+# Must contain the list of differents systems images URLs with the execution tuxml script.
+images = []
+dev = ""
+if "--dev" in argv:
+    images = ["tuxml/tuxmldebian:dev"]
+    dev = "--dev"
+else:
+    print(ORANGE)
+    print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
+    print("With '--dev' it will use the current dev version tuxmldebian:dev")
+    print(GRAY)
+
+    yn = input("Are you sure you want to run MLfood without dev ? (y/n)")
+    yn.lower()
+
+    if yn == "y":
+        images = ["tuxml/tuxmldebian:prod"]
+    else:
+        print(ORANGE + "Abort" + GRAY)
+        exit(0)
+
+# Check if arguments exists
+for i in range(1, len(argv)):
+    try:
+        int(argv[i])
+    except Exception as e:
+        if argv[i] not in opts:
+            print("")
+            print(RED + "Parameter \"" + argv[i] + "\" unknown.")
+            print("Execution abort")
+            print(GRAY)
+            exit(0)
 
 # Check if there is the --reset-logs option to erase all the logs.
 if "--reset-logs" in argv:
-    print("Are-you sure you want to delete all the saved logs? (y/n)")
+    print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
     reset = input()
     reset.lower()
     if reset == "y":
         print("Deleting all the logs in Logs/...")
         os.system("rm -rf Logs/*")
         print("Delete done.")
-        print("")
+        print("" + GRAY)
         exit(0)
     else:
         print("")
         print("Logs are not deleted.")
-        print("")
+        print("" + GRAY)
         exit(0)
 
 # Convert the parameter in an Integer which is the number of compilation to do.
 # If the number is above 50, the scrypt will ask for a confirmation
 try:
     nb = int(argv[1])
-    if nb >= 50 :
-        print("Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
+    if nb >= 50:
+        print(ORANGE + "Are-you sure you want to start " + str(nb) + " compilation? (y/n)")
         print('Canceling it would take as much Ctrl+C as the remaining number of compiling.')
         ok = input()
         ok.lower()
@@ -64,22 +122,38 @@ try:
             print("Canceled")
             exit(0)
 except Exception as e:
-    print("Please specify a valide number of compilation to launch.")
+    print(ORANGE)
+    print("Please specify a valid number of compilation to launch.")
     print("Command ./MLfood.py <Integer> [Option]")
+    print(GRAY)
     exit(0)
+
+print(GRAY)
 
 # Retrieves the number of compilation to run.
 if nb <= 0:
-    print("Please enter a non-zero positive integer.")
+    print(RED + "Please enter a non-zero positive integer." + GRAY)
     exit(0)
 
-# Must contain the list of differents systems images URLs with the execution tuxml script.
-images = ["tuxml/tuxmldebian:prod"]
+incrN = 0
+
+if len(argv) == 3:
+    try:
+        incrN = int(argv[2])
+    except Exception as e:
+        pass
+
 
 # The image list must not be empty.
 if len(images) == 0:
     print("There is no images.")
     exit(0)
+
+# We check if the user is a super-user.
+# Restarting with sudo.
+if os.getuid() != 0:
+    print(LIGHT_BLUE_1 + 'Docker needs to start with sudo mode' + GRAY)
+
 
 # For each url in the url list "images", we run a new docker which run the TuxML command nb times and saves the logs.
 for i in range(nb):
@@ -87,8 +161,9 @@ for i in range(nb):
 
     # Get the last version of the image.
     str2 = "sudo docker pull " + images[i % len(images)]
-    print("Recovering the last docker image " + images[i % len(images)])
+    print(ORANGE + "Recovering the last docker image " + images[i % len(images)] + "\n")
     os.system(str2)
+    print(GRAY)
 
     # Generation of the logs folder create thanks to the execution date
     today = time.localtime(time.time())
@@ -97,10 +172,10 @@ for i in range(nb):
         os.makedirs("Logs/" + logsFolder)
 
     # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py | tee Logs/' + logsFolder + '/output.log'
-    print("\n=============== Docker n°" + str(i + 1)+ " ===============")
-    print(chaine)
-    print("==========================================\n")
+    chaine = 'sudo docker run -it ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(incrN) + ' | tee Logs/' + logsFolder + '/output.log'
+    print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
+    # print(chaine)
+    print("")
     os.system(chaine)
 
     # Get the logs std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -110,22 +185,23 @@ for i in range(nb):
     stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
     errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
     configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
-    print("Fetch logs and .config file to the folder ./Logs/" + logsFolder)
+    print("")
+    print(LIGHT_PURPLE + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
     os.system(stdlogs)
     os.system(errlogs)
     os.system(configFile)
+    print(GRAY)
 
     # Clean all the containers used previously.
-    if not "--no-clean" in argv:
-        print("Cleaning containers . . .")
+    if "--no-clean" not in argv:
+        print(LIGHT_PURPLE + "Cleaning containers . . .")
         os.system("sudo docker rm -v $(sudo docker ps -aq)")
         print("Clean done!")
-    else:
-        print("Option " + argv[2] + " unknown.")
-        exit(0)
+        print("")
 
-    print("")
+    print(LIGHT_BLUE_1 + "==========================================\n" + GRAY)
+
 
 # The end
-print("Your tamago... database ate " + str(nb) + " compilation data, come back later to feed it!")
+print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(nb) + " compilation data, come back later to feed it!" + GRAY)
 print("")

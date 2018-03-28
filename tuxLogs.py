@@ -1,13 +1,28 @@
 #!/usr/bin/python3
 
 import os
+from sys import argv
 
-# # Update the
-# print('Retrieves latest version of TuxML scritps...')
-# os.system('cd /TuxML/')
-# os.system('git pull')
-# os.system('git checkout dev')
+# Author Alexis LE MASLE
 
-# The command which we print and we write the output in the tuxML.logs
+if len(argv) == 1 or "-h" in argv or "--help" in argv:
+    print("Try: ./ExecConfig.py <Integer>")
+    print("<Integer> is the incremental factor ( 0 by default )")
+    print("-h, --help       Display help")
+    print("")
+    exit(0)
+
+incr = 0
+if len(argv) == 2:
+    try:
+        incr = int(argv[1])
+    except Exception as e:
+        print("Param", "\"" + argv[1] + "\"", "ignored. ( Not an valid Integer, see --help to know more. )")
+
+# Run tuxml.py and retrieves the output converted in a log file.
+print("")
 print('Starting tuxml.py ...')
-os.system('/TuxML/core/tuxml.py /TuxML/linux-4.13.3 -v 1')
+print("")
+chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(incr)
+print("")
+os.system(chaine)
