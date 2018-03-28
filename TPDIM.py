@@ -48,7 +48,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
-    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD .git/ /TuxML/.git \nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
 
@@ -57,7 +57,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="test", formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('-v', '--version', help="Use this to choose if you want an image dev or prod (will be delete)")
     parser.add_argument('-b', '--build', help="Image that you want to build, use -f to give the folder where is the TuxML project scripts and a valid dockerfile, default is [.]")

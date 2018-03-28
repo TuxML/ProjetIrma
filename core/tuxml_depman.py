@@ -35,6 +35,7 @@ def build_dependencies(missing_files, missing_packages):
 
         try:
             output = subprocess.check_output([cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
+            tdepLogger.log_candidates_packages(mf, output)
         except subprocess.CalledProcessError:
             tdepl.log_status(mf, False)
             tdepl.export_as_csv()

@@ -7,12 +7,13 @@ import tuxml as tml
 import sys
 import MySQLdb
 import time
+import tuxml_argshandler as targs
 
 # author : LEBRETON Mickael
 #
 # Main function
 def main():
-    tml.args_handler()
+    targs.args_handler()
 
     # get environment details
     tset.TUXML_ENV = tenv.get_environment_details()
@@ -82,13 +83,15 @@ def sendToDB():
         cursor.execute(query, list(args_env.values()))
 
         for missing_file in tdep.tdepLogger.log.keys():
+            print(tdep.tdepLogger.candidates.get(missing_file))
             args_pkg = {
                 "cid":cursor.lastrowid,
-                "missing_files": missing_file,
-                "missing_packages":tdep.tdepLogger.log.get(missing_file),
+                "missing_files": str(missing_file),
+                "missing_packages": tdep.tdepLogger.log.get(missing_file),
+                "candidate_missing_packages": tdep.tdepLogger.candidates.get(missing_file),
                 "resolution_successful":tdep.tdepLogger.status.get(missing_file)
-            }
-            keys   = ",".join(args_pkg.keys())
+			}
+            keys = ",".join(args_pkg.keys())
             values = ','.join(['%s'] * len(args_pkg.values()))
             query  = "INSERT INTO packages({}) VALUES({})".format(keys, values)
             cursor.execute(query, list(args_pkg.values()))
