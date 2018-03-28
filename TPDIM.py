@@ -107,7 +107,7 @@ if args.all:
         os.chdir('./BuildImageInter')
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
         os.system(wget)
-        targz = "tar zxvf linux_4.13.3.tar.xz -C ."
+        targz = "tar -xJf linux_4.13.3.tar.xz -C ."
         os.system(targz)
         pass
     DockerGenerate(debian, args.all)
