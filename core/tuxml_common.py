@@ -37,6 +37,7 @@ def pprint(s, message):
     func    = tset.GRAY + "[" + sys._getframe(1).f_code.co_name + "] "
     msg     = code[s] + message + NC
 
+    # TODO rediriger vers la sortie standard et la sortie d'erreur
     if tset.VERBOSE == 1:
         print(msg)
     elif tset.VERBOSE == 2:

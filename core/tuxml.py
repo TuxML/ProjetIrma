@@ -268,6 +268,7 @@ def main():
 
     for i in range(0, tset.INCITERS):
         tset.INCREMENTAL_MOD = 1
+        tset.TUXML_ENV["compilation"]["incremental_mod"] = "1"
         tcom.pprint(2, "Launching incremental compilation #" + str(i + 1))
         gen_config()
         if launcher() < 0:
