@@ -124,7 +124,7 @@ try:
 except Exception as e:
     print(ORANGE)
     print("Please specify a valid number of compilation to launch.")
-    print("Command ./MLfood.py <Integer> [Option]")
+    print("Command ./MLfood.py <Integer> [<Integer>] [Option]")
     print(GRAY)
     exit(0)
 
@@ -137,16 +137,19 @@ if nb <= 0:
 
 incrN = 0
 
-if len(argv) == 3:
+if argv[2] not in opts:
     try:
         incrN = int(argv[2])
+        if incrN < 0:
+            print("The incremental parameter needs to be null or positive.")
+            exit(0)
     except Exception as e:
         pass
 
 
 # The image list must not be empty.
 if len(images) == 0:
-    print("There is no images.")
+    print("There are no images.")
     exit(0)
 
 # We check if the user is a super-user.
@@ -190,6 +193,7 @@ for i in range(nb):
     os.system(stdlogs)
     os.system(errlogs)
     os.system(configFile)
+    dockerid.close()
     print(GRAY)
 
     # Clean all the containers used previously.
