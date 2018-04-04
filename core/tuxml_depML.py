@@ -107,7 +107,26 @@ def sendToDB():
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
 
+def string_to_dict(env_details:str)->dict:
+    return eval(env_details)
+
+
+def tuples():
+        try:
+            socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
+            query  = "SELECT DISTINCT depML_environnement.config_file,depML_environnement.environnement,packages.missing_files,packages.missing_packages,packages.candidate_missing_packages,packages.resolution_successful FROM packages , depML_environnement WHERE packages.cid=depML_environnement.cid"
+            socket.query(query)
+            res = socket.store_result()
+            tuples = res.fetch_row(maxrows=0)
+            #print(tuples)
+            for t in tuples:
+                print(t[3])
+        except MySQLdb.Error as err:
+            tcom.pprint(1, "Can't retrieve info from db : {}".format(err))
+            return -1
+
 # ============================================================================ #
 
 if __name__ == '__main__':
-    main()
+    #main()
+    tuples()
