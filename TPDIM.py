@@ -48,6 +48,7 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
     # dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
 
@@ -107,7 +108,7 @@ if args.all:
         os.getcwd()
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
         os.system(wget)
-        targz = "tar -xJf linux_4.13.3.tar.xz -C ."
+        targz = "tar -xJf linux-4.13.3.tar.xz"
         os.system(targz)
         pass
     DockerGenerate("debian", args.all)
