@@ -5,6 +5,40 @@ import argparse
 
 # We define the function use in the script
 
+def mkGenerate(args):
+    DocPre = os.listdir('.')
+    if "Dockerfile" in DocPre:
+        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
+        rep = input()
+        rep.lower()
+        if rep == "y":
+            if args.dependences:
+                depText = args.dependences
+                openDep = open(depText)
+                strDep = openDep.read()
+                DockerGenerate(args.generate, args.tag, strDep)
+            else:
+                DockerGenerate(args.generate, args.tag)
+        else:
+            print("Canceled")
+            exit(0)
+
+def mkBuild(args):
+    if args.folder:
+        DocPre = os.listdir(args.folder)
+        if "Dockerfile" not in DocPre:
+            print("Please give a folder with a valid Dockerfile")
+            exit(-1)
+        else:
+            DockerBuild(args.build, args.tag, args.folder)
+    else:
+        DockerBuild(args.image, args.tag)
+
+def mkPush(args):
+    DockerPush(args.push, args.tag)
+
+
+
 
 def DockerBuild(image, tag, *location):
     print("Update of the docker image")
@@ -31,6 +65,7 @@ def DockerPush(repository, tag):
         DockerPush(repository, tag)
 
 
+### TODO; dependencesFile is never used 
 def DockerGenerate(originImage, tag, *dependencesFile):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
     os.chdir('BuildImageInter')
@@ -55,7 +90,6 @@ def DockerGenerate(originImage, tag, *dependencesFile):
 
 # Start of the script
 
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -67,40 +101,9 @@ if __name__ == "__main__":
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
     parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push")
-    parser.add_argument('-a', '--all', help="Tag of the image")
+    parser.add_argument('-a', '--all', help="Generate, build, push with default value (tag=dev)")
 
 args = parser.parse_args()
-
-if args.generate:
-    DocPre = os.listdir('.')
-    if "Dockerfile" in DocPre:
-        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
-        rep = input()
-        rep.lower()
-        if rep == "y":
-            if args.dependences:
-                depText = args.dependences
-                openDep = open(depText)
-                strDep = openDep.read()
-                DockerGenerate(args.generate, args.tag, strDep)
-            else:
-                DockerGenerate(args.generate, args.tag)
-        else:
-            print("Canceled")
-            exit(0)
-
-if args.push:
-    DockerPush(args.push, args.tag)
-if args.build:
-    if args.folder:
-        DocPre = os.listdir(args.folder)
-        if "Dockerfile" not in DocPre:
-            print("Please give a folder with a valid Dockerfile")
-            exit(-1)
-        else:
-            DockerBuild(args.build, args.tag, args.folder)
-    else:
-        DockerBuild(args.image, args.tag)
 
 if args.all:
     linux_dir = os.listdir('./BuildImageInter')
@@ -112,7 +115,14 @@ if args.all:
         targz = "tar -xJf linux-4.13.3.tar.xz"
         os.system(targz)
         pass
-    DockerGenerate("debian", args.all)
-    DockerBuild("debian", args.all)
-    DockerPush("debian", args.all)
-    pass
+    args.tag = "dev"
+    args.generate = args.all
+    args.push = args.all
+    args.build = args.all
+
+if args.generate:
+    mkGenerate(args)
+if args.build:
+    mkBuild(args)
+if args.push:
+    mkPush(args)
