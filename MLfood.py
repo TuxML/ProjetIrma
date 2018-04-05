@@ -180,7 +180,7 @@ def mlfood():
 
 
     # The end
-    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(args.nbcompil * incremental) + " compilation data, come back later to feed it!" + GRAY)
+    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(args.nbcompil) + " compilation data, come back later to feed it!" + GRAY)
     print("")
 
 
