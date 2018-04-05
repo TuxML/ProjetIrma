@@ -65,7 +65,8 @@ def DockerPush(repository, tag):
         DockerPush(repository, tag)
 
 
-### TODO; dependencesFile is never used 
+### TODO; dependencesFile is never used
+## TODO: we need to split the method in two (one for dependencies; the other for updating TUXML)
 def DockerGenerate(originImage, tag, *dependencesFile):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
     os.chdir('BuildImageInter')
@@ -100,8 +101,8 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--generate', help="Image use to generate a docker file")
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
-    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push")
-    parser.add_argument('-a', '--all', help="Generate, build, push with default value (tag=dev)")
+    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push",default="prod")
+    parser.add_argument('-a', '--all', help="Generate, build, push with default values")
 
 args = parser.parse_args()
 
@@ -115,7 +116,6 @@ if args.all:
         targz = "tar -xJf linux-4.13.3.tar.xz"
         os.system(targz)
         pass
-    args.tag = "dev"
     args.generate = args.all
     args.push = args.all
     args.build = args.all
