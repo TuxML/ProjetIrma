@@ -30,7 +30,12 @@ def boot_try():
 		status = 1
 
 		time.sleep(5)
-		outFile = open("serial.out",mode='r')
+		
+		try:
+			outFile = open("serial.out",mode='r')
+		except OSError:
+			tcom.pprint(1, "Unable to open output file, assuming subprocess call failed !")
+			return -3
 
 		while status == 1:
 			time.sleep(10)
