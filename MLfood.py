@@ -63,7 +63,6 @@ def mlfood():
     parser.add_argument("--dev", help="Use image in current development.", action="store_true")
     args = parser.parse_args()
 
-    print(args.incremental)
     print(GRAY)
 
     # Must contain the list of differents systems images URLs with the execution tuxml script.
@@ -155,15 +154,17 @@ def mlfood():
         print("")
         os.system(chaine)
 
-        # Get the logs std.logs and err.logs from the last used container and retrieves the ".config" file.
+        # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
         dockerid = os.popen("sudo docker ps -lq", "r")
         dock = dockerid.read()
         dock = dock[0:len(dock) -1]
+        outputlog = 'sudo docker cp ' + dock + ':/TuxML/output.log ./Logs/' + logsFolder
         stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
         errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
         configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
         print("")
         print(LIGHT_PURPLE + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
+        os.system(outputlog)
         os.system(stdlogs)
         os.system(errlogs)
         os.system(configFile)

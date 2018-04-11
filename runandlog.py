@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
 args = parser.parse_args()
 
-# Run tuxml.py and retrieves the output converted in a log file.
+# Run tuxLogs.py and retrieves the output converted in a log file.
 print("")
 print('Running tuxLogs.py ...')
 print("")
