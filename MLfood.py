@@ -149,7 +149,8 @@ def mlfood():
             os.makedirs("Logs/" + logsFolder)
 
         # Main command which run a docker which execute the tuxLogs.py script and write the logs in output.logs
-        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee Logs/' + logsFolder + '/output.log'
+        # chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee Logs/' + logsFolder + '/output.log'
+        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
         print("")
         os.system(chaine)
