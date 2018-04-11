@@ -151,7 +151,7 @@ def mlfood():
         # chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee Logs/' + logsFolder + '/output.log'
         chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
-        print("")
+        print(GRAY)
         os.system(chaine)
 
         # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -182,7 +182,7 @@ def mlfood():
 
 
     # The end
-    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(args.nbcompil) + " compilation data, come back later to feed it!" + GRAY)
+    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(args.nbcompil * args.incremental) + " compilation data, come back later to feed it!" + GRAY)
     print("")
 
 
