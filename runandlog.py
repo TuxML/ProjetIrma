@@ -48,7 +48,7 @@ print('Running tuxLogs.py ...')
 print("")
 chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 print("")
-# os.system(chaine)
+os.system(chaine)
 
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
