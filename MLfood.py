@@ -32,7 +32,6 @@
 import os
 import time
 import argparse
-from sys import argv
 
 # The main function, used to be a script but encapsulated in a function in order to hide local variables and make the doc more readable.
 def mlfood():
@@ -48,12 +47,13 @@ def mlfood():
     ORANGE          = "\033[38;5;3m"
     LIGHT_ORANGE    = "\033[38;5;11m"
     BLUE_1          = "\033[38;5;4m"
-    LIGHT_BLUE_1    = "\033[38;5;12m"
+    LIGHT_BLUE_1    = "\033[38;5;12m"          # Informations
     BLUE_2          = "\033[38;5;6m"
     LIGHT_BLUE_2    = "\033[38;5;14m"
     PURPLE          = "\033[38;5;5m"
-    LIGHT_PURPLE    = "\033[38;5;13m"
+    LIGHT_PURPLE    = "\033[38;5;13m"          # Informations
 
+    #################### Section 1 ####################
     # Creation of help and arguments parser
     print(LIGHT_BLUE_1)
     parser = argparse.ArgumentParser()
@@ -65,6 +65,7 @@ def mlfood():
     args = parser.parse_args()
     print(GRAY)
 
+    #################### Section 2 ####################
     images = []
     dev = ""
     if args.dev:
@@ -85,6 +86,7 @@ def mlfood():
             print(ORANGE + "Abort" + GRAY)
             exit(0)
 
+    #################### Section 3 ####################
     # Check if there is the --reset-logs option to erase all the logs.
     if args.reset_logs:
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
@@ -102,6 +104,7 @@ def mlfood():
             print(GRAY)
             exit(0)
 
+    #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
     # If the number is above 50, the scrypt will ask for a confirmation
     # if args.nbcompil >= 50:
@@ -114,6 +117,7 @@ def mlfood():
     #        exit(0)
     print(GRAY)
 
+    #################### Section 5 ####################
     # Retrieves the number of compilation to run.
     if args.nbcompil <= 0:
         print(RED + "Please enter a non-zero positive integer." + GRAY)
@@ -128,30 +132,33 @@ def mlfood():
     if os.getuid() != 0:
         print(LIGHT_BLUE_1 + 'Docker needs super-user privileges to run' + GRAY)
 
-
+    #################### Section 6 ####################
     # For each url in the url list "images", we run a new docker which run the TuxML command nbcompil times and saves the logs.
     for i in range(args.nbcompil):
         print("")
 
+        #################### Section 7 ####################
         # Get the last version of the image.
         str2 = "sudo docker pull " + images[i % len(images)]
         print(LIGHT_PURPLE + "Recovering the last docker image " + images[i % len(images)] + "\n")
         os.system(str2)
         print(GRAY)
 
+        #################### Section 8 ####################
         # Generation of the logs folder create thanks to the execution date
-        today = time.localtime(time.time())
+        # today = time.localtime(time.time())
         logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
         if not os.path.exists("Logs/"+logsFolder):
             os.makedirs("Logs/" + logsFolder)
 
+        #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
-        # chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee Logs/' + logsFolder + '/output.log'
         chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
         print(GRAY)
         os.system(chaine)
 
+        #################### Section 10 ####################
         # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
         dockerid = os.popen("sudo docker ps -lq", "r")
         dock = dockerid.read()
@@ -169,8 +176,9 @@ def mlfood():
         dockerid.close()
         print(GRAY)
 
+        #################### Section 11 ####################
         # Clean all the containers used previously.
-        if args.no_clean:
+        if not args.no_clean:
             print(LIGHT_PURPLE + "Cleaning containers . . .")
             os.system("sudo docker rm -v $(sudo docker ps -aq)")
             print("Clean done!")
@@ -178,6 +186,7 @@ def mlfood():
 
         print(LIGHT_BLUE_1 + "==========================================\n" + GRAY)
 
+    #################### Section 12 ####################
     # The end
     print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + str(args.nbcompil * (args.incremental + 1)) + " compilations data, come back later to feed it!" + GRAY)
     print(LIGHT_PURPLE)
@@ -186,5 +195,5 @@ def mlfood():
     print("Total number of compilations: " + str(args.nbcompil * (args.incremental + 1)) )
     print(GRAY)
 
-
+#################### Section 13 ####################
 mlfood()
