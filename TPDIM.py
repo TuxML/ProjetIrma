@@ -41,9 +41,9 @@ def mkGenerate(args):
                 depText = args.dependences
                 openDep = open(depText)
                 strDep = openDep.read()
-                DockerGenerate(args.generate, args.tag, strDep)
+                docker_generate(args.generate, args.tag, strDep)
             else:
-                DockerGenerate(args.generate, args.tag)
+                docker_generate(args.generate, args.tag)
         else:
             print("Canceled")
             exit(-1)
@@ -59,19 +59,24 @@ def mkBuild(args):
             print("Please give a folder with a valid Dockerfile")
             exit(-1)
         else:
-            DockerBuild(args.build, args.tag, args.folder)
+            docker_build(args.build, args.tag, args.folder)
     else:
-        DockerBuild(args.image, args.tag)
+        docker_build(args.image, args.tag)
 
 
 ## mkPush
 #  @author ACHER Mathieu
 # @param args The list of arguments give to the script
 def mkPush(args):
-    DockerPush(args.push, args.tag)
+    docker_push(args.push, args.tag)
 
-
-def DockerBuild(image, tag, *location):
+## docker_build
+# @author DIDOT Gwendal
+# @param image The name of the linux distribution the image is for
+# @param tag The tag use to identify the image
+# @param location The location of the dockerfile
+## TODO test if location other than '.' work properly
+def docker_build(image, tag, *location):
     print("Update of the docker image")
     # Build the choosen docker image
     if location in args:
@@ -83,7 +88,11 @@ def DockerBuild(image, tag, *location):
     os.system(strBuild)
 
 
-def DockerPush(repository, tag):
+## dockerpush
+# @author DIDOT Gwendal
+# @param repository The distant repository where the user want to store the image ( TODO; Let the user choose which repository he want to use instead of the TuxML Project one
+# @param tag The tag use to identify the image
+def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
     strpush = 'sudo docker push tuxml/tuxml{}:{}'.format(repository, tag)
@@ -93,19 +102,23 @@ def DockerPush(repository, tag):
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
         os.system(str3)
-        DockerPush(repository, tag)
+        docker_push(repository, tag)
 
 
 ## TODO: we need to split the method in two (one for dependencies; the other for updating TUXML)
-def DockerGenerate(originImage, tag, *dependencesFile):
+## docker_push
+# @param originImage The image use to make the intermediate image
+# @param tag The tag use to identify the image*
+# @param dependencesFile The file use to give the dependences that have to be install by default
+def docker_generate(originImage, tag, *dependencesFile):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
     os.chdir('BuildImageInter')
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
-    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file they want to use
+    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file he want to use
     text_dep = depText.read()
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
-    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n")
+    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
     dockerFileI.close()
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
     os.system(strBuildI)
@@ -114,7 +127,6 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
-    # dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 

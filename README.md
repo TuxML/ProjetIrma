@@ -130,12 +130,12 @@ Mainly for developers of TUXML that maintain the Docker images: https://hub.dock
 ### How to use ?
 
 The simple way is to use 
-``` ./TPDIM -a debian -t dev```
+``` ./TPDIM -a debian -t 'tag-name'```
 
 It executes all following procedures (generate, build and push):
- * Generation : Use only when update Dockerfile or when adding new dependencies to the image ``` ./TPDIM -g debian -dep dependences.txt -t dev```
- * Build : ``` ./TPDIM -b debian -t dev```
- * Push : ``` ./TPDIM -p debian -t dev```
+ * Generation : Use only when update Dockerfile or when adding new dependencies to the image ``` ./TPDIM -g debian -dep dependences.txt -t 'tag-name'```
+ * Build : ``` ./TPDIM -b debian -t 'tag-name'```
+ * Push : ``` ./TPDIM -p debian -t 'tag-name'```
 
 Have a look at option for customizing e.g., the image (e.g. debian) or the tag (e.g., dev or prod). 
 
