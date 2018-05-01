@@ -18,10 +18,11 @@ def boot_try():
 
 	try:
 		sbStatus = subprocess.call(["mkinitramfs","-o", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-	except FileNotFoundError:
+	except Exception:
 		sbStatus = -1;
 
 	cmd = "qemu-system-x86_64"
+	print(sbStatus)
 	if sbStatus == 0:
 		procId = subprocess.Popen([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
@@ -29,7 +30,12 @@ def boot_try():
 		status = 1
 
 		time.sleep(5)
-		outFile = open("serial.out",mode='r')
+		
+		try:
+			outFile = open("serial.out",mode='r')
+		except OSError:
+			tcom.pprint(1, "Unable to open output file, assuming subprocess call failed !")
+			return -3
 
 		while status == 1:
 			time.sleep(10)

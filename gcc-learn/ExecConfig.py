@@ -1,5 +1,30 @@
 #!/usr/bin/python3
 
+## @file ExecConfig.py
+# @author LE MASLE Alexis
+# @copyright Apache License 2.0
+# @brief File which start tuxml.py with specific parameters
+#
+# @details This script works almost like tuxLogs.py, it is used to execute tuxml.py with the number of cores given by Fetch.py.
+# The program runs tuxml.py with a given number of cores, and configure it to send the compilations data to an other database used
+# to make correlations as it was said in Fetch.py with the help of Machine Learning.
+
+# ExecConfig.py, Fetch.py and genconf.py are NOT USEFULL in the TuxML Project.
+
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import os
 from sys import argv
 
@@ -34,5 +59,5 @@ if int(argv[2]) <= 0:
 	exit(0)
 
 # It runs with a different behavior
-cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[1] + ".config -c " + argv[2] + " -v 4 --database alexis"
+cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[1] + ".config -c " + argv[2] + " -v 4 --database alexis --incremental 0"
 os.system(cmd)

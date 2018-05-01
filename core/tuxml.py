@@ -280,7 +280,7 @@ def main():
         if launcher() < 0:
             sys.exit(-1)
         # TODO : charger les fichiers de la compilation base
-
+    tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
     sys.exit(0)
 
 
