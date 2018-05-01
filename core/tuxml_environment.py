@@ -214,9 +214,9 @@ def export_as_csv(os_details, hw_details, comp_details):
 # Display all the environment's details
 def environment_pprinter(env_details):
     for dico in env_details:
-        print(tset.GRAY + " " * 4 + "==> "+ dico)
+        print(" " * 4 + "==> "+ dico)
         for key in env_details[dico]:
-            print(tset.GRAY + " " * 6 + "--> " + key + ": " + env_details[dico][key])
+            print(" " * 6 + "--> " + key + ": " + env_details[dico][key])
 
 # author : LEBRETON Mickaël
 #
