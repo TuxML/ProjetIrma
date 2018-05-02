@@ -26,6 +26,7 @@
 import os
 import argparse
 
+### TODO; use subprocess instead of os.system
 
 ## mkGenerate
 #  @author ACHER Mathieu
@@ -90,8 +91,9 @@ def docker_build(image, tag, *location):
 
 ## dockerpush
 # @author DIDOT Gwendal
-# @param repository The distant repository where the user want to store the image ( TODO; Let the user choose which repository he want to use instead of the TuxML Project one
+# @param repository The distant repository where the user want to store the image
 # @param tag The tag use to identify the image
+## TODO; Let the user choose which repository he want to use instead of the TuxML Project one
 def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
@@ -152,10 +154,9 @@ if args.all:
     linux_dir = os.listdir('./BuildImageInter')
     if "linux-4.13.3" not in linux_dir:
         os.chdir('./BuildImageInter')
-        os.getcwd()
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
         os.system(wget)
-        targz = "tar -xJf linux-4.13.3.tar.xz" ### TODO; use subprocess instead
+        targz = "tar -xJf linux-4.13.3.tar.xz"
         os.system(targz)
         pass
     args.generate = args.all
