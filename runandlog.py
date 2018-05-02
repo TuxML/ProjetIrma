@@ -11,6 +11,7 @@
 #
 # When MLfood.py is called with 10 compilations and 3 as incremental parameter, runandlog is one of the 10 compilations asked,
 # which run 1 basic compilation then the 3 incremental compilations.
+# The script is run with the command : "./runandlog.py 3" to run 3 incremental compilation in addition to the basic one
 
 
 #   Copyright 2018 TuxML Team
@@ -39,7 +40,7 @@ import tuxml_settings as tset
 import bz2
 import os
 import argparse
-from sys import argv
+# from sys import argv
 import re
 
 # Author Alexis LE MASLE
@@ -51,6 +52,7 @@ args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
 # eg # send_outputlog(457, "fakeoutput.log", "IrmaDB_prod")
+# Function to send the outputfile to the database at a certain "cid"
 def send_outputlog(cid, outputfilename, databasename):
     try:
         socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, databasename) # TODO
@@ -78,6 +80,7 @@ chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.lo
 print("")
 os.system(chaine)
 
+# tuxLogs.py has finished to run, output.log exist now
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
     if match:
