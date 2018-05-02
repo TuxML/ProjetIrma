@@ -65,28 +65,8 @@ def mlfood():
     args = parser.parse_args()
     print(GRAY)
 
+
     #################### Section 2 ####################
-    images = []
-    dev = ""
-    if args.dev:
-        images = ["tuxml/tuxmldebian:dev"]
-        dev = "--dev"
-    else:
-        print(ORANGE)
-        print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
-        print("With '--dev' it will use the current dev version tuxmldebian:dev")
-        print(GRAY)
-
-        yn = input("Are you sure you want to run MLfood without dev ? (y/n)")
-        yn.lower()
-
-        if yn == "y":
-            images = ["tuxml/tuxmldebian:prod"]
-        else:
-            print(ORANGE + "Abort" + GRAY)
-            exit(0)
-
-    #################### Section 3 ####################
     # Check if there is the --reset-logs option to erase all the logs.
     if args.reset_logs:
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
@@ -102,6 +82,27 @@ def mlfood():
             print("")
             print("Logs are not deleted.")
             print(GRAY)
+            exit(0)
+
+    #################### Section 3 ####################
+    images = []
+    dev = ""
+    if args.dev:
+        images = ["tuxml/tuxmldebian:dev"]
+        dev = "--dev"
+    else:
+        print(ORANGE)
+        print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
+        print("With '--dev' it will use the current dev version tuxmldebian:dev")
+
+        yn = input("Are you sure you want to run MLfood without dev ? (y/n)")
+        yn.lower()
+        print(GRAY)
+
+        if yn == "y":
+            images = ["tuxml/tuxmldebian:prod"]
+        else:
+            print(ORANGE + "Abort" + GRAY)
             exit(0)
 
     #################### Section 4 ####################
