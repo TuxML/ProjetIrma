@@ -13,7 +13,7 @@
 # affect compilations.
 # All machine used to perform the same .config needs to be the same ( Same configurations, hardware ).
 
-# ExecConfig.py, Fetch.py and genconf.py are NOT USEFULL in the TuxML Project.
+# ExecConfig.py, Fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
 
 #   Copyright 2018 TuxML Team
 #

@@ -6,9 +6,9 @@
 # @brief Generate a given number of .config file.
 #
 # @details You will need linux-4.13.3 kernel folder.
+# This can be executed by calling "./genconf.py 100" to generate 100 .config
 #
-#
-# ExecConfig.py, Fetch.py and genconf.py are NOT USEFULL in the TuxML Project.
+# ExecConfig.py, Fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
 
 #   Copyright 2018 TuxML Team
 #

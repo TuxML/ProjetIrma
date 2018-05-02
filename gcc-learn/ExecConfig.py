@@ -9,7 +9,7 @@
 # The program runs tuxml.py with a given number of cores, and configure it to send the compilations data to an other database used
 # to make correlations as it was said in Fetch.py with the help of Machine Learning.
 
-# ExecConfig.py, Fetch.py and genconf.py are NOT USEFULL in the TuxML Project.
+# ExecConfig.py, Fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
 
 #   Copyright 2018 TuxML Team
 #
