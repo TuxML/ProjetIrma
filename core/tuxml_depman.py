@@ -15,7 +15,6 @@
 #   limitations under the License.
 
 import subprocess
-import shutil
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
@@ -100,7 +99,7 @@ def get_installed_packages(dependencies):
         "apt-get" : "dpkg -s  {}",
         "pacman"  : "pacman -Qs {} | grep \"/{} \"",
         "dnf"     : "rpm -qa | grep {}", #TODO test
-        "yum"     : [""]
+        "yum"     : [""] #TODO
         # "emerge": [],
         # "zypper": []
     }

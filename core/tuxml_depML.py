@@ -31,6 +31,7 @@ csvfile = open('compilations_details.csv', 'w', newline='', encoding="UTF-8")
 # author : LEBRETON Mickael
 #
 # Main function
+# @brief perform a compilation and send the result in the database.
 def main():
     targs.args_handler()
 
