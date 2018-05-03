@@ -216,7 +216,7 @@ def launcher():
             stop_install_time = time.time()
             install_time += stop_install_time - start_install_time
             if (tset.VERBOSE > 1):
-                tcom.pprint(3, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
+                tcom.pprint(2, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
         else:
             status = 0
     end_compil_time = time.time()
@@ -259,13 +259,19 @@ def main():
         sys.exit(-1)
 
     # launching compilation
-    gen_config(tset.KCONFIG)
+    gen_config(tset.KCONFIG1)
     tset.BASE_CONFIG_ID = launcher()
     if tset.BASE_CONFIG_ID < 0:
         sys.exit(-1)
 
-    # TODO : sauvegarder les fichiers de compilation dans un autre dossier
+    if tset.KCONFIG2:
+        tset.INCREMENTAL_MOD = 1
+        gen_config(tset.KCONFIG2)
+        if launcher() < 0:
+            sys.exit(-1)
+        sys.exit(0)
 
+    # TODO sauvegarder les fichiers de compilation dans un autre dossier
     for i in range(0, tset.INCITERS):
         tset.INCREMENTAL_MOD = 1
         tset.TUXML_ENV["compilation"]["incremental_mod"] = "1"
@@ -274,7 +280,7 @@ def main():
         if launcher() < 0:
             sys.exit(-1)
         # TODO : charger les fichiers de la compilation base
-
+    tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
     sys.exit(0)
 
 

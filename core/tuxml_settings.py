@@ -33,7 +33,8 @@ TUXML_ENV       = None                     # Environment details
 INCREMENTAL_MOD = 0                        # By default we don't use the files from the previous compilations
 INCITERS        = 0                        # Config ID on which run the incremental tests
 BASE_CONFIG_ID  = 0
-KCONFIG         = None
+KCONFIG1        = None
+KCONFIG2        = None
 
 ## COLORS
 WHITE           = "\033[0m"                # Default color

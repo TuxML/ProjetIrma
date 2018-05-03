@@ -33,7 +33,7 @@ def pprint(s, message):
 
     NC = tset.WHITE
 
-    date    = tset.LIGHT_BLUE_1 + time.strftime("[%Y-%m-%d %H:%M:%S GMT] ", time.localtime(time.time()))
+    date    = tset.LIGHT_BLUE_1 + time.strftime("[%Y-%m-%d %H:%M:%S %Z] ", time.localtime(time.time()))
     func    = tset.GRAY + "[" + sys._getframe(1).f_code.co_name + "] "
     msg     = code[s] + message + NC
 

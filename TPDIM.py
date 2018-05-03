@@ -1,12 +1,83 @@
 #!/usr/bin/python3
 
+## @file TPDIM.py
+# @author DIDOT Gwendal ACHER Mathieu
+# @copyright Apache License 2.0
+# @brief Script use to simplified the creation and use of Docker image.
+# @details This script was design to help member of the TuxML project to easily use Docker, without any knowledge require
+#  other than what a Docker image is (check https://docs.docker.com/get-started/ for more information).
+
+# Use 'TPDIM -h' to have more information about the options of the script
+
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import os
 import argparse
 
-# We define the function use in the script
+### TODO; use subprocess instead of os.system
+
+## mkGenerate
+#  @author ACHER Mathieu
+# @param args The list of arguments give to the script
+def mkGenerate(args):
+    DocPre = os.listdir('.')
+    if "Dockerfile" in DocPre: # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
+        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
+        rep = input()
+        rep.lower()
+        if rep == "y":
+            if args.dependences: # If the user give to the script a different dependeces file than the default one, we use it instead
+                depText = args.dependences
+                openDep = open(depText)
+                strDep = openDep.read()
+                docker_generate(args.generate, args.tag, strDep)
+            else:
+                docker_generate(args.generate, args.tag)
+        else:
+            print("Canceled")
+            exit(-1)
 
 
-def DockerBuild(image, tag, *location):
+## mkBuild
+#  @author ACHER Mathieu
+# @param args The list of arguments give to the script
+def mkBuild(args):
+    if args.folder:
+        DocPre = os.listdir(args.folder)
+        if "Dockerfile" not in DocPre:
+            print("Please give a folder with a valid Dockerfile")
+            exit(-1)
+        else:
+            docker_build(args.build, args.tag, args.folder)
+    else:
+        docker_build(args.image, args.tag)
+
+
+## mkPush
+#  @author ACHER Mathieu
+# @param args The list of arguments give to the script
+def mkPush(args):
+    docker_push(args.push, args.tag)
+
+## docker_build
+# @author DIDOT Gwendal
+# @param image The name of the linux distribution the image is for
+# @param tag The tag use to identify the image
+# @param location The location of the dockerfile
+## TODO test if location other than '.' work properly
+def docker_build(image, tag, *location):
     print("Update of the docker image")
     # Build the choosen docker image
     if location in args:
@@ -18,7 +89,12 @@ def DockerBuild(image, tag, *location):
     os.system(strBuild)
 
 
-def DockerPush(repository, tag):
+## dockerpush
+# @author DIDOT Gwendal
+# @param repository The distant repository where the user want to store the image
+# @param tag The tag use to identify the image
+## TODO; Let the user choose which repository he want to use instead of the TuxML Project one
+def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
     strpush = 'sudo docker push tuxml/tuxml{}:{}'.format(repository, tag)
@@ -28,17 +104,23 @@ def DockerPush(repository, tag):
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
         os.system(str3)
-        DockerPush(repository, tag)
+        docker_push(repository, tag)
 
 
-def DockerGenerate(originImage, tag, *dependencesFile):
+## TODO: we need to split the method in two (one for dependencies; the other for updating TUXML)
+## docker_push
+# @param originImage The image use to make the intermediate image
+# @param tag The tag use to identify the image*
+# @param dependencesFile The file use to give the dependences that have to be install by default
+def docker_generate(originImage, tag, *dependencesFile):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
     os.chdir('BuildImageInter')
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
-    depText = open("../dependences.txt", 'r')
+    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file he want to use
     text_dep = depText.read()
-    dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\nRUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World")
+    dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
+    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
     dockerFileI.close()
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
     os.system(strBuildI)
@@ -47,12 +129,11 @@ def DockerGenerate(originImage, tag, *dependencesFile):
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
-    dockerFile.write("ADD core /TuxML\nADD gcc-learn/ExecConfig.py /TuxML/gcc-learn/ExecConfig.py \nADD gcc-learn/ConfigFile /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
 
 # Start of the script
-
 
 if __name__ == "__main__":
 
@@ -64,53 +145,27 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--generate', help="Image use to generate a docker file")
     parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
-    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push")
-    parser.add_argument('-a', '--all', help="Tag of the image")
+    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push",default="prod")
+    parser.add_argument('-a', '--all', help="Generate, build, push with default values")
 
 args = parser.parse_args()
-
-if args.generate:
-    DocPre = os.listdir('.')
-    if "Dockerfile" in DocPre:
-        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
-        rep = input()
-        rep.lower()
-        if rep == "y":
-            if args.dependences:
-                depText = args.dependences
-                openDep = open(depText)
-                strDep = openDep.read()
-                DockerGenerate(args.generate, args.tag, strDep)
-            else:
-                DockerGenerate(args.generate, args.tag)
-        else:
-            print("Canceled")
-            exit(0)
-
-if args.push:
-    DockerPush(args.push, args.tag)
-if args.build:
-    if args.folder:
-        DocPre = os.listdir(args.folder)
-        if "Dockerfile" not in DocPre:
-            print("Please give a folder with a valid Dockerfile")
-            exit(-1)
-        else:
-            DockerBuild(args.build, args.tag, args.folder)
-    else:
-        DockerBuild(args.image, args.tag)
 
 if args.all:
     linux_dir = os.listdir('./BuildImageInter')
     if "linux-4.13.3" not in linux_dir:
         os.chdir('./BuildImageInter')
-        os.getcwd()
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
         os.system(wget)
-        targz = "tar -xJf linux_4.13.3.tar.xz -C ."
+        targz = "tar -xJf linux-4.13.3.tar.xz"
         os.system(targz)
         pass
-    DockerGenerate("debian", args.all)
-    DockerBuild("debian", args.all)
-    DockerPush("debian", args.all)
-    pass
+    args.generate = args.all
+    args.push = args.all
+    args.build = args.all
+
+if args.generate:
+    mkGenerate(args)
+if args.build:
+    mkBuild(args)
+if args.push:
+    mkPush(args)
