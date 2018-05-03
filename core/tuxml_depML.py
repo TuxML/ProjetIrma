@@ -21,7 +21,12 @@ import tuxml as tml
 import sys
 import MySQLdb
 import time
+import ast
+import csv
 import tuxml_argshandler as targs
+from itertools import chain
+
+csvfile = open('compilations_details.csv', 'w', newline='', encoding="UTF-8")
 
 # author : LEBRETON Mickael
 #
@@ -79,6 +84,9 @@ def launch_compilations():
             tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
 
+## @author LE FLEM Erwan,
+#@author MERZOUK Fahim
+# @brief Send to the database the result of the compilation.
 def sendToDB():
     try:
         socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
@@ -125,15 +133,26 @@ def sendToDB():
 def string_to_dict(env_details:str)->dict:
     return eval(env_details)
 
-def tuples():
+## @author LE FLEM Erwan,
+#@author MERZOUK Fahim
+# @brief récupère le contenu de la base de donnée et l'écrit sous forme d'un fichier CSV.
+def write_bdd_to_csv():
+        csv_writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         try:
             socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
             query  = "SELECT DISTINCT depML_environnement.config_file,depML_environnement.environnement,packages.missing_files,packages.missing_packages,packages.candidate_missing_packages,packages.resolution_successful FROM packages , depML_environnement WHERE packages.cid=depML_environnement.cid"
             socket.query(query)
             res = socket.store_result()
             tuples = res.fetch_row(maxrows=0)
-            print(tuples[0][0])
+
+            first_row = True
             for t in tuples:
+                optionName = list() #Column names for compilation options.
+                optionValue = list()
+                envDict = ast.literal_eval(tuples[0][1])
+                #Column names for environment details
+                csv_env_col_names = list(chain(*[ list(envDict.keys()) for d in list(envDict.values())]))
+
                 for option in t[0].split('\n'):
                     if '#' in option or len(option.split('=')) < 2:
                         # We ignore the comment lines and the empty lines.
@@ -141,9 +160,30 @@ def tuples():
                     else:
                         option_name = option.split('=')[0]
                         option_value = option.split('=')[1]
-                        print(option_name+"    " + option_value)
-                else:
-                    print(t[0].split('\n')[50])
+                        #print(option_name+"    " + option_value)
+                        if first_row:
+                            optionName.append(option_name)
+                        optionValue.append(option_value)
+
+                if first_row:
+                    #We write the header only once in the first iteration.
+                    csv_col_names = optionName + csv_env_col_names
+                    csv_col_names.append("missing_files")
+                    csv_col_names.append("missing_packages")
+                    csv_col_names.append("candidate_missing_packages")
+                    csv_col_names.append("resolution_successful")
+
+                    #We write the header here, i.e the column names.
+                    csv_writer.writerow(csv_col_names)
+                    first_row = False
+
+                #For each column, we write the values.
+                csv_col_values = optionValue + list(chain(*[ list(envDict.values()) for d in list(envDict.values())]))
+                csv_col_values.append(t[2])
+                csv_col_values.append(t[3])
+                csv_col_values.append(t[4])
+                csv_col_values.append(t[5])
+                csv_writer.writerow(csv_col_values)
         except MySQLdb.Error as err:
             tcom.pprint(1, "Can't retrieve info from db : {}".format(err))
             return -1
@@ -152,4 +192,4 @@ def tuples():
 
 if __name__ == '__main__':
     #main()
-    tuples()
+    write_bdd_to_csv()
