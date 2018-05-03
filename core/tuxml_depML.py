@@ -85,7 +85,7 @@ def launch_compilations():
 
 
 ## @author LE FLEM Erwan,
-#@author MERZOUK Fahim
+# @author MERZOUK Fahim
 # @brief Send to the database the result of the compilation.
 def sendToDB():
     try:
@@ -134,8 +134,9 @@ def string_to_dict(env_details:str)->dict:
     return eval(env_details)
 
 ## @author LE FLEM Erwan,
-#@author MERZOUK Fahim
-# @brief récupère le contenu de la base de donnée et l'écrit sous forme d'un fichier CSV.
+# @author MERZOUK Fahim
+# @brief retrieve content of the database and export it as a CSV file.
+# @detail The CSV file is named "compilations_details.csv" and is located on the current directory.
 def write_bdd_to_csv():
         csv_writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         try:
