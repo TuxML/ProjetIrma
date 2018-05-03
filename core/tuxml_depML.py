@@ -1,3 +1,17 @@
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset
@@ -82,7 +96,7 @@ def sendToDB():
 
         query  = "INSERT INTO depML_environnement({}) VALUES({})".format(keys, values)
         cursor.execute(query, list(args_env.values()))
-
+        socket.commit()
         for missing_file in tdep.tdepLogger.log.keys():
             args_pkg = {
                 "cid":cursor.lastrowid,
@@ -94,6 +108,7 @@ def sendToDB():
             keys = ",".join(args_pkg.keys())
             values = ','.join(['%s'] * len(args_pkg.values()))
             query  = "INSERT INTO packages({}) VALUES({})".format(keys, values)
+            print("QUERY IS: "+query)
             cursor.execute(query, list(args_pkg.values()))
 
         socket.commit()
@@ -110,7 +125,6 @@ def sendToDB():
 def string_to_dict(env_details:str)->dict:
     return eval(env_details)
 
-
 def tuples():
         try:
             socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
@@ -118,9 +132,18 @@ def tuples():
             socket.query(query)
             res = socket.store_result()
             tuples = res.fetch_row(maxrows=0)
-            #print(tuples)
+            print(tuples[0][0])
             for t in tuples:
-                print(t[3])
+                for option in t[0].split('\n'):
+                    if '#' in option or len(option.split('=')) < 2:
+                        # We ignore the comment lines and the empty lines.
+                        continue
+                    else:
+                        option_name = option.split('=')[0]
+                        option_value = option.split('=')[1]
+                        print(option_name+"    " + option_value)
+                else:
+                    print(t[0].split('\n')[50])
         except MySQLdb.Error as err:
             tcom.pprint(1, "Can't retrieve info from db : {}".format(err))
             return -1

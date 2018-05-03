@@ -21,13 +21,13 @@ import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
 tdepLogger = tdepl
-# author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
+## author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
 #
-# Find the missing packages
-#
-# return value :
-#   -1 package not found
-#    0 installation OK
+# @brief From the given missing files list, populate the missing packages list containg packages containing those missing file.
+# @param list(str) missing_files The list of missing files the compilation need to succeed.
+# @param list(str) missing_packages This is an output argument. You have to give an empty list, and this method will
+# populate this list with the missing packages that can be installed to try the resolution.
+# @return int -1 if we unable to find a proper package for every missing file we need to resolve, 0 if all needed packages where found.
 def build_dependencies(missing_files, missing_packages):
     cmds = {
         "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
@@ -87,12 +87,12 @@ def build_dependencies(missing_files, missing_packages):
     tcom.pprint(0, "Dependencies built")
     return 0
 
-# authors : LE FLEM Erwan, MERZOUK Fahim
+## authors : LE FLEM Erwan, MERZOUK Fahim
 #
-# Check which package are preinstalled amongst the list of given package.
+# @brief Check which package are preinstalled amongst the list of given package.
 # Useful to know which of the dependencies where already installed.
-# return
-# the list of already installed package amongst the list of given package.
+# @param list(str) dependencies a list of packages we want to check which are already installed.
+# @return The list of already installed package amongst the list of given package.
 def get_installed_packages(dependencies):
     installed_packages = list()
 
@@ -116,7 +116,11 @@ def get_installed_packages(dependencies):
             return None
     return installed_packages
 
-
+## authors : LE FLEM Erwan, MERZOUK Fahim
+#
+# @brief Install the minimal dependencies.
+# @details By "Minimal dependencies", we mean the dependencies that will always be needed to compile the kernel, regardless of the config file.
+# @return -1 if unable to install some packages, 0 if succeceeded.
 def install_minimal_dependencies():
     tcom.pprint(2, "Installing minimal dependencies")
     minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs", "bc"]
@@ -129,13 +133,11 @@ def install_minimal_dependencies():
         return 0
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim    output
-#    output
-# Install packages of required dependencies to compile the kernel
+## @authors : LE FLEM Erwan, MERZOUK Fahim
 #
-# return
-#   -1 Unable to install some packages
-#    0 succes
+# @brief Install packages of required dependencies to compile the kernel.
+#
+# @return -1 if unable to install some packages, 0 if succeceeded.
 def install_default_dependencies():
     if (install_minimal_dependencies() != 0):
         return -1
