@@ -18,6 +18,7 @@
 #  @author LE FLEM Erwan
 #  @author MERZOUK Fahim
 #  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
 #  @brief Compilation for analysis of relationship between environment/compilation option and needed dependencies.
 #  It can perform compilation, send the result to the database and export the database content to CSV format.abs
 #  @details The relevant tables in the database are depML_environnement and packages.
@@ -26,7 +27,6 @@
 #  be uninstalled between two compilations. It is currently not done automaticaly.
 #  @todo Add a function remove_default_dependencies() on tuxml_depman.py and a function uninstall_packages(packages) in tuxml_common.py.
 #  Then call remove_default_dependencies() before each compilation to handle the warning above.
-#  @copyright Apache License, Version 2.0
 
 
 import tuxml_common as tcom

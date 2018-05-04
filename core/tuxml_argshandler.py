@@ -19,7 +19,6 @@
 #  @copyright Apache License 2.0
 #  @brief This file contains the function used to handle tuxml's arguments and
 #  parameters
-#  @copyright Apache License, Version 2.0
 
 
 import os

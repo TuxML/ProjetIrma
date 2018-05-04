@@ -19,12 +19,12 @@
 ## @file tuxml_depLog.py
 #  @author LE FLEM Erwan
 #  @author MERZOUK Fahim
+#  @copyright Apache License 2.0
 #  @brief Log util intented to log the resolving of missing dependencies.
 #  For each missing file durring the compilation, we want to log which packages
 #  we downloaded to obtains this file.
 #  @warning This util is only intended to log the installation of missing packages
 #  failing the compilation, not to log the preinstalled package.
-#  @copyright Apache License, Version 2.0
 
 
 import csv

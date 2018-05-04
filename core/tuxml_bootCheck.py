@@ -17,8 +17,8 @@
 
 ## @file tuxml_bootCheck.py
 # @author CHÉDOTAL Corentin
+# @copyright Apache License 2.0
 # @brief File containing the functions used to test compiled kernels
-# @copyright Apache License, Version 2.0
 
 
 import subprocess

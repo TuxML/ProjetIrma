@@ -22,7 +22,6 @@
 #  @author MERZOUK Fahim
 #  @copyright Apache License 2.0
 #  @brief Packages and missing packages dependencies handler.
-#  @copyright Apache License, Version 2.0
 
 
 import subprocess

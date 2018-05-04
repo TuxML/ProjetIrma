@@ -20,7 +20,6 @@
 #  @author MERZOUK Fahim
 #  @copyright Apache License 2.0
 #  @brief This file contains all the functions used in all tuxml_* scripts
-#  @copyright Apache License, Version 2.0
 
 import subprocess
 import shutil

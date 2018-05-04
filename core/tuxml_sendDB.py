@@ -22,7 +22,6 @@
 #  @copyright Apache License 2.0
 #  @brief The file contains the functions used to send compilation and test results
 #  to the database
-#  @copyright Apache License, Version 2.0
 
 
 import time

@@ -18,7 +18,6 @@
 #  @author LEBRETON Mickaël
 #  @copyright Apache License 2.0
 #  @brief File containing all the tuxml's global variables
-#  @copyright Apache License, Version 2.0
 
 
 import sys
@@ -71,7 +70,7 @@ BASE_CONFIG_ID  = 0
 KCONFIG1        = ""
 
 ## Path to the kernel config, used in incrementalVS mod
-KCONFIG2        = None
+KCONFIG2        = ""
 
 ## Colors
 COLORS = {
