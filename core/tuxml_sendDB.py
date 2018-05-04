@@ -95,7 +95,6 @@ def file_upload(logfiles, date):
 #  @author  LEBRETON Mickaël
 #
 #  @brief   Sends compilation and boot results to the mysql database
-#  @details TODO
 #
 #  @param   compile_time compilation time
 #  @param   boot_time boot time

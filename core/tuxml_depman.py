@@ -135,8 +135,8 @@ def get_installed_packages(dependencies):
     cmds = {
         "apt-get" : "dpkg -s  {}",
         "pacman"  : "pacman -Qs {} | grep \"/{} \"",
-        "dnf"     : "rpm -qa | grep {}", #TODO test
-        "yum"     : [""] #TODO
+        "dnf"     : "rpm -qa | grep {}",
+        "yum"     : [""]
         # "emerge": [],
         # "zypper": []
     }

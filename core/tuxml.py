@@ -198,7 +198,7 @@ def gen_config(Kconfig=None):
             # debug config with given KCONFIG_FILE
             if os.path.exists(Kconfig):
                 tcom.pprint(2, "Using KCONFIG_FILE " + Kconfig)
-                shutil.copyfile(Kconfig, tset.PATH + "/.config") # TODO maybe a better way ?
+                shutil.copyfile(Kconfig, tset.PATH + "/.config")
                 return 0
             else:
                 tcom.pprint(1, "KCONFIG_FILE doesn't exist")

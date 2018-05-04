@@ -35,6 +35,8 @@ import tuxml_settings as tset
 #
 #  @param   s       The status of the message (0 : success, 1 : error, 2 : default, 4 : debug, 5 : warning)
 #  @param   message The message you want to print
+#
+#  @todo redirect messages to stdout and stderr if needed
 def pprint(s, message):
     if s < 0 or s > 4:
         s = 2
@@ -53,7 +55,6 @@ def pprint(s, message):
     func    = tset.COLORS["gray"] + "[" + sys._getframe(1).f_code.co_name + "] "
     msg     = code[s] + message + NC
 
-    # TODO rediriger vers la sortie standard et la sortie d'erreur
     if tset.VERBOSE == 1:
         print(msg)
     elif tset.VERBOSE == 2:
