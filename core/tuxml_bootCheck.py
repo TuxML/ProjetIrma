@@ -15,21 +15,30 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_bootCheck.py
+# @author CHÉDOTAL Corentin
+# @brief File containing the functions used to test compiled kernels
+# @copyright Apache License, Version 2.0
+
+
 import subprocess
 import time
 import re
 import tuxml_common as tcom
 import tuxml_settings as tset
 
-## @file tuxml_bootCheck.py
-# @author CHÉDOTAL Corentin
-# @brief File containing the functions used to test compiled kernels
-# @copyright Apache License, Version 2.0
 
-## @brief Function used to boot up a given kernel if it can
-# @details Uses qemu-system-x86_64 to boot the kernel and checks if a shell opens up
-# @returns 0 if the kernel did boot, -1 if it did not and -2 if the check timed out, -3 if the function in itself failed for whatever reason
-# @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
+## @author  CHEDOTAL Corentin
+#
+#  @brief   Function used to boot up a given kernel if it can
+#  @details Uses qemu-system-x86_64 to boot the kernel and checks if a shell opens up
+#
+#  @returns -3 the subprocess call failed for whatever reason
+#  @returns -2 the check timed out
+#  @returns -1 the kernel did not boot
+#  @returns  0 successfull boot
+#
+#  @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
 def boot_try():
 	tcom.pprint(2, "Launching boot test on kernel")
 
@@ -47,7 +56,7 @@ def boot_try():
 		status = 1
 
 		time.sleep(5)
-		
+
 		try:
 			outFile = open("serial.out",mode='r')
 		except OSError:

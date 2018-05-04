@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +15,13 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+
+## @file tuxml.py
+#  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
+#  @brief Tuxml's main file, containing the init function, the launcher etc
+#  @details TODO
+
 
 import os
 import sys
@@ -30,13 +39,18 @@ import tuxml_bootCheck as tbch
 import tuxml_argshandler as targs
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# This function installs the missing packages
+#  @brief   This function installs the missing packages
+#  @details First build the  dependencies by trying to associate a package to a
+#  missing file. Then install all the missing packages.
 #
-# return value :
-#   -1 package(s) not found
-#    0 installation OK
+#  @param   missing_files List of missing files whose you want to associate to a
+#  package
+#  @param   missing_packages List of missing packages you want to install
+#
+#  @returns -1 Package(s) not found
+#  @returns  0 Successfull installation
 def install_missing_packages(missing_files, missing_packages):
     if tdep.build_dependencies(missing_files, missing_packages) != 0:
         return -1
@@ -47,14 +61,20 @@ def install_missing_packages(missing_files, missing_packages):
     return 0
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# This function analyzes the error log file and try to find the missing packages
-# and the missings files
+#  @brief   Analyzes the error log file and try to find the missing packages and
+#  files
+#  @details The analysis is based on regular expressions, we search for the following
+#  patterns : "fatal error", "command not found", "not found". Those give missing
+#  files and missing packages. Following the pattern we append the data to one of
+#  the two list given as parameters.
 #
-# return value :
-#   -1 the program wasn't able to find the missing package(s)
-#    0 the program was able to find the missing package(s)
+#  @param   missing_files The list of missing files (empty at the beginning)
+#  @param   missing_packages The list of missing packages (empty at the beginning)
+#
+#  @returns -1 the program wasn't able to find the missing package(s)
+#  @returns  0 the program was able to find the missing package(s)
 def log_analysis(missing_files, missing_packages):
     tcom.pprint(2, "Analyzing error log file")
 
@@ -84,14 +104,13 @@ def log_analysis(missing_files, missing_packages):
         return -1
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# This  function  starts the  compilation and redirects  the  logs to  the files
-# std.logs and err.logs
+#  @brief   Start the compilation and redirect the logs to std.log and err.log
+#  @details TODO
 #
-# return value :
-#   -1 compilation has failed
-#    0 no error (time to compile in seconds)
+#  @returns -1 compilation has failed
+#  @returns  0 no error
 def compilation():
     tcom.pprint(2, "Compilation in progress")
 
@@ -111,6 +130,16 @@ def compilation():
         return -1
 
 
+## @author  LEBRETON Mickaël
+#
+#  @brief   Init the environment compilation, the package manager, update the system
+#  and install default dependencies.
+#  @details TODO
+#
+#  @returns -3 failed to installed default dependencies
+#  @returns -2 failed to update system
+#  @returns -1 package manager not found
+#  @returns  0 no error
 def init_launcher():
     # get environment details
     tset.TUXML_ENV = tenv.get_environment_details()
@@ -131,13 +160,18 @@ def init_launcher():
     return 0
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# [description]
+#  @brief   Generate the kconfig file
+#  @details If the Kconfig parameter is empty, tuxml will randomize a new kconfig.
+#  Else it will check if the parameter is a hexadecimal number (seed format) or a
+#  path. If it's one or  the other it will generate or use the associate kconfig
+#  file.
 #
-# return value :
-#   -1 Unable to generate KCONFIG
-#    0 no error
+#  @param   Kconfig Kconfig given as a seed or a path to an existing config file (optional)
+#
+#  @returns -1 Unable to generate or used the kconfig file
+#  @returns  0 No error
 def gen_config(Kconfig=None):
     if Kconfig:
         try:
@@ -167,13 +201,12 @@ def gen_config(Kconfig=None):
     return 0
 
 
-# author : LE LURON Pierre
+## @author  LE LURON Pierre
 #
-# [description]
+#  @brief   Display a progress bar (not used currently)
+#  @details TODO
 #
-# return value :
-#   -1
-#    0
+#  @param   p The current progression (between 0 and 100)
 def progress_bar(p):
     if p > 100: p = 100
     if p < 0: p = 0
@@ -186,13 +219,19 @@ def progress_bar(p):
     print("] " + str(int(p)) + "%", end="", flush=True)
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# [description]
+#  @brief   Launch the compilation
+#  @details Start a clock a the beginning of the loop. If the compilation failed
+#  we start the log analysis and we try to install the missing packages. We loop
+#  as long as status value is -1, it means  we found  missing packages. Else, if
+#  status is -2 (log analysis failed)  or  -3 (installation failed)  we stop the
+#  loop. Once the compilation is complete (status is 0), we can launch boot test
+#  on the kernel. Then  send  all the  results (compilation time  and  boot test
+#  time) to the database.
 #
-# return value :
-#   -1
-#    0
+#  @returns -1 Failed to send results to the database
+#  @returns >0 The compilation ID
 def launcher():
     start_compil_time = time.time()
     install_time = 0
@@ -242,15 +281,20 @@ def launcher():
 
     # sending data to IrmaDB
     cid = tsen.send_data(compile_time, boot_time)
-    if cid < 0:
+    if cid <= 0:
         return -1
 
     return cid
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# Main function
+#  @brief   Main function
+#  @details Init the lauchner then start an initial compilation (base config).
+#  If the incremental mod is ON, we launch INCITERS compilations.
+#
+#  @todo When using incremental mod save the base config files in an other folder
+#  then load them before all new incremental compilation.
 def main():
     targs.args_handler()
 
@@ -271,7 +315,6 @@ def main():
             sys.exit(-1)
         sys.exit(0)
 
-    # TODO sauvegarder les fichiers de compilation dans un autre dossier
     for i in range(0, tset.INCITERS):
         tset.INCREMENTAL_MOD = 1
         tset.TUXML_ENV["compilation"]["incremental_mod"] = "1"
@@ -279,7 +322,6 @@ def main():
         gen_config()
         if launcher() < 0:
             sys.exit(-1)
-        # TODO : charger les fichiers de la compilation base
     tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
     sys.exit(0)
 

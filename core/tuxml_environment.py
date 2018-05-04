@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,23 +18,29 @@
 
 
 ## @file tuxml_environment.py
-# @author LE FLEM Erwan
-# @author LEBRETON Mickaël
-# @copyright Apache License 2.0
-# @brief tuxml_environment is a basic  utilitary to retreieve informations
-# about the local machine, like the distribution, the kernel version or CPU info...
-# @details get_environment_details() is the main useful fonction of this file and
-# return a dict where the key is what class of details we want to obtains (system, harware, os), the second key is which specific detail.
-# Examples of usage :
-# @code
-# env = get_environment_details()
-# env["os"]["distribution"] # e.g Debian
-# env["hardware"]["cpu"] # e.g Debian
-# env["harware"]["cpu_freq"] " e.g 2800 (for 2.8 Ghz)
-# env["compilation"]["gcc_version"] # e.g 7.2.2
-# @endcode
-# The list of every possible keys and what they correspond to is described in the documentation of the following methods:
-# get_environment_details(), get_hardware_details(), get_os_details(), and get_compilation_details().
+#  @author LE FLEM Erwan
+#  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
+#  @brief tuxml_environment  is  a basic  utilitary to retreieve informations
+#  about the local machine, like the distribution, the kernel version or CPU info...
+#  @details get_environment_details() is the main useful fonction of this file and
+#  return a dict where the key is what class of details we want to obtains (system,
+#  harware, os), the second key is which specific detail.
+#
+#  Examples of usage :
+#  @code
+#  env = get_environment_details()
+#  env["os"]["distribution"] # e.g Debian
+#  env["hardware"]["cpu"] # e.g Debian
+#  env["harware"]["cpu_freq"] " e.g 2800 (for 2.8 Ghz)
+#  env["compilation"]["gcc_version"] # e.g 7.2.2
+#  @endcode
+#  The list of every possible keys and what they correspond to is described in the
+#  documentation of the following methods:
+#  get_environment_details(), get_hardware_details(), get_os_details(), and
+#  get_compilation_details().
+
+
 import os
 import subprocess
 import multiprocessing
@@ -40,7 +48,7 @@ import platform
 import csv
 import tuxml_settings as tset
 import tuxml_common as tcom
-import psutil
+# import psutil
 
 
 ## @author LE FLEM Erwan
@@ -57,7 +65,7 @@ import psutil
 #      string.
 #    - kernel the version of the kernel
 #
-#  @return A dictionary with the keys listed above
+#  @returns A dictionary with the keys listed above
 def get_os_details():
     system = {
         "os": os.uname().sysname,
@@ -73,7 +81,9 @@ def get_os_details():
 #  @brief retrieve the mount point of the partition where TUXML is located.
 #  @details We use the stat command to find the mount point, with this file's name as argument.
 #  We assume that all files of TUXML are located on the same partition.
-#  @return The mount point from where this file (hence tuxml), is located, e.g /, /mnt/myMountPoint, etc.
+#
+#  @return The mount point from where this file (hence tuxml), is located, e.g /,
+#  /mnt/myMountPoint, etc.
 def __get_mount_point():
         path = os.path.dirname(os.path.abspath( __file__ ))
         result = subprocess.check_output(["stat", "--format=%m", path], universal_newlines=True)
@@ -83,9 +93,12 @@ def __get_mount_point():
 ## @author LE FLEM Erwan
 #
 #  @brief retrieve the partition where TUXML is located.
-#  @details We use /proc/mounts to find this partition, by checking the line containing the mount point retieved by  __get_mount_point().
+#  @details We use /proc/mounts to find this partition, by checking the line
+#  containing the mount point retieved by  __get_mount_point().
 #  We assume that all files of TUXML are located on the same partition.
-#  @return The partion where this file (hence tuxml), is located, e.g /dev/sda1, /dev/sdb2, etc.
+#
+#  @return The partion where this file (hence tuxml), is located, e.g /dev/sda1,
+#  /dev/sdb2, etc.
 def __get_partition():
         #spaces near {} are here to handle the case where the partition where tuxml is used is \
         result = subprocess.check_output(["cat /proc/mounts | grep \" {} \" ".format(__get_mount_point())],
@@ -97,12 +110,15 @@ def __get_partition():
 #
 #  @brief Retrieve the type of disk where TUXML is located.
 #  @details On a docker, container this method can be uncertain because of docker virtual filesystem.
-#  @bug This method currently do not work properly if using LVM logical volumes.
+#
 #  @return 0 if the disk is a SSD, 1 if the disk is a regular harddisk.
+#
+#  @bug This method currently do not work properly if using LVM logical volumes.
+#  @todo Will the kernel will always be compiled in the same disk where tuxml scripts are located?
+#  __get_partition().translate(...) allows to only keep the disk not the partition, as
+#  /sys/block/{}/queue/rotational need the disk in the path.
+#  (e.g sda2 will become sda)
 def __get_type_of_disk():
-    #TODO Will kernel will always be compiled in the same disk where tuxml script are located?
-    # __get_partition().translate(...) allows to only keep the disk not the partition, as /sys/block/{}/queue/rotational need the disk in the path.
-    #(e.g sda2 will become sda)
     disk = __get_partition().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
     if disk.strip() == "overlay" or disk == "overlay2":
         disk = overlay_to_partition()
@@ -121,8 +137,11 @@ def __get_type_of_disk():
         result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
         return result.split('\n')[0].strip()
 
-def __get_disk_docker():
-    return psutil.disk_partitions()[0][0].split("/")[2]
+
+# TODO doc doxygen
+# def __get_disk_docker():
+#     return psutil.disk_partitions()[0][0].split("/")[2]
+
 
 ## @author LE FLEM Erwan
 #
@@ -147,8 +166,8 @@ def __get_disk_docker():
 # @bug disk_type is currently not reliable on RAID disk.
 # @warning Note that the CPU cores here is the number of available cores, NOT the number
 # of core actually used during the kernel compilation.
+# @todo refactoring with smaller function
 def get_hardware_details():
-    # TODO refactoring with smaller function
     with open('/proc/cpuinfo') as f:
         for line in f:
             if line.strip():
@@ -198,6 +217,11 @@ def __get_gcc_version():
         return result.strip().split(' ')[2].split('\n')[0].split(')')[0]
 
 
+## @author LE FLEM Erwan
+#
+#  @brief Retrieve the version of TuxML
+#
+#  @returns The TuxML version, e.g pre-alpha v0.2
 def __get_tuxml_version():
         path = os.path.dirname(os.path.abspath( __file__ ))
         result = subprocess.check_output([path + "/tuxml.py", "-V"], universal_newlines=True)
@@ -205,18 +229,18 @@ def __get_tuxml_version():
 
 
 ## @author LE FLEM Erwan
-# @author LEBRETON Mickaël
-# @brief Retrieve informations about the compilation environment.
+#  @author LEBRETON Mickaël
+#  @brief Retrieve informations about the compilation environment.
 #
-# @details For example, print(get_compilation_details["gcc_version"]) will display
-# the installed version of gcc.
+#  @details For example, print(get_compilation_details["gcc_version"]) will display
+#  the installed version of gcc.
 #
-# The keys of the returned dictionary are :
-#   - tuxml_version TuxML version.
-#   - libc_version The libs version used.
-#   - gcc_version The installed version of gcc.
-#   - core_used The number of cores actually used during the compilation process.
-#   - incremental_mod True if TuxML didn't erase files from previous compilations.
+#  The keys of the returned dictionary are :
+#    - tuxml_version TuxML version.
+#    - libc_version The libs version used.
+#    - gcc_version The installed version of gcc.
+#    - core_used The number of cores actually used during the compilation process.
+#    - incremental_mod True if TuxML didn't erase files from previous compilations.
 #
 #  @return A dictionary with the keys listed above
 def get_compilation_details():
@@ -245,14 +269,14 @@ def get_compilation_details():
 
 ## @author LE FLEM Erwan
 #
-# @brief Export the environment detail in a csvfile.
+#  @brief Export the environment detail in a csvfile.
 #
-# @details The export file is tuxml_environment.csv and is stored in the directory
-# where you are when executing this script.
+#  @details The export file is tuxml_environment.csv and is stored in the directory
+#  where you are when executing this script.
 #
-# @param dict os_details  The dictionnary returned by get_os_details()
-# @param dict hw_details  The dictionnary returned by get_hardware_details()
-# @param dict comp_detais The dictionnary returned by get_compilation_details()
+#  @param dict os_details  The dictionnary returned by get_os_details()
+#  @param dict hw_details  The dictionnary returned by get_hardware_details()
+#  @param dict comp_detais The dictionnary returned by get_compilation_details()
 def export_as_csv(os_details, hw_details, comp_details):
     with open('tuxml_environment.csv', 'w', newline='') as csvfile:
         # merged_dict = {**hw_details, **os_details, **comp_details}
@@ -267,7 +291,7 @@ def export_as_csv(os_details, hw_details, comp_details):
 ## @author LEBRETON Mickaël
 #
 #  @brief Display all the environment's details
-#  @details TODO
+#  @details Display system, hardware and compilation details
 #
 #  @param dict env_details The environment dictionnary is the merged dictionnary
 #  between os, hardware and compilation dictionnaries
@@ -288,7 +312,7 @@ def environment_pprinter(env_details):
 #    - hardware Result of the hardware getter function
 #    - compilation Result of the compilation getter function
 #
-# @return A dictionary with the keys listed above
+#  @return A dictionary with the keys listed above
 def get_environment_details():
     tcom.pprint(2, "Getting environment details")
     env = {
@@ -300,26 +324,27 @@ def get_environment_details():
     if tset.VERBOSE > 1:
         environment_pprinter(env)
 
-    # TODO changer ça car c'est très moche :
     export_as_csv(env["system"], env["hardware"], env["compilation"])
 
     return env
 
-# @details Docker use virtual partition "overlay", but seeking the type of disk by using cat /sys/block/overlay/queue/rotational
-# will fail as we need the actual physical disk in the path, e.g /sys/block/sda/queue/rotational.
-# This method try to find the actual partition where tuxml is instead of overlay.
+
+## @author LE FLEM Erwan
+#
+#  @brief TODO
+#  @details Docker use virtual partition "overlay", but seeking the type of disk
+#  by using cat /sys/block/overlay/queue/rotational will fail as we need the actual
+#  physical disk in the path, e.g /sys/block/sda/queue/rotational.
+#  This method try to find the actual partition where tuxml is instead of overlay.
 def overlay_to_partition():
     inode = subprocess.check_output(["df -i | grep overlay | awk '{print $3}' "], shell=True, universal_newlines=True).strip()
     result = subprocess.check_output(["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
     return result.split('\n')[0].strip()
 
-# Test code (temp)
-def main():
-    env = get_environment_details()
-    print(env)
 
 # ============================================================================ #
 
 
 if __name__ == '__main__':
-    main()
+    env = get_environment_details()
+    print(env)

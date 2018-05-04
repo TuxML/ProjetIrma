@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +16,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_sendDB.py
+#  @author LE LURON Pierre
+#  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
+#  @brief The file contains the functions used to send compilation and test results
+#  to the database
+#  @details TODO
+
+
 import time
 import os
 import MySQLdb
@@ -25,13 +36,13 @@ import tuxml_settings as tset
 import tuxml_environment as tenv
 
 
-# author : LE LURON Pierre
+## @author  LE LURON Pierre
 #
-# Returns the size of the newly compiled kernel
+#  @brief   Get the size of the newly compiled kernel
+#  @details TODO
 #
-# return value :
-#   0 - can't find kernel image
-#   x - size of kernel in bytes
+#  @returns  0 can't find kernel image
+#  @returns >0 size of kernel in bytes
 def get_kernel_size():
     possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
     for filename in possible_filenames:
@@ -41,14 +52,18 @@ def get_kernel_size():
     return 0
 
 
-# author : LEBRETON Mickaël
+## @author  LEBRETON Mickaël
 #
-# Function used to upload logfiles on the server
-# /!\ CURRENTLY NOT IN USE /!\
+#  @brief   Function used to upload logfiles on the server with the SFTP protocole
+#  @details TODO
 #
-# return value :
-#   -1 Fail
-#    0 Sucess
+#  @param   logfiles table containing path to log files
+#  @param   date the date
+#
+#  @returns -1 can't upload log files on server
+#  @returns  0 all files were uploaded successfully
+#
+#  @warning Currently not in use
 def file_upload(logfiles, date):
     tcom.pprint(2, "Uploading log files to server")
     paramiko.util.log_to_file(tset.SFTP_LOGS)
@@ -78,13 +93,17 @@ def file_upload(logfiles, date):
         return -1
 
 
-# author : LE LURON Pierre, LEBRETON Mickaël
+## @author  LE LURON Pierre
+#  @author  LEBRETON Mickaël
 #
-# Sends compilation results to the mysql db
+#  @brief   Sends compilation and boot results to the mysql database
+#  @details TODO
 #
-# return value :
-#   -1 Fail
-#    0 Sucess
+#  @param   compile_time compilation time
+#  @param   boot_time boot time
+#
+#  @returns -1 can't send info to db
+#  @returns  0 successfully sent info to db
 def send_data(compile_time, boot_time):
     tcom.pprint(2, "Sending compilation and test results to database")
 
@@ -147,7 +166,6 @@ def send_data(compile_time, boot_time):
     except MySQLdb.Error as err:
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
-
 
 
 if __name__ == "__main__":

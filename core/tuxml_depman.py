@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +16,49 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_depman.py
+#  @author LE FLEM Erwan
+#  @author LEBRETON Mickaël
+#  @author MERZOUK Fahim
+#  @copyright Apache License 2.0
+#  @brief This file contains all the functions usefull to install packages
+#  @details TODO
+
+
 import subprocess
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
+
+## Dependencies logger
 tdepLogger = tdepl
-## author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
+
+
+## @author  LE FLEM Erwan
+#  @author  LEBRETON Mickael
+#  @author  MERZOUK Fahim
 #
-# @brief From the given missing files list, populate the missing packages list containg packages containing those missing file.
-# @param list(str) missing_files The list of missing files the compilation need to succeed.
-# @param list(str) missing_packages This is an output argument. You have to give an empty list, and this method will
-# populate this list with the missing packages that can be installed to try the resolution.
-# @return int -1 if we unable to find a proper package for every missing file we need to resolve, 0 if all needed packages where found.
+#  @brief   Find the missing packages thanks to the missing files list
+#  @details Find the packages containing  the missing files and  append  them to
+#  the 'missing_packages' parameter. Sometimes the  output of the  command (e.g.
+#  'apt-file search <missing_file>') gives  several  packages. The program takes
+#  the first one and check if  the  package is already  installed. If not, Tuxml
+#  installs it. Else it installs the next one.
+#  If tuxml reaches the end of the packages list without installing  any package
+#  it means there is a problem with the missing file, so it returns an error.
+#
+#  @param   missing_files The  list  of  missing files whose  you  want  to find
+#  associates packages
+#  @param   missing_packages The list of missing packages you want to install
+#
+#  @returns -1 package not found
+#  @returns  0 all dependencies were built
+#
+#  @warning Sometimes the  `apt-file search` command (or equivalent) gives several
+#  packages. The program takes the first one and check if the package is already
+#  installed. If not, tuxml installs it. Else it installs the next one until all
+#  the package from the command above were installed.
 def build_dependencies(missing_files, missing_packages):
     cmds = {
         "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
@@ -86,12 +118,17 @@ def build_dependencies(missing_files, missing_packages):
     tcom.pprint(0, "Dependencies built")
     return 0
 
-## authors : LE FLEM Erwan, MERZOUK Fahim
+
+## @author  LE FLEM Erwan
+#  @author  MERZOUK Fahim
 #
-# @brief Check which package are preinstalled amongst the list of given package.
-# Useful to know which of the dependencies where already installed.
-# @param list(str) dependencies a list of packages we want to check which are already installed.
-# @return The list of already installed package amongst the list of given package.
+#  @brief   Check preinstalled package
+#  @details Check which package are preinstalled among the list of given package,
+#  useful to know which of the dependencies where already installed
+#
+#  @param dependencies list of packages
+#
+#  @returns list of already installed package amongt the list of given package
 def get_installed_packages(dependencies):
     installed_packages = list()
 
@@ -115,11 +152,17 @@ def get_installed_packages(dependencies):
             return None
     return installed_packages
 
-## authors : LE FLEM Erwan, MERZOUK Fahim
+
+## @author LE FLEM Erwan
+#  @author MERZOUK Fahim
 #
-# @brief Install the minimal dependencies.
-# @details By "Minimal dependencies", we mean the dependencies that will always be needed to compile the kernel, regardless of the config file.
-# @return -1 if unable to install some packages, 0 if succeceeded.
+#  @brief   Install minimal dependencies required to compile the kernel
+#  @details Install the following packages :  gcc,  make, binutils,  util-linux,
+#  e2fsprogs, bc. By "Minimal dependencies", we mean the dependencies that will
+#  always be needed to compile the kernel, regardless of the config file.
+#
+#  @returns -1 Unable to install minimal dependencies
+#  @returns  0 Minimal dependencies successfully installed
 def install_minimal_dependencies():
     tcom.pprint(2, "Installing minimal dependencies")
     minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs", "bc"]
@@ -132,11 +175,18 @@ def install_minimal_dependencies():
         return 0
 
 
-## @authors : LE FLEM Erwan, MERZOUK Fahim
+## @author LE FLEM Erwan
+#  @author FAHIM Merzouk
 #
-# @brief Install packages of required dependencies to compile the kernel.
+#  @brief   Install default dependencies required to compile the kernel
+#  @details Install the following packages : kmod, jfsutils, xfsprogs, btrfs-progs,
+#  pcmciautils, ppp, grub, iptables, openssl, reiserfsprogs, squashfs-tools, quotatool,
+#  nfs-kernel-server, procps, mcelog, libcrypto++6, apt-utils, gcc-6-plugin-dev,
+#  libssl-dev.
+#  Warning : names bases on debian packages, they may vary amongs distribution.
 #
-# @return -1 if unable to install some packages, 0 if succeceeded.
+#  @returns -1 Unable to install some packages
+#  @returns  0 Successfull installation
 def install_default_dependencies():
     if (install_minimal_dependencies() != 0):
         return -1
@@ -168,12 +218,10 @@ def install_default_dependencies():
         tcom.pprint(2, "Default dependencies successfully installed.")
         return 0
 
-# Test code (temp)
-def main():
-    cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
-    print(get_installed_packages(cps))
 
 # ============================================================================ #
 
+
 if __name__ == '__main__':
-    main()
+    cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
+    print(get_installed_packages(cps))
