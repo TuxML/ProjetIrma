@@ -50,7 +50,7 @@ import platform
 import csv
 import tuxml_settings as tset
 import tuxml_common as tcom
-# import psutil
+import psutil
 
 
 ## @author LE FLEM Erwan
@@ -140,9 +140,13 @@ def __get_type_of_disk():
         return result.split('\n')[0].strip()
 
 
-# TODO doc doxygen
-# def __get_disk_docker():
-#     return psutil.disk_partitions()[0][0].split("/")[2]
+## @author LE FLEM Erwan
+#  @author MERZOUK Fahim
+#
+#  @brief Return the first physical disk (e.g. sda) found, we supposed it is the
+#  only one visible as the container is stored on one disk
+def __get_disk_docker():
+    return psutil.disk_partitions()[0][0].split("/")[2]
 
 
 ## @author LE FLEM Erwan
@@ -268,7 +272,6 @@ def get_compilation_details():
     return comp
 
 
-
 ## @author LE FLEM Erwan
 #
 #  @brief Export the environment detail in a csvfile.
@@ -333,7 +336,7 @@ def get_environment_details():
 
 ## @author LE FLEM Erwan
 #
-#  @brief TODO
+#  @brief Find the actual partition where tuxml is instead of overlay
 #  @details Docker use virtual partition "overlay", but seeking the type of disk
 #  by using cat /sys/block/overlay/queue/rotational will fail as we need the actual
 #  physical disk in the path, e.g /sys/block/sda/queue/rotational.

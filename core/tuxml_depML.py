@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +42,7 @@ import csv
 import tuxml_argshandler as targs
 from itertools import chain
 
+## The CSV file were all the data will be saved
 csvfile = open('compilations_details.csv', 'w', newline='', encoding="UTF-8")
 
 
@@ -77,8 +80,11 @@ def main():
     sys.exit(0)
 
 
+## @author MERZOUK Fahim
+#  @author LE FLEM Erwan
+#
+#  @brief Launch the compilation
 def launch_compilations():
-        # launching compilation
         status = -1
         while status == -1:
             missing_packages = []
@@ -150,14 +156,22 @@ def sendToDB():
         return -1
 
 
+## @author LE FLEM Erwan
+#  @author MERZOUK Fahim
+#
+#  @brief Change a string in to a dictionary
+#
+#  @returns A dictionary
 def string_to_dict(env_details:str)->dict:
     return eval(env_details)
 
 
 ## @author LE FLEM Erwan,
-# @author MERZOUK Fahim
-# @brief retrieve content of the database and export it as a CSV file.
-# @detail The CSV file is named "compilations_details.csv" and is located on the current directory.
+#  @author MERZOUK Fahim
+#
+#  @brief retrieve content of the database and export it as a CSV file.
+#  @detail The CSV file is named "compilations_details.csv" and is located on the
+#  current directory.
 def write_bdd_to_csv():
         csv_writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         try:

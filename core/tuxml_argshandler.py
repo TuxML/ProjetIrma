@@ -19,7 +19,6 @@
 #  @copyright Apache License 2.0
 #  @brief This file contains the function used to handle tuxml's arguments and
 #  parameters
-#  @details TODO
 #  @copyright Apache License, Version 2.0
 
 
@@ -35,7 +34,6 @@ import tuxml_environment as tenv
 ## @author  LEBRETON Mickaël
 #
 #  @brief   This function handles the arguments of the ./tuxml.py command
-#  @details TODO
 def args_handler():
     msg  = "Welcome, this is the TuxML core program.\n\n"
 

@@ -20,7 +20,6 @@
 #  @author LEBRETON Mickaël
 #  @copyright Apache License 2.0
 #  @brief Tuxml's main file, containing the init function, the launcher etc
-#  @details TODO
 #  @copyright Apache License, Version 2.0
 
 
@@ -105,17 +104,33 @@ def log_analysis(missing_files, missing_packages):
         return -1
 
 
+## @author  LE LURON Pierre
+#
+#  @brief   Display a progress bar (not used currently)
+#
+#  @param   p The current progression (between 0 and 100)
+def progress_bar(p):
+    if p > 100: p = 100
+    if p < 0: p = 0
+    progress = p/5
+    print("\rProgression: [", end="", flush=True)
+    for i in range(int(progress)):
+        print("#", end="", flush=True)
+    for i in range(int(progress), 20):
+        print("-", end="", flush=True)
+    print("] " + str(int(p)) + "%", end="", flush=True)
+
+
 ## @author  LEBRETON Mickaël
 #
 #  @brief   Start the compilation and redirect the logs to std.log and err.log
-#  @details TODO
 #
 #  @returns -1 compilation has failed
 #  @returns  0 no error
+#
+#  @todo loading bar [ ##########-------------------- ] 33%
 def compilation():
     tcom.pprint(2, "Compilation in progress")
-
-    # TODO barre de chargement [ ##########-------------------- ] 33%
 
     if not os.path.exists(tset.PATH + tset.LOG_DIR):
         os.makedirs(tset.PATH + tset.LOG_DIR)
@@ -135,7 +150,6 @@ def compilation():
 #
 #  @brief   Init the environment compilation, the package manager, update the system
 #  and install default dependencies.
-#  @details TODO
 #
 #  @returns -3 failed to installed default dependencies
 #  @returns -2 failed to update system
@@ -200,24 +214,6 @@ def gen_config(Kconfig=None):
         return -1
 
     return 0
-
-
-## @author  LE LURON Pierre
-#
-#  @brief   Display a progress bar (not used currently)
-#  @details TODO
-#
-#  @param   p The current progression (between 0 and 100)
-def progress_bar(p):
-    if p > 100: p = 100
-    if p < 0: p = 0
-    progress = p/5
-    print("\rProgression: [", end="", flush=True)
-    for i in range(int(progress)):
-        print("#", end="", flush=True)
-    for i in range(int(progress), 20):
-        print("-", end="", flush=True)
-    print("] " + str(int(p)) + "%", end="", flush=True)
 
 
 ## @author  LEBRETON Mickaël

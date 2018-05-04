@@ -18,7 +18,6 @@
 #  @author LEBRETON Mickaël
 #  @copyright Apache License 2.0
 #  @brief File containing all the tuxml's global variables
-#  @details TODO
 #  @copyright Apache License, Version 2.0
 
 

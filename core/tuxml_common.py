@@ -20,7 +20,6 @@
 #  @author MERZOUK Fahim
 #  @copyright Apache License 2.0
 #  @brief This file contains all the functions used in all tuxml_* scripts
-#  @details TODO
 #  @copyright Apache License, Version 2.0
 
 import subprocess
@@ -33,7 +32,6 @@ import tuxml_settings as tset
 ## @author  LEBRETON Mickaël
 #
 #  @brief   Usefull to print a message with the date, color code etc easily
-#  @details TODO
 #
 #  @param   s       The status of the message (0 : success, 1 : error, 2 : default, 4 : debug, 5 : warning)
 #  @param   message The message you want to print
@@ -90,7 +88,6 @@ def get_package_manager():
 #  @author  MERZOUK Fahim
 #
 #  @brief   Install the list of given packages
-#  @details TODO
 #
 #  @param   packages The list of missing packages you want to install
 #
@@ -123,7 +120,6 @@ def install_packages(packages):
 #  @author  MERZOUK Fahim
 #
 #  @brief   Update the package database
-#  @details TODO
 #
 #  @returns -1 Unable to update the package databate
 #  @returns  0 Successfull update

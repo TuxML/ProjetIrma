@@ -22,7 +22,6 @@
 #  @copyright Apache License 2.0
 #  @brief The file contains the functions used to send compilation and test results
 #  to the database
-#  @details TODO
 #  @copyright Apache License, Version 2.0
 
 
@@ -40,7 +39,6 @@ import tuxml_environment as tenv
 ## @author  LE LURON Pierre
 #
 #  @brief   Get the size of the newly compiled kernel
-#  @details TODO
 #
 #  @returns  0 can't find kernel image
 #  @returns >0 size of kernel in bytes
@@ -56,7 +54,6 @@ def get_kernel_size():
 ## @author  LEBRETON Mickaël
 #
 #  @brief   Function used to upload logfiles on the server with the SFTP protocole
-#  @details TODO
 #
 #  @param   logfiles table containing path to log files
 #  @param   date the date
