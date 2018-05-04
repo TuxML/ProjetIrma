@@ -21,10 +21,8 @@
 #  @author LEBRETON Mickaël
 #  @author MERZOUK Fahim
 #  @copyright Apache License 2.0
-#  @brief This file contains all the functions usefull to install packages
+#  @brief Packages and missing packages dependencies handler.
 #  @details TODO
-
-
 import subprocess
 import tuxml_common as tcom
 import tuxml_settings as tset

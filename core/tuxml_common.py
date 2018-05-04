@@ -67,7 +67,7 @@ def pprint(s, message):
 #  @author  MERZOUK Fahim
 #
 #  @brief   Get the package manager presents on the system
-#  @details TODO
+#  @details The currently well suported packages manager are apt-get, pacman and dnf.
 #
 #  @returns String The name of the first supported package manager
 #  @returns None   If no supported packages manager has been found
