@@ -51,12 +51,12 @@ candidates = dict()
 #  @author MERZOUK Fahim
 #
 #  @brief Log the list of all packages that may resolve our dependencie to missing file.
-#  @detail The candidates are the list of package we'll install to resolve the dependencie,
+#  @details The candidates are the list of package we'll install to resolve the dependencie,
 #  we stop browsing once we find a suitable package that do not fail the compilation.
 #  Hence we not install all candidates packages.
 #
-#  @param str missing_file a missing file required to compile.
-#  @param str missing_packages the list of packages that contains the given missing_file.
+#  @param missing_file a missing file required to compile.
+#  @param missing_packages the list of packages that contains the given missing_file.
 def log_candidates_packages(missing_file, missing_packages):
     candidates[missing_file] = missing_packages
 
@@ -68,22 +68,22 @@ def log_candidates_packages(missing_file, missing_packages):
 #  to the given missing file. You should call this function each time you install
 #  a missing packages.
 #
-#  @param str missing_file a missing file required to compile.
-#  @param str missing_package a package that we installed while trying to resolve
+#  @param missing_file a missing file required to compile.
+#  @param missing_package a package that we installed while trying to resolve
 #  the given missing file.
 #
 #  @warning You should really call this method in the same order you download the
 #  given missing package as the order is relevent.
-def log_install(missingFile, missingPackage):
-        mapping = log.get(missingFile)
+def log_install(missing_file, missing_package):
+        mapping = log.get(missing_file)
         if (mapping is None):
             mapping = list()
-            mapping.append(missingPackage)
+            mapping.append(missing_package)
 
         else:
-            mapping.append(missingPackage)
+            mapping.append(missing_package)
 
-        log[missingFile] = mapping
+        log[missing_file] = mapping
 
 
 ## @author LE FLEM Erwan
@@ -91,11 +91,11 @@ def log_install(missingFile, missingPackage):
 #
 #  @brief Log the success or the faillure for resolving the given missing file.
 #
-#  @param str missing_file a missing file required to compile.
-#  @param bool True if the resolution has been successfull, else False if we could't
+#  @param missing_file a missing file required to compile.
+#  @param isSuccess True if the resolution has been successfull, else False if we could't
 #  find any suitable packages.
-def log_status(missingFile, isSuccess):
-    status[missingFile] = isSuccess
+def log_status(missing_file, isSuccess):
+    status[missing_file] = isSuccess
 
 
 ## author : LE FLEM Erwan
@@ -123,18 +123,18 @@ def export_as_csv():
 if __name__ == '__main__':
     # While testing, we export the file in core directory.
     tset.PATH = os.path.dirname(os.path.abspath( __file__ ))
-    log_install("FIle1", "missingPackage1")
-    log_install("FIle1", "missingPackage11")
+    log_install("FIle1", "missing_package1")
+    log_install("FIle1", "missing_package11")
     log_status("FIle1", False)
-    log_install("FIle2", "missingPackage2")
+    log_install("FIle2", "missing_package2")
     log_status("FIle2", True)
-    log_install("FIle3", "missingPackage3")
-    log_install("FIle3", "missingPackage4")
-    log_install("FIle3", "missingPackage5")
+    log_install("FIle3", "missing_package3")
+    log_install("FIle3", "missing_package4")
+    log_install("FIle3", "missing_package5")
     log_status("FIle3", True)
-    log_install("FIle6", "missingPackage6")
+    log_install("FIle6", "missing_package6")
     log_status("FIle6", False)
-    log_install("FIle1000", "missingPackage1000_1")
-    log_install("FIle1000", "missingPackage1000_1")
+    log_install("FIle1000", "missing_package1000_1")
+    log_install("FIle1000", "missing_package1000_1")
     log_status("FIle1000", True)
     export_as_csv()

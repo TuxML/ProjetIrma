@@ -65,8 +65,6 @@ def build_dependencies(missing_files, missing_packages):
         "pacman"  : ["pkgfile -d {}", "pacman -Fs {}"],
         "dnf"     : ["dnf whatprovides *{}", "rpm -qa | grep {}"],
         "yum"     : ["yum whatprovides *{}", "rpm -qa | grep {}"]
-        # "emerge": [],
-        # "zypper": []
     }
 
     if tset.VERBOSE > 0 and len(missing_files) > 0:

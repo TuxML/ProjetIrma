@@ -170,7 +170,7 @@ def string_to_dict(env_details:str)->dict:
 #  @author MERZOUK Fahim
 #
 #  @brief retrieve content of the database and export it as a CSV file.
-#  @detail The CSV file is named "compilations_details.csv" and is located on the
+#  @details The CSV file is named "compilations_details.csv" and is located on the
 #  current directory.
 def write_bdd_to_csv():
         csv_writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)

@@ -143,7 +143,7 @@ def __get_type_of_disk():
 ## @author LE FLEM Erwan
 #  @author MERZOUK Fahim
 #
-#  @brief Return the first physical disk (e.g. sda) found, we supposed it is the
+#  @brief Return the first physical disk (e.g. sda) found, we assume it is the
 #  only one visible as the container is stored on one disk
 def __get_disk_docker():
     return psutil.disk_partitions()[0][0].split("/")[2]
@@ -279,9 +279,9 @@ def get_compilation_details():
 #  @details The export file is tuxml_environment.csv and is stored in the directory
 #  where you are when executing this script.
 #
-#  @param dict os_details  The dictionnary returned by get_os_details()
-#  @param dict hw_details  The dictionnary returned by get_hardware_details()
-#  @param dict comp_detais The dictionnary returned by get_compilation_details()
+#  @param os_details  The dictionnary returned by get_os_details()
+#  @param hw_details  The dictionnary returned by get_hardware_details()
+#  @param comp_details The dictionnary returned by get_compilation_details()
 def export_as_csv(os_details, hw_details, comp_details):
     with open('tuxml_environment.csv', 'w', newline='') as csvfile:
         # merged_dict = {**hw_details, **os_details, **comp_details}
@@ -298,7 +298,7 @@ def export_as_csv(os_details, hw_details, comp_details):
 #  @brief Display all the environment's details
 #  @details Display system, hardware and compilation details
 #
-#  @param dict env_details The environment dictionnary is the merged dictionnary
+#  @param env_details The environment dictionnary is the merged dictionnary
 #  between os, hardware and compilation dictionnaries
 def environment_pprinter(env_details):
     for dico in env_details:
