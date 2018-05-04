@@ -14,6 +14,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_depman.py
+# @brief Packages and missing packages dependencies handler.
+# @author LE FLEM Erwan
+# @author LEBRETON Mickaël
+# @copyright Apache License 2.0
 import subprocess
 import tuxml_common as tcom
 import tuxml_settings as tset

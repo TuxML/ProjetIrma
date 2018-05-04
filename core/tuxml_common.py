@@ -19,9 +19,9 @@ import sys
 import tuxml_settings as tset
 
 
-# author : LEBRETON Mickael
+# @author LEBRETON Mickael
 #
-# Pretty Printer which allow us to print the date in VERBOSE mod
+# @brief Pretty Printer which allow us to print the date in VERBOSE mod
 def pprint(s, message):
     code = [
         tset.LIGHT_GREEN,     # success
@@ -46,13 +46,11 @@ def pprint(s, message):
         print(date + func + msg)
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim
+## @authors : LE FLEM Erwan MERZOUK Fahim
 #
-# Get the package manager presents on the system
-#
-# return value :
-#    String The name of the first supported package manager
-#    None   If no supported packages manager has been found
+# @brief Get the package manager presents on the system
+# @details The currently well suported packages manager are apt-get, pacman and dnf.
+# @return String The name of the first supported package manage, we return None if no supported packages manager has been found
 def get_package_manager():
     pprint(2, "Finding package manager")
 
@@ -66,14 +64,14 @@ def get_package_manager():
     return None
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim, LEBRETON Mickaël
+## @author LEBRETON Mickaël,
+# @author LE FLEM Erwan
+# @author MERZOUK Fahim
 #
-# Install the list of given packages
-#
-# return value :
-#   -2 Package manager not supported
-#   -1 Unable to install the packages
-#    0 Successfull install
+# @brief Install the list of given packages.
+# @return int -2 Package manager not supported,
+# -1 Unable to install the packages
+# 0 Successfull install
 def install_packages(missing_packages):
     pprint(2, "Installing packages : " + " ".join(missing_packages))
 
@@ -98,11 +96,11 @@ def install_packages(missing_packages):
 
 # authors : LE FLEM Erwan, MERZOUK Fahim, LEBRETON Mickaël
 #
-# Update the package database
+# @brief Update the package database
 #
-# return value :
-#   -1 Unable to update the package databate
-#    0 Successfull update
+# @return int
+#   -1 when unable to update the package databate,
+#    0 if successfull update
 def update_system():
     # TODO : check on
     # https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported

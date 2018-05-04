@@ -12,7 +12,19 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import tuxml_sendDB as tsen
+## @file tuxml_depML.py
+# @brief Compilation for analysis of relationship between environment/compilation option and needed dependencies.
+# It can perform compilation, send the result to the database and export the database content to CSV format.abs
+# @details The relevant tables in the database are depML_environnement and packages.
+# @warning For the gathered data to be relevant, you need to start the compilation on an environment where only the amongst
+# minimaliste dependencies are installed. Hence the packages installed by install_default_dependencies() should
+# be uninstalled between two compilations. It is currently not done automaticaly.
+# @todo Add a function remove_default_dependencies() on tuxml_depman.py and a function uninstall_packages(packages) in tuxml_common.py.
+# Then call remove_default_dependencies() before each compilation to handle the warning above.
+# @author LE FLEM Erwan
+# @author MERZOUK Fahim
+# @author LEBRETON Mickaël
+# @copyright Apache License 2.0
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
@@ -27,7 +39,8 @@ import tuxml_argshandler as targs
 from itertools import chain
 
 csvfile = open('compilations_details.csv', 'w', newline='', encoding="UTF-8")
-
+## @author MERZOUK Fahim
+# @author LE FLEM Erwan
 # author : LEBRETON Mickael
 #
 # Main function
