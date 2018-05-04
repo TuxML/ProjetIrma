@@ -1,18 +1,35 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 import subprocess
 import time
 import re
 import tuxml_common as tcom
 import tuxml_settings as tset
 
+## @file tuxml_bootCheck.py
+# @author CHÉDOTAL Corentin
+# @brief File containing the functions used to test compiled kernels
+# @copyright Apache License, Version 2.0
 
-# Function used to boot up a given kernel
-# WARNING : USES qemu-system-x86_64 !
-# path is the path to the sources of the kernel
-# Returns 0 if the kernel did boot, -1 if it did not and -2 if the check timed out
-# Return -3 if the subprocess call failed for whatever reason
+## @brief Function used to boot up a given kernel if it can
+# @details Uses qemu-system-x86_64 to boot the kernel and checks if a shell opens up
+# @returns 0 if the kernel did boot, -1 if it did not and -2 if the check timed out, -3 if the function in itself failed for whatever reason
+# @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
 def boot_try():
 	tcom.pprint(2, "Launching boot test on kernel")
 
