@@ -164,27 +164,30 @@ def send_data(compile_time, boot_time):
         return -1
 
 
+# ============================================================================ #
+
+
 if __name__ == "__main__":
-    msg = "TuxML send script - Use only for testss"
-
-    p_help  = "path to the Linux source directory"
-
-    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("source_path", help=p_help)
-
-    args = parser.parse_args()
-
-    # store the linux source path in a global var
-    if not os.path.exists(args.source_path):
-        tcom.pprint(1, "This path doesn't exist")
-        sys.exit(-1)
-    else:
-        tset.PATH = args.source_path
-
-    tset.VERBOSE = 3
-    tset.DB_NAME = "IrmaDB_dev"
-    tset.INCREMENTAL_MOD = 0
-    tset.CONFIG_ID = 7
-
-    tset.TUXML_ENV = tenv.get_environment_details()
-    send_data(123, 456)
+    # msg = "TuxML send script - Use only for testss"
+    #
+    # p_help  = "path to the Linux source directory"
+    #
+    # parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    # parser.add_argument("source_path", help=p_help)
+    #
+    # args = parser.parse_args()
+    #
+    # # store the linux source path in a global var
+    # if not os.path.exists(args.source_path):
+    #     tcom.pprint(1, "This path doesn't exist")
+    #     sys.exit(-1)
+    # else:
+    #     tset.PATH = args.source_path
+    #
+    # tset.VERBOSE = 3
+    # tset.DB_NAME = "IrmaDB_dev"
+    # tset.INCREMENTAL_MOD = 0
+    # tset.CONFIG_ID = 7
+    #
+    # tset.TUXML_ENV = tenv.get_environment_details()
+    # send_data(123, 456)

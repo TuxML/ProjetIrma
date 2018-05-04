@@ -228,4 +228,4 @@ def write_bdd_to_csv():
 
 if __name__ == '__main__':
     #main()
-    write_bdd_to_csv()
+    # write_bdd_to_csv()

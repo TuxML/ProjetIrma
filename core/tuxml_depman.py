@@ -220,5 +220,5 @@ def install_default_dependencies():
 
 
 if __name__ == '__main__':
-    cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
-    print(get_installed_packages(cps))
+    # cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
+    # print(get_installed_packages(cps))
