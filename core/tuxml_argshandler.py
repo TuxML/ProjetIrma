@@ -20,6 +20,7 @@
 #  @brief This file contains the function used to handle tuxml's arguments and
 #  parameters
 #  @details TODO
+#  @copyright Apache License, Version 2.0
 
 
 import os

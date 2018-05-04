@@ -21,6 +21,7 @@
 #  @copyright Apache License 2.0
 #  @brief Tuxml's main file, containing the init function, the launcher etc
 #  @details TODO
+#  @copyright Apache License, Version 2.0
 
 
 import os

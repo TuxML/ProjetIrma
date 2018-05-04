@@ -21,6 +21,7 @@
 #  @copyright Apache License 2.0
 #  @brief This file contains all the functions used in all tuxml_* scripts
 #  @details TODO
+#  @copyright Apache License, Version 2.0
 
 import subprocess
 import shutil

@@ -13,18 +13,20 @@
 #   limitations under the License.
 
 ## @file tuxml_depML.py
-# @brief Compilation for analysis of relationship between environment/compilation option and needed dependencies.
-# It can perform compilation, send the result to the database and export the database content to CSV format.abs
-# @details The relevant tables in the database are depML_environnement and packages.
-# @warning For the gathered data to be relevant, you need to start the compilation on an environment where only the amongst
-# minimaliste dependencies are installed. Hence the packages installed by install_default_dependencies() should
-# be uninstalled between two compilations. It is currently not done automaticaly.
-# @todo Add a function remove_default_dependencies() on tuxml_depman.py and a function uninstall_packages(packages) in tuxml_common.py.
-# Then call remove_default_dependencies() before each compilation to handle the warning above.
-# @author LE FLEM Erwan
-# @author MERZOUK Fahim
-# @author LEBRETON Mickaël
-# @copyright Apache License 2.0
+#  @author LE FLEM Erwan
+#  @author MERZOUK Fahim
+#  @author LEBRETON Mickaël
+#  @brief Compilation for analysis of relationship between environment/compilation option and needed dependencies.
+#  It can perform compilation, send the result to the database and export the database content to CSV format.abs
+#  @details The relevant tables in the database are depML_environnement and packages.
+#  @warning For the gathered data to be relevant, you need to start the compilation on an environment where only the amongst
+#  minimaliste dependencies are installed. Hence the packages installed by install_default_dependencies() should
+#  be uninstalled between two compilations. It is currently not done automaticaly.
+#  @todo Add a function remove_default_dependencies() on tuxml_depman.py and a function uninstall_packages(packages) in tuxml_common.py.
+#  Then call remove_default_dependencies() before each compilation to handle the warning above.
+#  @copyright Apache License, Version 2.0
+
+
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
@@ -39,12 +41,13 @@ import tuxml_argshandler as targs
 from itertools import chain
 
 csvfile = open('compilations_details.csv', 'w', newline='', encoding="UTF-8")
+
+
 ## @author MERZOUK Fahim
-# @author LE FLEM Erwan
-# author : LEBRETON Mickael
+#  @author LE FLEM Erwan
+#  @author LEBRETON Mickael
 #
-# Main function
-# @brief perform a compilation and send the result in the database.
+#  @brief perform a compilation and send the result in the database.
 def main():
     targs.args_handler()
 
@@ -73,6 +76,7 @@ def main():
 
     sys.exit(0)
 
+
 def launch_compilations():
         # launching compilation
         status = -1
@@ -98,9 +102,10 @@ def launch_compilations():
             tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
 
-## @author LE FLEM Erwan,
-# @author MERZOUK Fahim
-# @brief Send to the database the result of the compilation.
+## @author LE FLEM Erwan
+#  @author MERZOUK Fahim
+#
+#  @brief Send to the database the result of the compilation.
 def sendToDB():
     try:
         socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
@@ -144,8 +149,10 @@ def sendToDB():
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
 
+
 def string_to_dict(env_details:str)->dict:
     return eval(env_details)
+
 
 ## @author LE FLEM Erwan,
 # @author MERZOUK Fahim

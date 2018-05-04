@@ -23,6 +23,7 @@
 #  @brief The file contains the functions used to send compilation and test results
 #  to the database
 #  @details TODO
+#  @copyright Apache License, Version 2.0
 
 
 import time

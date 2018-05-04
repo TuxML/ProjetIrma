@@ -39,6 +39,8 @@
 #  documentation of the following methods:
 #  get_environment_details(), get_hardware_details(), get_os_details(), and
 #  get_compilation_details().
+#
+#  @copyright Apache License, Version 2.0
 
 
 import os

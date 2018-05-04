@@ -23,6 +23,9 @@
 #  @copyright Apache License 2.0
 #  @brief Packages and missing packages dependencies handler.
 #  @details TODO
+#  @copyright Apache License, Version 2.0
+
+
 import subprocess
 import tuxml_common as tcom
 import tuxml_settings as tset
