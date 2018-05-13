@@ -120,7 +120,7 @@ def export_as_csv():
 # ============================================================================ #
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     # While testing, we export the file in core directory.
     # tset.PATH = os.path.dirname(os.path.abspath( __file__ ))
     # log_install("FIle1", "missing_package1")

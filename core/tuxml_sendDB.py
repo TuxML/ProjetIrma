@@ -167,7 +167,7 @@ def send_data(compile_time, boot_time):
 # ============================================================================ #
 
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     # msg = "TuxML send script - Use only for testss"
     #
     # p_help  = "path to the Linux source directory"

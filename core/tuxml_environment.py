@@ -348,6 +348,6 @@ def overlay_to_partition():
 # ============================================================================ #
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     # env = get_environment_details()
     # print(env)
