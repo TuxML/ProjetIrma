@@ -129,7 +129,8 @@ def __get_type_of_disk():
     disk = ''.join(i for i in disk if not i.isdigit())
 
     try:
-        result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
+        #result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
+        result = subprocess.check_output(["cat", "/sys/block/sda/queue/rotational".format(disk)], universal_newlines=True)
         return result.split('\n')[0].strip()
     except subprocess.CalledProcessError:
         disk = __get_disk_docker()
