@@ -81,10 +81,16 @@ print("")
 os.system(chaine)
 
 # tuxLogs.py has finished to run, output.log exist now
+cid = -1
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
     if match:
         cid=match.group(1)
         print("CID found " + cid)
 
-send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
+if not cid == -1:
+    send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
+
+else:
+    print("Cid unfound, no output.log file has been sent")
+    print("")

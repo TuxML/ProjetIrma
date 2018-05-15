@@ -170,6 +170,9 @@ def mlfood():
         configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
         print("")
         print(LIGHT_PURPLE + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
+        # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
+        # Thoses errors are only due to the logs files that does not exist because of the process error.
+        # Consider it as warnings.
         os.system(outputlog)
         os.system(stdlogs)
         os.system(errlogs)
@@ -178,7 +181,7 @@ def mlfood():
         print(GRAY)
 
         #################### Section 11 ####################
-        # Clean all the containers used previously.
+        # Clean all the containers used previously. Only if "--no-clean" is not given in argument.
         if not args.no_clean:
             print(LIGHT_PURPLE + "Cleaning containers . . .")
             os.system("sudo docker rm -v $(sudo docker ps -aq)")
