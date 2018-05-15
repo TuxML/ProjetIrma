@@ -117,7 +117,7 @@ optional arguments:
   --incremental NINC    incremental  mod does  not  erase  files  from  previous
                         compilations. The  NINC  parameter  corresponds  to  the
                         number of incremental compilation to launch.
-  --database {prod,dev,alexis}
+  --database {prod,dev}
                         choose on which database send the compilation results
 ```
 
