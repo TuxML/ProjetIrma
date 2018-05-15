@@ -109,9 +109,9 @@ def mlfood():
     # Convert the parameter in an Integer which is the number of compilation to do.
     # If the number is above 50, the scrypt will ask for a confirmation
     # if args.nbcompil >= 50:
-    #    print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation? (y/n)")
+    #    print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
     #    print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
-    #    ok = input()
+    #    ok = input("(y/n)")
     #    ok.lower()
     #    if ok != "y":
     #        print("Canceled")
