@@ -156,8 +156,7 @@ def mlfood():
 
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
-        # chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
-        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' ls'
+        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
         print(GRAY)
         subprocess.run(chaine, shell=True).stdout
