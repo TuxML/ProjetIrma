@@ -25,8 +25,7 @@
 
 import os
 import argparse
-
-### TODO; use subprocess instead of os.system
+import subprocess
 
 ## mkGenerate
 # @author ACHER Mathieu
@@ -86,7 +85,7 @@ def docker_build(image, tag, *location):
         pass
     else:
         strBuild = 'sudo docker build -t tuxml/tuxml{}:{} .'.format(image, tag)
-    os.system(strBuild)
+    subprocess.run(strBuild, shell=True).stdout
 
 
 ## dockerpush
@@ -98,12 +97,12 @@ def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
     strpush = 'sudo docker push tuxml/tuxml{}:{}'.format(repository, tag)
-    rstrpush = os.system(strpush)
+    rstrpush = subprocess.run(strpush).returncode
     # If needed, login to the repository
-    if rstrpush == 256:
+    if rstrpush == 1:
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
-        os.system(str3)
+        subprocess.run(str3, shell=True).stdout
         docker_push(repository, tag)
 
 
@@ -123,9 +122,9 @@ def docker_generate(originImage, tag, *dependencesFile):
     dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
     dockerFileI.close()
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
-    os.system(strBuildI)
+    subprocess.run(strBuildI, shell=True).stdout
     strPushI = 'sudo docker push tuxml/{}tuxml:{}'.format(originImage, tag)
-    os.system(strPushI)
+    subprocess.run(strPushI, shell=True).stdout
     os.chdir('..')
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
@@ -155,10 +154,9 @@ if args.all:
     if "linux-4.13.3" not in linux_dir:
         os.chdir('./BuildImageInter')
         wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
-        os.system(wget)
+        subprocess.run(wget, shell=True).stdout
         targz = "tar -xJf linux-4.13.3.tar.xz"
-        os.system(targz)
-        pass
+        subprocess.run(targz, shell=True).stdout
     args.generate = args.all
     args.push = args.all
     args.build = args.all
