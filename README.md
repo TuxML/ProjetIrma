@@ -18,7 +18,7 @@ Command should be :
 
     Example : ./MLfood 50 5 --dev
 
-This example will run 50 docker, each one will run 5 compiling in incremental mode, on the developpement docker image ("--dev").
+This example will run 50 docker, each one will run 5 compiling in incremental mode in addition to the first one, on the developpement docker image ("--dev").
 
 ```
 A simple run command could be:
@@ -124,12 +124,12 @@ optional arguments:
 ## TPDIM.py
 
 ### Goal
-This script aims to build a Docker image for using TUXML. 
+This script aims to build a Docker image for using TUXML.
 Mainly for developers of TUXML that maintain the Docker images: https://hub.docker.com/r/tuxml/tuxmldebian/tags/  
 
 ### How to use ?
 
-The simple way is to use 
+The simple way is to use
 ``` ./TPDIM -a debian -t 'tag-name'```
 
 It executes all following procedures (generate, build and push):
@@ -137,7 +137,7 @@ It executes all following procedures (generate, build and push):
  * Build : ``` ./TPDIM -b debian -t 'tag-name'```
  * Push : ``` ./TPDIM -p debian -t 'tag-name'```
 
-Have a look at option for customizing e.g., the image (e.g. debian) or the tag (e.g., dev or prod). 
+Have a look at option for customizing e.g., the image (e.g. debian) or the tag (e.g., dev or prod).
 
 ## License
 The TuxML project is licensed under the terms of the **Apache License 2.0** as available in the `LICENSE` file and [online here](http://www.apache.org/licenses/LICENSE-2.0.txt). A list of contributors and other details are available in the `NOTICE.md` file.
