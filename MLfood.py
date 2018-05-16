@@ -156,7 +156,8 @@ def mlfood():
 
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
-        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
+        # chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
+        chaine = 'sudo docker run -t ' + images[i % len(images)] + ' ls'
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
         print(GRAY)
         os.system(chaine)
@@ -175,10 +176,14 @@ def mlfood():
         # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
         # Thoses errors are only due to the logs files that does not exist because of the process error.
         # Consider it as warnings.
-        os.system(outputlog)
-        os.system(stdlogs)
-        os.system(errlogs)
-        os.system(configFile)
+        # os.system(outputlog)
+        subprocess.run(outputlog, shell=True).stdout
+        # os.system(stdlogs)
+        subprocess.run(stdlogs, shell=True).stdout
+        # os.system(errlogs)
+        subprocess.run(errlogs, shell=True).stdout
+        # os.system(configFile)
+        subprocess.run(configFile, shell=True).stdout
         dockerid.close()
         print(GRAY)
 
