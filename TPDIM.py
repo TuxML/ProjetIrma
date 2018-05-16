@@ -33,20 +33,26 @@ import subprocess
 def mkGenerate(args):
     DocPre = os.listdir('.')
     if "Dockerfile" in DocPre: # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
-        print("It seems that a DockerFile already exist, please move it away or it will be delete by the generation, do you wish to continue ? (y/n)")
+        print("It seems that a DockerFile already exist, please move it away or it will be override by the generation, do you wish to continue ? (y/n)")
         rep = input()
         rep.lower()
         if rep == "y":
             if args.dependences: # If the user give to the script a different dependences file than the default one, we use it instead
                 depText = args.dependences
                 openDep = open(depText)
-                strDep = openDep.read()
+
+                strDep = ''
+                tmp = openDep.readline()
+                while(tmp != ''):
+                    strDep = strDep + ' ' + tmp
+                    tmp = openDep.readline()
+
                 docker_generate(args.generate, args.tag, strDep)
             else:
                 docker_generate(args.generate, args.tag)
         else:
             print("Canceled")
-            exit(-1)
+            exit(0)
 
 
 ## mkBuild
@@ -116,7 +122,7 @@ def docker_generate(originImage, tag, *dependencesFile):
     os.chdir('BuildImageInter')
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
-    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file he want to use
+    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file he wants to use
     text_dep = depText.read()
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
@@ -147,23 +153,23 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push",default="prod")
     parser.add_argument('-a', '--all', help="Generate, build, push with default values")
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-if args.all:
-    linux_dir = os.listdir('./BuildImageInter')
-    if "linux-4.13.3" not in linux_dir:
-        os.chdir('./BuildImageInter')
-        wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
-        subprocess.run(wget, shell=True).stdout
-        targz = "tar -xJf linux-4.13.3.tar.xz"
-        subprocess.run(targz, shell=True).stdout
-    args.generate = args.all
-    args.push = args.all
-    args.build = args.all
+    if args.all:
+        linux_dir = os.listdir('./BuildImageInter')
+        if "linux-4.13.3" not in linux_dir:
+            os.chdir('./BuildImageInter')
+            wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
+            subprocess.run(wget, shell=True).stdout
+            targz = "tar -xJf linux-4.13.3.tar.xz"
+            subprocess.run(targz, shell=True).stdout
+        args.generate = args.all
+        args.push = args.all
+        args.build = args.all
 
-if args.generate:
-    mkGenerate(args)
-if args.build:
-    mkBuild(args)
-if args.push:
-    mkPush(args)
+    if args.generate:
+        mkGenerate(args)
+    if args.build:
+        mkBuild(args)
+    if args.push:
+        mkPush(args)
