@@ -63,10 +63,11 @@ def mlfood():
     parser.add_argument("--no-clean", help="Do not delete past containers.", action="store_true")
     parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
     parser.add_argument("--dev", help="Use image in current development.", action="store_true")
-    parser.add_argument("-y", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
+    parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
     args = parser.parse_args()
     print(GRAY)
 
+    print("arg =",args)
 
     #################### Section 2 ####################
     # Check if there is the --reset-logs option to erase all the logs.
@@ -110,7 +111,7 @@ def mlfood():
     #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
     # If the number is above 50 and the option "-y" is not enable, the script will ask for a confirmation
-    if args.nbcompil >= 50 and not args.y:
+    if args.nbcompil >= 50 and not args.force_compilation_limits:
        print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
        print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
        ok = input("(y/n)")
