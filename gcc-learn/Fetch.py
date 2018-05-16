@@ -50,7 +50,7 @@ print("Retrieves last image...")
 os.system("sudo docker pull tuxml/tuxmldebian:dev")
 
 # Compile all the .config file
-for i in range(1):
+for i in range(100):
     print("------Docker num " + str(i) + "-------")
     chaine = 'sudo docker run -i tuxml/tuxmldebian:dev TuxML/gcc-learn/ExecConfig.py ' + str(i) + ' ' + str(n)
     os.system(chaine)

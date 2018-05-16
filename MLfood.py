@@ -30,6 +30,7 @@
 #   limitations under the License.
 
 import os
+import subprocess
 import time
 import argparse
 
@@ -74,7 +75,8 @@ def mlfood():
         reset.lower()
         if reset == "y":
             print("Deleting all the logs in Logs/...")
-            os.system("rm -rf Logs/*")
+            subprocess.run(["rm", "-rf", "Logs/*"]).stdout
+            # os.system("rm -rf Logs/*")
             print("Delete done.")
             print("" + GRAY)
             exit(0)
