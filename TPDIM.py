@@ -3,11 +3,11 @@
 ## @file TPDIM.py
 # @author DIDOT Gwendal ACHER Mathieu
 # @copyright Apache License 2.0
-# @brief Script use to simplified the creation and use of Docker image.
-# @details This script was design to help member of the TuxML project to easily use Docker, without any knowledge require
+# @brief Script use to simplified creation and uses of Docker images.
+# @details This script was design to help members of the TuxML project to easily use Docker, without any knowledge require
 #  other than what a Docker image is (check https://docs.docker.com/get-started/ for more information).
 
-# Use 'TPDIM -h' to have more information about the options of the script
+# Use 'TPDIM -h' for further informations about the options of the script
 
 #   Copyright 2018 TuxML Team
 #
@@ -29,16 +29,16 @@ import argparse
 ### TODO; use subprocess instead of os.system
 
 ## mkGenerate
-#  @author ACHER Mathieu
-# @param args The list of arguments give to the script
+# @author ACHER Mathieu
+# @param args The list of arguments given to the script
 def mkGenerate(args):
     DocPre = os.listdir('.')
     if "Dockerfile" in DocPre: # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
-        print("It seems that a DockerFile already exist, please move it away or it'll be delete by the generation, do you wish to continue ? (y/n)")
+        print("It seems that a DockerFile already exist, please move it away or it will be delete by the generation, do you wish to continue ? (y/n)")
         rep = input()
         rep.lower()
         if rep == "y":
-            if args.dependences: # If the user give to the script a different dependeces file than the default one, we use it instead
+            if args.dependences: # If the user give to the script a different dependences file than the default one, we use it instead
                 depText = args.dependences
                 openDep = open(depText)
                 strDep = openDep.read()
