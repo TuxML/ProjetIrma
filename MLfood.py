@@ -63,6 +63,7 @@ def mlfood():
     parser.add_argument("--no-clean", help="Do not delete past containers.", action="store_true")
     parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
     parser.add_argument("--dev", help="Use image in current development.", action="store_true")
+    parser.add_argument("-y", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
     args = parser.parse_args()
     print(GRAY)
 
@@ -75,8 +76,7 @@ def mlfood():
         reset.lower()
         if reset == "y":
             print("Deleting all the logs in Logs/...")
-            subprocess.run(["rm", "-rf", "Logs/*"]).stdout
-            # os.system("rm -rf Logs/*")
+            subprocess.run("rm -rf Logs/*", shell=True).stdout
             print("Delete done.")
             print("" + GRAY)
             exit(0)
@@ -109,15 +109,15 @@ def mlfood():
 
     #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
-    # If the number is above 50, the scrypt will ask for a confirmation
-    # if args.nbcompil >= 50:
-    #    print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
-    #    print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
-    #    ok = input("(y/n)")
-    #    ok.lower()
-    #    if ok != "y":
-    #        print("Canceled")
-    #        exit(0)
+    # If the number is above 50 and the option "-y" is not enable, the script will ask for a confirmation
+    if args.nbcompil >= 50 and not args.y:
+       print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
+       print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
+       ok = input("(y/n)")
+       ok.lower()
+       if ok != "y":
+           print("Canceled")
+           exit(0)
     print(GRAY)
 
     #################### Section 5 ####################
