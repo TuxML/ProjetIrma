@@ -67,8 +67,6 @@ def mlfood():
     args = parser.parse_args()
     print(GRAY)
 
-    print("arg =",args)
-
     #################### Section 2 ####################
     # Check if there is the --reset-logs option to erase all the logs.
     if args.reset_logs:
