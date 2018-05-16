@@ -144,7 +144,7 @@ def mlfood():
         # Get the last version of the image.
         str2 = "sudo docker pull " + images[i % len(images)]
         print(LIGHT_PURPLE + "Recovering the last docker image " + images[i % len(images)] + "\n")
-        os.system(str2)
+        subprocess.run(str2, shell=True).stdout
         print(GRAY)
 
         #################### Section 8 ####################
@@ -160,7 +160,7 @@ def mlfood():
         chaine = 'sudo docker run -t ' + images[i % len(images)] + ' ls'
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============")
         print(GRAY)
-        os.system(chaine)
+        subprocess.run(chaine, shell=True).stdout
 
         #################### Section 10 ####################
         # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -176,13 +176,9 @@ def mlfood():
         # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
         # Thoses errors are only due to the logs files that does not exist because of the process error.
         # Consider it as warnings.
-        # os.system(outputlog)
         subprocess.run(outputlog, shell=True).stdout
-        # os.system(stdlogs)
         subprocess.run(stdlogs, shell=True).stdout
-        # os.system(errlogs)
         subprocess.run(errlogs, shell=True).stdout
-        # os.system(configFile)
         subprocess.run(configFile, shell=True).stdout
         dockerid.close()
         print(GRAY)
@@ -191,7 +187,7 @@ def mlfood():
         # Clean all the containers used previously. Only if "--no-clean" is not given in argument.
         if not args.no_clean:
             print(LIGHT_PURPLE + "Cleaning containers . . .")
-            os.system("sudo docker rm -v $(sudo docker ps -aq)")
+            subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True).stdout
             print("Clean done!")
             print("")
 
