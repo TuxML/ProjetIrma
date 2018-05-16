@@ -74,7 +74,7 @@ def send_outputlog(cid, outputfilename, databasename):
 
 # Run tuxLogs.py and retrieves the output converted in a log file.
 print("")
-print('Running tuxLogs.py ...')
+print('------ Running runandlog.py ... ------')
 print("")
 chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 print("")
