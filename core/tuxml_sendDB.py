@@ -61,33 +61,34 @@ def get_kernel_size():
 #  @returns  0 all files were uploaded successfully
 #
 #  @warning Currently not in use
-def file_upload(logfiles, date):
-    tcom.pprint(2, "Uploading log files to server")
-    paramiko.util.log_to_file(tset.SFTP_LOGS)
-
-    try:
-        transport = paramiko.Transport((tset.HOST, tset.SFTP_PORT))
-        transport.connect(username=tset.SFTP_USER, password=tset.SFTP_PASSWD)
-        sftp = paramiko.SFTPClient.from_transport(transport)
-
-        remote_dir = time.strftime("%Y%m%d_%H%M%S/", date)
-        sftp.mkdir(tset.SFTP_DIR + remote_dir)
-
-        for logfile in logfiles:
-            remotepath = tset.SFTP_DIR + remote_dir + os.path.basename(logfile)
-            localpath = logfile
-            sftp.put(localpath, remotepath)
-            if (tset.VERBOSE > 2):
-                print(tset.GRAY + " " * 4 + "==> " + localpath + ": OK")
-
-        sftp.close()
-        transport.close()
-
-        tcom.pprint(0, "All files were uploaded successfully")
-        return 0
-    except paramiko.SSHException as err:
-        tcom.pprint(1, "Can't upload log files on server : {}".format(err))
-        return -1
+#  @deprecated 
+# def file_upload(logfiles, date):
+#     tcom.pprint(2, "Uploading log files to server")
+#     paramiko.util.log_to_file(tset.SFTP_LOGS)
+#
+#     try:
+#         transport = paramiko.Transport((tset.HOST, tset.SFTP_PORT))
+#         transport.connect(username=tset.SFTP_USER, password=tset.SFTP_PASSWD)
+#         sftp = paramiko.SFTPClient.from_transport(transport)
+#
+#         remote_dir = time.strftime("%Y%m%d_%H%M%S/", date)
+#         sftp.mkdir(tset.SFTP_DIR + remote_dir)
+#
+#         for logfile in logfiles:
+#             remotepath = tset.SFTP_DIR + remote_dir + os.path.basename(logfile)
+#             localpath = logfile
+#             sftp.put(localpath, remotepath)
+#             if (tset.VERBOSE > 2):
+#                 print(tset.GRAY + " " * 4 + "==> " + localpath + ": OK")
+#
+#         sftp.close()
+#         transport.close()
+#
+#         tcom.pprint(0, "All files were uploaded successfully")
+#         return 0
+#     except paramiko.SSHException as err:
+#         tcom.pprint(1, "Can't upload log files on server : {}".format(err))
+#         return -1
 
 
 ## @author  LE LURON Pierre

@@ -107,7 +107,7 @@ DB_NAME         = "IrmaDB_"
 SFTP_USER       = "tuxml"
 
 ## SFTP password
-SFTP_PASSWD     = "ProjetIrma"
+SFTP_PASSWD     = ""
 
 ## SFTP port
 SFTP_PORT       = 22
