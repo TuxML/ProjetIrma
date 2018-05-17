@@ -34,7 +34,10 @@ import subprocess
 import time
 import argparse
 
-# The main function, used to be a script but encapsulated in a function in order to hide local variables and make the doc more readable.
+## The main function, used to be a script but encapsulated in a function
+# in order to hide local variables and make the doc more readable.
+#
+# All sections annoted in the code are explained in the documentation
 def mlfood():
 
     ## COLORS
