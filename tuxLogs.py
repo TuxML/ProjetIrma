@@ -31,16 +31,19 @@ from sys import argv
 
 # Author Alexis LE MASLE
 
+def tuxLogs():
+    # Run tuxml.py and retrieves the output converted in a log file.
+    print("------ Running tuxLogs.py ------")
+    print("")
+    print('Starting tuxml.py ...')
+    print("")
+    chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
+    print("")
+    subprocess.run(chaine, shell=True).stdout
+
+# Run the tuxLogs function
 # Creation of help and argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
 args = parser.parse_args()
-
-print("------ Running tuxLogs.py ------")
-# Run tuxml.py and retrieves the output converted in a log file.
-print("")
-print('Starting tuxml.py ...')
-print("")
-chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
-print("")
-subprocess.run(chaine, shell=True).stdout
+tuxLogs()
