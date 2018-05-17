@@ -39,13 +39,13 @@ def mkGenerate(args):
         if rep == "y":
             if args.dependences: # If the user give to the script a different dependences file than the default one, we use it instead
                 depText = args.dependences
-                openDep = open(depText)
 
-                strDep = ''
-                tmp = openDep.readline()
-                while(tmp != ''):
-                    strDep = strDep + ' ' + tmp
+                with open(depText) as openDep:
+                    strDep = ''
                     tmp = openDep.readline()
+                    while(tmp != ''):
+                        strDep = strDep + ' ' + tmp
+                        tmp = openDep.readline()
 
                 docker_generate(args.generate, args.tag, strDep)
             else:
@@ -117,21 +117,34 @@ def docker_push(repository, tag):
 # @param originImage The image use to make the intermediate image
 # @param tag The tag use to identify the image*
 # @param dependencesFile The file use to give the dependences that have to be install by default
-def docker_generate(originImage, tag, *dependencesFile):
+def docker_generate(originImage, tag, dependencesFile=None):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
+    
     os.chdir('BuildImageInter')
+
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
-    depText = open("../dependences.txt", 'r') ### TODO; Change to let user choose what dependences file he wants to use
-    text_dep = depText.read()
+
+    with open("../dependences.txt") as depText:
+        text_dep = depText.read()
+
+    otherDep = ''
+    if dependencesFile is not None:
+        with open(dependencesFile) as dep:
+            otherDep = dep.read()
+
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
-    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
+    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + ' ' + otherDep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)
     dockerFileI.close()
+
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
     subprocess.run(strBuildI, shell=True).stdout
+
     strPushI = 'sudo docker push tuxml/{}tuxml:{}'.format(originImage, tag)
     subprocess.run(strPushI, shell=True).stdout
+
     os.chdir('..')
+
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
     dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
