@@ -59,7 +59,7 @@ def main():
 
     # get the package manager
     tset.PKG_MANAGER = tcom.get_package_manager()
-    if tset.PKG_MANAGER == None:
+    if tset.PKG_MANAGER is None:
         sys.exit(-1)
 
     # updating package database

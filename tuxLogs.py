@@ -23,7 +23,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-
 import subprocess
 import argparse
 import os
@@ -32,6 +31,11 @@ from sys import argv
 # Author Alexis LE MASLE
 
 def tuxLogs():
+    # Creation of help and argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
+    args = parser.parse_args()
+
     # Run tuxml.py and retrieves the output converted in a log file.
     print("------ Running tuxLogs.py ------")
     print("")
@@ -42,8 +46,4 @@ def tuxLogs():
     subprocess.run(chaine, shell=True).stdout
 
 # Run the tuxLogs function
-# Creation of help and argument parser
-parser = argparse.ArgumentParser()
-parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
-args = parser.parse_args()
 tuxLogs()

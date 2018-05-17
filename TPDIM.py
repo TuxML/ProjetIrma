@@ -44,8 +44,9 @@ def mkGenerate(args):
                     strDep = ''
                     tmp = openDep.readline()
                     while(tmp != ''):
-                        strDep = strDep + ' ' + tmp
+                        strDep = strDep + tmp + " "
                         tmp = openDep.readline()
+                    strDep = strDep[:-1].replace("\n", "")
 
                 docker_generate(args.generate, args.tag, strDep)
             else:
@@ -119,7 +120,7 @@ def docker_push(repository, tag):
 # @param dependencesFile The file use to give the dependences that have to be install by default
 def docker_generate(originImage, tag, dependencesFile=None):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
-    
+
     os.chdir('BuildImageInter')
 
     dockerFileI = open("Dockerfile", "w")
@@ -130,8 +131,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     otherDep = ''
     if dependencesFile is not None:
-        with open(dependencesFile) as dep:
-            otherDep = dep.read()
+        otherDep = dependencesFile
 
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + ' ' + otherDep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n") ## TODO expand the support of different package manager (like yum, rpm ...)

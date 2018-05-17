@@ -77,9 +77,12 @@ def send_outputlog(cid, outputfilename, databasename):
 print("")
 print('------ Running runandlog.py ... ------')
 print("")
+
+# chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee >(sed "s/\\x1b[^m]*m//g" > output.log)'
 chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 print("")
 subprocess.run(chaine, shell=True).stdout
+print("Try to send output.log ...")
 
 # tuxLogs.py has finished to run, output.log exist now
 cid = -1
