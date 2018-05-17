@@ -24,8 +24,9 @@
 #   limitations under the License.
 
 
-import os
+import subprocess
 import argparse
+import os
 from sys import argv
 
 # Author Alexis LE MASLE
@@ -36,11 +37,10 @@ parser.add_argument("incremental", help = "The incremental factor (0 by default)
 args = parser.parse_args()
 
 print("------ Running tuxLogs.py ------")
-
 # Run tuxml.py and retrieves the output converted in a log file.
 print("")
 print('Starting tuxml.py ...')
 print("")
 chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
 print("")
-os.system(chaine)
+subprocess.run(chaine, shell=True).stdout

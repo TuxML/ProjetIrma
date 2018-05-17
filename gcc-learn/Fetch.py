@@ -29,7 +29,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import os
+import subprocess
 from sys import argv
 
 # Author Alexis LE MASLE
@@ -37,25 +37,25 @@ from sys import argv
 if len(argv) < 2:
     print("Please, enter a non-zero positive number of core to use")
     print("Try ./Fetch.py [Integer]")
-    exit(1)
+    exit(0)
 
 try:
     n = int(argv[1])
 
 except Exception as e:
     print("You need to give an integer")
-    exit(1)
+    exit(0)
 
 print("Retrieves last image...")
-os.system("sudo docker pull tuxml/tuxmldebian:dev")
+subprocess.run("sudo docker pull tuxml/tuxmldebian:dev", shell=True).stdout
 
 # Compile all the .config file
 for i in range(100):
     print("------Docker num " + str(i) + "-------")
     chaine = 'sudo docker run -i tuxml/tuxmldebian:dev TuxML/gcc-learn/ExecConfig.py ' + str(i) + ' ' + str(n)
-    os.system(chaine)
+    subprocess.run(chaine, shell=True).stdout
     print("-------------------------")
     print("Cleaning containers . . .")
-    os.system("sudo docker rm -v $(sudo docker ps -aq)")
+    subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True).stdout
     print("Clean done!")
     print("")

@@ -39,6 +39,7 @@ import tuxml_settings as tset
 # from core import tuxml_environment as tenv
 import bz2
 import os
+import subprocess
 import argparse
 # from sys import argv
 import re
@@ -78,7 +79,7 @@ print('------ Running runandlog.py ... ------')
 print("")
 chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 print("")
-os.system(chaine)
+subprocess.run(chaine, shell=True).stdout
 
 # tuxLogs.py has finished to run, output.log exist now
 cid = -1

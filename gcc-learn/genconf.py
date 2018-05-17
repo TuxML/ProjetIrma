@@ -25,6 +25,7 @@
 #   limitations under the License.
 
 import os
+import subprocess
 from sys import argv
 
 # Author Alexis LE MASLE
@@ -54,5 +55,5 @@ if not os.path.exists("ConfigFile/"):
 for i in range(nb):
     rc = "KCONFIG_ALLCONFIG=$(pwd)/../core/tuxml.config make -C " + path + " randconfig"
     way = "cp " + path + ".config ConfigFile/" + str(i) + ".config"
-    os.system(rc)
-    os.system(way)
+    subprocess.run(rc, shell=True).stdout
+    subprocess.run(way, shell=True).stdout

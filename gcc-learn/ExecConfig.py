@@ -25,7 +25,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import os
+import subprocess
 from sys import argv
 
 # Author Alexis LE MASLE
@@ -60,4 +60,4 @@ if int(argv[2]) <= 0:
 
 # It runs with a different behavior
 cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[1] + ".config -c " + argv[2] + " -v 4 --database alexis --incremental 0"
-os.system(cmd)
+subprocess.run(cmd, shell=True).stdout

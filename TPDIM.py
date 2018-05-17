@@ -103,7 +103,7 @@ def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
     strpush = 'sudo docker push tuxml/tuxml{}:{}'.format(repository, tag)
-    rstrpush = subprocess.run(strpush).returncode
+    rstrpush = subprocess.run(strpush, shell=True).returncode
     # If needed, login to the repository
     if rstrpush == 1:
         print("You need to login on Docker hub")
