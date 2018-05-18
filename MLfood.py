@@ -192,7 +192,7 @@ def mlfood():
         errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
         configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
         print("")
-        print(LIGHT_PURPLE + "Fetch logs and .config file to the folder ./Logs/" + logsFolder )
+        print(LIGHT_PURPLE + "Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder )
         # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
         # Thoses errors are only due to the logs files that does not exist because of the process error.
         # Consider it as warnings.
