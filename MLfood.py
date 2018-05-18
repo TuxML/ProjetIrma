@@ -137,7 +137,7 @@ def mlfood():
             exit(0)
 
         elif ok == 'y':
-            print(LIGHT_BLUE_1 + "Take a coffee and admire your " + args.nbcompil + " compilations!" + GRAY)
+            print(LIGHT_BLUE_1 + "Take a coffee and admire your " + str(args.nbcompil) + " compilations!" + GRAY)
 
     print(GRAY)
 
