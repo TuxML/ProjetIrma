@@ -153,7 +153,7 @@ def mlfood():
         exit(0)
 
     # We check if the user is a super-user, to prevent users that the super-user privileges are used only to run dockers commands
-    if os.getuid() != 0:
+    if os.geteuid() != 0:
         print(LIGHT_BLUE_1 + 'Docker needs super-user privileges to run' + GRAY)
 
     #################### Section 6 ####################
