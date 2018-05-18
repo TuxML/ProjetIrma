@@ -34,28 +34,31 @@ import subprocess
 import time
 import argparse
 
+
+## COLORS
+WHITE           = "\033[0m"                # Default color
+GRAY            = "\033[38;5;7m"           # Debug
+BLACK           = "\033[38;5;16m"
+RED             = "\033[38;5;1m"           # Errors messages
+LIGHT_RED       = "\033[38;5;9m"
+GREEN           = "\033[38;5;2m"           # Success messages
+LIGHT_GREEN     = "\033[38;5;10m"
+ORANGE          = "\033[38;5;3m"
+LIGHT_ORANGE    = "\033[38;5;11m"
+BLUE_1          = "\033[38;5;4m"
+LIGHT_BLUE_1    = "\033[38;5;12m"          # Informations
+BLUE_2          = "\033[38;5;6m"
+LIGHT_BLUE_2    = "\033[38;5;14m"
+PURPLE          = "\033[38;5;5m"
+LIGHT_PURPLE    = "\033[38;5;13m"          # Informations
+
+
 ## The main function, used to be a script but encapsulated in a function
 # in order to hide local variables and make the doc more readable.
 #
 # All sections annoted in the code are explained in the documentation
 def mlfood():
 
-    ## COLORS
-    WHITE           = "\033[0m"                # Default color
-    GRAY            = "\033[38;5;7m"           # Debug
-    BLACK           = "\033[38;5;16m"
-    RED             = "\033[38;5;1m"           # Errors messages
-    LIGHT_RED       = "\033[38;5;9m"
-    GREEN           = "\033[38;5;2m"           # Success messages
-    LIGHT_GREEN     = "\033[38;5;10m"
-    ORANGE          = "\033[38;5;3m"
-    LIGHT_ORANGE    = "\033[38;5;11m"
-    BLUE_1          = "\033[38;5;4m"
-    LIGHT_BLUE_1    = "\033[38;5;12m"          # Informations
-    BLUE_2          = "\033[38;5;6m"
-    LIGHT_BLUE_2    = "\033[38;5;14m"
-    PURPLE          = "\033[38;5;5m"
-    LIGHT_PURPLE    = "\033[38;5;13m"          # Informations
 
     #################### Section 1 ####################
     # Creation of help and arguments parser
@@ -203,5 +206,44 @@ def mlfood():
     print("Total number of compilations: " + str(args.nbcompil * (args.incremental + 1)) )
     print(GRAY)
 
+
+
+# Check the size of log directory to remind the user to delete them.
+def check_log():
+    current_path = './Logs'
+    list = os.listdir(current_path)
+    raw_size = ''
+    size = 0
+    if len(list) > 0:
+
+        for folder in list:
+            path = current_path + '/' + folder
+
+            if os.path.isdir(path):
+                l = os.listdir(path)
+                if len(l) > 0:
+                    # Retrieves only files
+                    files = [f for f in l if os.path.isfile(os.path.join(path, f))]
+                    for file in files:
+                        cmd = "wc -c " + path + "/" + file
+                        raw_size = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                        tmp = raw_size.stdout.read().decode()
+                        tmp.replace("\n", " ")
+                        size = size + int(tmp.split()[-2])
+
+            else:
+                raw_size = subprocess.Popen("wc -c " + path, shell=True,stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                tmp = raw_size.stdout.read().decode()
+                tmp.replace("\n", " ")
+                size = size + int(tmp.split()[-2])
+
+    # Alert if the logs exceeds 1 Mo
+    print("You have " + ORANGE + str(size) + GRAY + " Bytes of logs files, do not forget to delete it to gain space." if size > 1048576 else '')
+
+
+
 #################### Section 13 ####################
-mlfood()
+
+if __name__=="__main__":
+    mlfood()
+    check_log()

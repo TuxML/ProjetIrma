@@ -37,9 +37,6 @@ def tuxLogs():
     args = parser.parse_args()
 
     # Run tuxml.py and retrieves the output converted in a log file.
-    print("------ Running tuxLogs.py ------")
-    print("")
-    print('Starting tuxml.py ...')
     print("")
     chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
     print("")
