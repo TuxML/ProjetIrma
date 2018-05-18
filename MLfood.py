@@ -78,6 +78,10 @@ def mlfood():
     if args.reset_logs:
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
         reset = input()
+
+        while reset != 'n' and ok != 'y':
+            reset = input("Please choose between 'y' and 'n'")
+
         reset.lower()
         if reset == "y":
             print("Deleting all the logs in Logs/...")
@@ -85,7 +89,7 @@ def mlfood():
             print("Delete done.")
             print("" + GRAY)
             exit(0)
-        else:
+        elif reset == 'n':
             print("")
             print("Logs are not deleted.")
             print(GRAY)
@@ -102,13 +106,17 @@ def mlfood():
         print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
         print("With '--dev' it will use the current dev version tuxmldebian:dev")
 
-        yn = input("Are you sure you want to run MLfood without dev ? (y/n)")
-        yn.lower()
+        ok = input("Are you sure you want to run MLfood without dev ? (y/n)")
+
+        while ok != 'n' and ok != 'y':
+            ok = input("Please choose between 'y' and 'n'")
+
+        ok.lower()
         print(GRAY)
 
-        if yn == "y":
+        if ok == "y":
             images = ["tuxml/tuxmldebian:prod"]
-        else:
+        elif ok == 'n':
             print(ORANGE + "Abort" + GRAY)
             exit(0)
 
@@ -116,13 +124,21 @@ def mlfood():
     # Convert the parameter in an Integer which is the number of compilation to do.
     # If the number is above 50 and the option "-y" is not enable, the script will ask for a confirmation
     if args.nbcompil >= 50 and not args.force_compilation_limits:
-       print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
-       print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
-       ok = input("(y/n)")
-       ok.lower()
-       if ok != "y":
-           print("Canceled")
-           exit(0)
+        print(ORANGE + "Are-you sure you want to start " + str(args.nbcompil) + " compilation?")
+        print('Canceling it would take as much Ctrl+C as the remaining number of compilations.')
+        ok = input("(y/n)")
+
+        while ok != 'n' and ok != 'y':
+            ok = input("Please choose between 'y' and 'n'")
+
+        ok.lower()
+        if ok == "n":
+            print("Canceled")
+            exit(0)
+
+        elif ok == 'y':
+            print(LIGHT_BLUE_1 + "Take a coffee and admire your " + args.nbcompil + " compilations!" + GRAY)
+
     print(GRAY)
 
     #################### Section 5 ####################
@@ -230,7 +246,7 @@ def check_log():
                         tmp = raw_size.stdout.read().decode()
                         tmp.replace("\n", " ")
                         size = size + int(tmp.split()[-2])
-
+            # Case were there are files in the Logs/ level.
             else:
                 raw_size = subprocess.Popen("wc -c " + path, shell=True,stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 tmp = raw_size.stdout.read().decode()
