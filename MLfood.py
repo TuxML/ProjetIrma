@@ -104,22 +104,10 @@ def mlfood():
         dev = "--dev"
     else:
         print(ORANGE)
+        print("Advice:")
         print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod (stable)")
-        print("With '--dev' it will use the current dev version tuxmldebian:dev (possibly unstable)")
-
-        ok = input("Are you sure you want to run MLfood without dev ? (y/n)")
-
-        while ok != 'n' and ok != 'y':
-            ok = input("Please choose between 'y' and 'n'")
-
-        ok.lower()
-        print(GRAY)
-
-        if ok == "y":
-            images = ["tuxml/tuxmldebian:prod"]
-        elif ok == 'n':
-            print(ORANGE + "Abort" + GRAY)
-            exit(0)
+        print("With '--dev' it will use the current dev version tuxmldebian:dev (possibly unstable)" + GRAY)
+        images = ["tuxml/tuxmldebian:prod"]
 
     #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
