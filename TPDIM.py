@@ -148,7 +148,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
-    dockerFile.write("RUN apt-get update && apt-get full-upgrade -y\n")
+    dockerFile.write("RUN apt-get update && apt-get upgrade -y && apt-get full-upgrade -y\n")
     dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
