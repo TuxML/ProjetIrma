@@ -16,3 +16,4 @@ core/files/
 paramiko.log
 csvgen
 doc/
+Dockerfile
