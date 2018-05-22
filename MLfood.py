@@ -155,6 +155,9 @@ def mlfood():
 
     # We check if the user is a super-user, to prevent users that the super-user privileges are used only to run dockers commands
     if os.geteuid() != 0:
+        if args.nbcompil >= 5:
+            print(LIGHT_BLUE_1 + "You should run MLfood.py with 'sudo' to run a big number of compilations.")
+            print("If you do not,you will be asked to enter your password before and after each compilations." + GRAY)
         print(LIGHT_BLUE_1 + 'Docker needs super-user privileges to run' + GRAY)
 
     #################### Section 6 ####################
