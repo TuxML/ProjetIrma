@@ -34,14 +34,10 @@ import sys
 sys.path.insert(0, 'core')
 import tuxml_common as tcom
 import tuxml_settings as tset
-# from core
-# import tuxml_common as tcom # , tuxml_settings as tset
-# from core import tuxml_environment as tenv
 import bz2
 import os
 import subprocess
 import argparse
-# from sys import argv
 import re
 
 # Author Alexis LE MASLE
@@ -49,6 +45,7 @@ import re
 # Creation of help and argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
+parser.add_argument("--silent", help="No output on standard output", action="store_true")
 args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
@@ -56,7 +53,7 @@ args = parser.parse_args()
 # Function to send the outputfile to the database at a certain "cid"
 def send_outputlog(cid, outputfilename, databasename):
     try:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, databasename) # TODO
+        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, databasename)
         cursor = socket.cursor()
 
         bzoutput = bz2.compress(open(outputfilename, "rb").read())
@@ -74,15 +71,23 @@ def send_outputlog(cid, outputfilename, databasename):
         return -1
 
 # Run tuxLogs.py and retrieves the output converted in a log file.
-print("")
-print('------ Running runandlog.py ... ------')
-print("")
+if not args.silent:
+    print("")
+    print('------ Running runandlog.py ... ------')
+    print("")
 
-# chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee >(sed "s/\\x1b[^m]*m//g" > output.log)'
-chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
+chaine = ""
+# Use to compute only, no standard output, all in the log file
+if args.silent:
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' > /TuxML/output.log'
+else:
+    # chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee >(sed "s/\\x1b[^m]*m//g" > output.log)'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
+
 print("")
 subprocess.run(chaine, shell=True).stdout
-print("Try to send output.log ...")
+if not args.silent:
+    print("Try to send output.log ...")
 
 # tuxLogs.py has finished to run, output.log exist now
 cid = -1
@@ -90,7 +95,8 @@ for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
     if match:
         cid=match.group(1)
-        print("CID found " + cid)
+        if not args.silent:
+            print("CID found " + cid)
 
 if not cid == -1:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
