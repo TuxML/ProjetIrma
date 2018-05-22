@@ -15,3 +15,5 @@ pax_global_header
 core/files/
 paramiko.log
 csvgen
+doc/
+Dockerfile

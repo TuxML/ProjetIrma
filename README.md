@@ -1,3 +1,7 @@
+Last updates:
+README: May the 4th 2018
+Prod docker image: May the 22th 2018
+
 # TuxML
 ## MLfood.py script
 ### Goal
@@ -18,7 +22,7 @@ Command should be :
 
     Example : ./MLfood 50 5 --dev
 
-This example will run 50 docker, each one will run 5 compiling in incremental mode, on the developpement docker image ("--dev").
+This example will run 50 docker, each one will run 5 compiling in incremental mode in addition to the first one, on the developpement docker image ("--dev").
 
 ```
 A simple run command could be:
@@ -117,20 +121,27 @@ optional arguments:
   --incremental NINC    incremental  mod does  not  erase  files  from  previous
                         compilations. The  NINC  parameter  corresponds  to  the
                         number of incremental compilation to launch.
-  --database {prod,dev,alexis}
+  --database {prod,dev}
                         choose on which database send the compilation results
 ```
 
 ## TPDIM.py
 
 ### Goal
-This script/program is design to help people using TuxML to easly manage there docker image or container.
+This script aims to build a Docker image for using TUXML.
+Mainly for developers of TUXML that maintain the Docker images: https://hub.docker.com/r/tuxml/tuxmldebian/tags/  
 
 ### How to use ?
-You have to use few command to build and push :
-* Build : ``` ./TPDIM -b [IMAGE_NAME : debian] -t [TAG_NAME : dev/prod]```
-* Push : ``` ./TPDIM -p [IMAGE_NAME : debian] -t [TAG_NAME : dev/prod]```
-* Generation : Use only when update Dockerfile or when adding new dependences to the image ``` ./TPDIM -g [IMAGE_NAME : debian] -dep dependences.txt -t [TAG_NAME : dev/prod]```
+
+The simple way is to use
+``` ./TPDIM -a debian -t 'tag-name'```
+
+It executes all following procedures (generate, build and push):
+ * Generation : Use only when update Dockerfile or when adding new dependencies to the image ``` ./TPDIM -g debian -dep dependences.txt -t 'tag-name'```
+ * Build : ``` ./TPDIM -b debian -t 'tag-name'```
+ * Push : ``` ./TPDIM -p debian -t 'tag-name'```
+
+Have a look at option for customizing e.g., the image (e.g. debian) or the tag (e.g., dev or prod).
 
 ## License
 The TuxML project is licensed under the terms of the **Apache License 2.0** as available in the `LICENSE` file and [online here](http://www.apache.org/licenses/LICENSE-2.0.txt). A list of contributors and other details are available in the `NOTICE.md` file.

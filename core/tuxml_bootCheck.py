@@ -1,6 +1,26 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+## @file tuxml_bootCheck.py
+# @author CHÉDOTAL Corentin
+# @copyright Apache License 2.0
+# @brief File containing the functions used to test compiled kernels
+
+
 import subprocess
 import time
 import re
@@ -8,17 +28,27 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 
 
-# Function used to boot up a given kernel
-# WARNING : USES qemu-system-x86_64 !
-# path is the path to the sources of the kernel
-# Returns 0 if the kernel did boot, -1 if it did not and -2 if the check timed out
-# Return -3 if the subprocess call failed for whatever reason
+## @author  CHEDOTAL Corentin
+#
+#  @brief   Function used to boot up a given kernel if it can
+#  @details Uses qemu-system-x86_64 to boot the kernel and checks if a shell opens up
+#
+#  @returns -3 the subprocess call failed for whatever reason
+#  @returns -2 the check timed out
+#  @returns -1 the kernel did not boot
+#  @returns  0 successfull boot
+#
+#  @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
 def boot_try():
 	tcom.pprint(2, "Launching boot test on kernel")
 
-	cmd = "qemu-system-x86_64"
-	sbStatus = subprocess.call(["mkinitramfs","-o", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+	try:
+		sbStatus = subprocess.call(["mkinitramfs","-o", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+	except Exception:
+		sbStatus = -1;
 
+	cmd = "qemu-system-x86_64"
+	print(sbStatus)
 	if sbStatus == 0:
 		procId = subprocess.Popen([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
@@ -26,7 +56,12 @@ def boot_try():
 		status = 1
 
 		time.sleep(5)
-		outFile = open("serial.out",mode='r')
+
+		try:
+			outFile = open("serial.out",mode='r')
+		except OSError:
+			tcom.pprint(1, "Unable to open output file, assuming subprocess call failed !")
+			return -3
 
 		while status == 1:
 			time.sleep(10)

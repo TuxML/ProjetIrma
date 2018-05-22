@@ -1,3 +1,26 @@
+# -*- coding: utf-8 -*-
+
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+## @file tuxml_argshandler.py
+#  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
+#  @brief This file contains the function used to handle tuxml's arguments and
+#  parameters
+
+
 import os
 import sys
 import subprocess
@@ -7,9 +30,9 @@ import tuxml_settings as tset
 import tuxml_environment as tenv
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# This function handles the arguments of the ./tuxml.py command
+#  @brief   This function handles the arguments of the ./tuxml.py command
 def args_handler():
     msg  = "Welcome, this is the TuxML core program.\n\n"
 
@@ -40,15 +63,19 @@ def args_handler():
     i_help  = "incremental  mod does  not  erase  files  from  previous\n"
     i_help += "compilations. The I parameter  corresponds to the number\n"
     i_help += "of incremental compilation to launch."
+    j_help  = "incremental mod with two specifics KCONFIG"
     s_help  = "choose on which database send the compilation results"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    gexcl1 = parser.add_mutually_exclusive_group()
+    excl2 = ""
     parser.add_argument("source_path",     help=p_help)
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=range(1,5))
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
     parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG")
-    parser.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
+    gexcl1.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
+    gexcl1.add_argument("--incrementalVS", help=j_help, type=str, metavar="KCONFIG", nargs=2)
     parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev', "alexis"])
     args = parser.parse_args()
 
@@ -92,7 +119,14 @@ def args_handler():
 
     # handle debug mode
     if args.debug:
-        tset.KCONFIG = args.debug
+        tset.KCONFIG1 = args.debug
+
+    # handle incremental versus mod
+    if args.incrementalVS:
+        tset.KCONFIG1 = args.incrementalVS[0]
+        tset.KCONFIG2 = args.incrementalVS[1]
+
+        print(tset.KCONFIG1, ' ', tset.KCONFIG2)
 
     # set the number of cores
     if args.cores:

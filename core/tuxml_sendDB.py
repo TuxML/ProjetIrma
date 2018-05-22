@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +16,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_sendDB.py
+#  @author LE LURON Pierre
+#  @author LEBRETON Mickaël
+#  @copyright Apache License 2.0
+#  @brief The file contains the functions used to send compilation and test results
+#  to the database
+
+
 import time
 import os
 import MySQLdb
@@ -25,13 +35,12 @@ import tuxml_settings as tset
 import tuxml_environment as tenv
 
 
-# author : LE LURON Pierre
+## @author  LE LURON Pierre
 #
-# Returns the size of the newly compiled kernel
+#  @brief   Get the size of the newly compiled kernel
 #
-# return value :
-#   0 - can't find kernel image
-#   x - size of kernel in bytes
+#  @returns  0 can't find kernel image
+#  @returns >0 size of kernel in bytes
 def get_kernel_size():
     possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
     for filename in possible_filenames:
@@ -41,50 +50,57 @@ def get_kernel_size():
     return 0
 
 
-# author : LEBRETON Mickaël
+## @author  LEBRETON Mickaël
 #
-# Function used to upload logfiles on the server
-# /!\ CURRENTLY NOT IN USE /!\
+#  @brief   Function used to upload logfiles on the server with the SFTP protocole
 #
-# return value :
-#   -1 Fail
-#    0 Sucess
-def file_upload(logfiles, date):
-    tcom.pprint(2, "Uploading log files to server")
-    paramiko.util.log_to_file(tset.SFTP_LOGS)
-
-    try:
-        transport = paramiko.Transport((tset.HOST, tset.SFTP_PORT))
-        transport.connect(username=tset.SFTP_USER, password=tset.SFTP_PASSWD)
-        sftp = paramiko.SFTPClient.from_transport(transport)
-
-        remote_dir = time.strftime("%Y%m%d_%H%M%S/", date)
-        sftp.mkdir(tset.SFTP_DIR + remote_dir)
-
-        for logfile in logfiles:
-            remotepath = tset.SFTP_DIR + remote_dir + os.path.basename(logfile)
-            localpath = logfile
-            sftp.put(localpath, remotepath)
-            if (tset.VERBOSE > 2):
-                print(tset.GRAY + " " * 4 + "==> " + localpath + ": OK")
-
-        sftp.close()
-        transport.close()
-
-        tcom.pprint(0, "All files were uploaded successfully")
-        return 0
-    except paramiko.SSHException as err:
-        tcom.pprint(1, "Can't upload log files on server : {}".format(err))
-        return -1
-
-
-# author : LE LURON Pierre, LEBRETON Mickaël
+#  @param   logfiles table containing path to log files
+#  @param   date the date
 #
-# Sends compilation results to the mysql db
+#  @returns -1 can't upload log files on server
+#  @returns  0 all files were uploaded successfully
 #
-# return value :
-#   -1 Fail
-#    0 Sucess
+#  @warning Currently not in use
+#  @deprecated 
+# def file_upload(logfiles, date):
+#     tcom.pprint(2, "Uploading log files to server")
+#     paramiko.util.log_to_file(tset.SFTP_LOGS)
+#
+#     try:
+#         transport = paramiko.Transport((tset.HOST, tset.SFTP_PORT))
+#         transport.connect(username=tset.SFTP_USER, password=tset.SFTP_PASSWD)
+#         sftp = paramiko.SFTPClient.from_transport(transport)
+#
+#         remote_dir = time.strftime("%Y%m%d_%H%M%S/", date)
+#         sftp.mkdir(tset.SFTP_DIR + remote_dir)
+#
+#         for logfile in logfiles:
+#             remotepath = tset.SFTP_DIR + remote_dir + os.path.basename(logfile)
+#             localpath = logfile
+#             sftp.put(localpath, remotepath)
+#             if (tset.VERBOSE > 2):
+#                 print(tset.GRAY + " " * 4 + "==> " + localpath + ": OK")
+#
+#         sftp.close()
+#         transport.close()
+#
+#         tcom.pprint(0, "All files were uploaded successfully")
+#         return 0
+#     except paramiko.SSHException as err:
+#         tcom.pprint(1, "Can't upload log files on server : {}".format(err))
+#         return -1
+
+
+## @author  LE LURON Pierre
+#  @author  LEBRETON Mickaël
+#
+#  @brief   Sends compilation and boot results to the mysql database
+#
+#  @param   compile_time compilation time
+#  @param   boot_time boot time
+#
+#  @returns -1 can't send info to db
+#  @returns  0 successfully sent info to db
 def send_data(compile_time, boot_time):
     tcom.pprint(2, "Sending compilation and test results to database")
 
@@ -149,28 +165,30 @@ def send_data(compile_time, boot_time):
         return -1
 
 
+# ============================================================================ #
 
-if __name__ == "__main__":
-    msg = "TuxML send script - Use only for testss"
 
-    p_help  = "path to the Linux source directory"
-
-    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("source_path", help=p_help)
-
-    args = parser.parse_args()
-
-    # store the linux source path in a global var
-    if not os.path.exists(args.source_path):
-        tcom.pprint(1, "This path doesn't exist")
-        sys.exit(-1)
-    else:
-        tset.PATH = args.source_path
-
-    tset.VERBOSE = 3
-    tset.DB_NAME = "IrmaDB_dev"
-    tset.INCREMENTAL_MOD = 0
-    tset.CONFIG_ID = 7
-
-    tset.TUXML_ENV = tenv.get_environment_details()
-    send_data(123, 456)
+#if __name__ == "__main__":
+    # msg = "TuxML send script - Use only for testss"
+    #
+    # p_help  = "path to the Linux source directory"
+    #
+    # parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    # parser.add_argument("source_path", help=p_help)
+    #
+    # args = parser.parse_args()
+    #
+    # # store the linux source path in a global var
+    # if not os.path.exists(args.source_path):
+    #     tcom.pprint(1, "This path doesn't exist")
+    #     sys.exit(-1)
+    # else:
+    #     tset.PATH = args.source_path
+    #
+    # tset.VERBOSE = 3
+    # tset.DB_NAME = "IrmaDB_dev"
+    # tset.INCREMENTAL_MOD = 0
+    # tset.CONFIG_ID = 7
+    #
+    # tset.TUXML_ENV = tenv.get_environment_details()
+    # send_data(123, 456)

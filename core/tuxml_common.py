@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +14,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_common.py
+#  @author LE FLEM Erwan
+#  @author LEBRETON Mickaël
+#  @author MERZOUK Fahim
+#  @copyright Apache License 2.0
+#  @brief This file contains all the functions used in all tuxml_* scripts
+
 import subprocess
 import shutil
 import time
@@ -19,22 +28,30 @@ import sys
 import tuxml_settings as tset
 
 
-# author : LEBRETON Mickael
+## @author  LEBRETON Mickaël
 #
-# Pretty Printer which allow us to print the date in VERBOSE mod
+#  @brief   Usefull to print a message with the date, color code etc easily
+#
+#  @param   s       The status of the message (0 : success, 1 : error, 2 : default, 4 : debug, 5 : warning)
+#  @param   message The message you want to print
+#
+#  @todo redirect messages to stdout and stderr if needed
 def pprint(s, message):
+    if s < 0 or s > 4:
+        s = 2
+
     code = [
-        tset.LIGHT_GREEN,     # success
-        tset.LIGHT_RED,       # error
-        tset.WHITE,           # default
-        tset.GRAY,            # debug
-        tset.LIGHT_ORANGE     # warning
+        tset.COLORS["light_green"],  # success
+        tset.COLORS["light_red"],    # error
+        tset.COLORS["white"],        # default
+        tset.COLORS["gray"],         # debug
+        tset.COLORS["light_orange"]  # warning
     ]
 
-    NC = tset.WHITE
+    NC = tset.COLORS["white"]
 
-    date    = tset.LIGHT_BLUE_1 + time.strftime("[%Y-%m-%d %H:%M:%S GMT] ", time.localtime(time.time()))
-    func    = tset.GRAY + "[" + sys._getframe(1).f_code.co_name + "] "
+    date    = tset.COLORS["light_blue_1"] + time.strftime("[%Y-%m-%d %H:%M:%S %Z] ", time.localtime(time.time()))
+    func    = tset.COLORS["gray"] + "[" + sys._getframe(1).f_code.co_name + "] "
     msg     = code[s] + message + NC
 
     if tset.VERBOSE == 1:
@@ -45,13 +62,14 @@ def pprint(s, message):
         print(date + func + msg)
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim
+## @author  LE FLEM Erwan
+#  @author  MERZOUK Fahim
 #
-# Get the package manager presents on the system
+#  @brief   Get the package manager presents on the system
+#  @details The currently well suported packages manager are apt-get, pacman and dnf.
 #
-# return value :
-#    String The name of the first supported package manager
-#    None   If no supported packages manager has been found
+#  @returns String The name of the first supported package manager
+#  @returns None   If no supported packages manager has been found
 def get_package_manager():
     pprint(2, "Finding package manager")
 
@@ -65,16 +83,18 @@ def get_package_manager():
     return None
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim, LEBRETON Mickaël
+## @author  LE FLEM Erwan
+#  @author  LEBRETON Mickaël
+#  @author  MERZOUK Fahim
 #
-# Install the list of given packages
+#  @brief   Install the list of given packages
 #
-# return value :
-#   -2 Package manager not supported
-#   -1 Unable to install the packages
-#    0 Successfull install
-def install_packages(missing_packages):
-    pprint(2, "Installing packages : " + " ".join(missing_packages))
+#  @param   packages The list of missing packages you want to install
+#
+#  @returns -1 Unable to install the packages
+#  @returns  0 Successfull installation
+def install_packages(packages):
+    pprint(2, "Installing packages : " + " ".join(packages))
 
     manager_to_cmd = {
         "apt-get": " -y install ",
@@ -85,7 +105,7 @@ def install_packages(missing_packages):
         "zypper": " --non-interactive install "
     }
 
-    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(missing_packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Some packages were not found, installation stoped")
@@ -95,18 +115,18 @@ def install_packages(missing_packages):
         return 0
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim, LEBRETON Mickaël
+## @author  LE FLEM Erwan
+#  @author  LEBRETON Mickaël
+#  @author  MERZOUK Fahim
 #
-# Update the package database
+#  @brief   Update the package database
 #
-# return value :
-#   -1 Unable to update the package databate
-#    0 Successfull update
+#  @returns -1 Unable to update the package databate
+#  @returns  0 Successfull update
+#
+#  @todo check on https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
+#  about potential issues using -Sy instead of -Syu before installing pkgs.
 def update_system():
-    # TODO : check on
-    # https://wiki.archlinux.org/index.php/System_maintenance#Partial_upgrades_are_unsupported
-    # about potential issues using -Sy instead of -Syu before installing pkgs.
-
     pprint(2, "Updating packages repositories")
 
     manager_to_cmd = {
@@ -118,7 +138,6 @@ def update_system():
         "zypper": " refresh"
     }
 
-    print(tset.GRAY, end='')
     status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:

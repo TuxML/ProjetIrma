@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# -*- coding: utf-8 -*-
+
 #   Copyright 2018 TuxML Team
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,28 +16,54 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+## @file tuxml_depman.py
+#  @author LE FLEM Erwan
+#  @author LEBRETON Mickaël
+#  @author MERZOUK Fahim
+#  @copyright Apache License 2.0
+#  @brief Packages and missing packages dependencies handler.
+
+
 import subprocess
-import shutil
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depLog as tdepl
 
+
+## Dependencies logger
 tdepLogger = tdepl
-# author : LEBRETON Mickael, LE FLEM Erwan, MERZOUK Fahim
+
+
+## @author  LE FLEM Erwan
+#  @author  LEBRETON Mickael
+#  @author  MERZOUK Fahim
 #
-# Find the missing packages
+#  @brief   Find the missing packages thanks to the missing files list
+#  @details Find the packages containing  the missing files and  append  them to
+#  the 'missing_packages' parameter. Sometimes the  output of the  command (e.g.
+#  'apt-file search <missing_file>') gives  several  packages. The program takes
+#  the first one and check if  the  package is already  installed. If not, Tuxml
+#  installs it. Else it installs the next one.
+#  If tuxml reaches the end of the packages list without installing  any package
+#  it means there is a problem with the missing file, so it returns an error.
 #
-# return value :
-#   -1 package not found
-#    0 installation OK
+#  @param   missing_files The  list  of  missing files whose  you  want  to find
+#  associates packages
+#  @param   missing_packages The list of missing packages you want to install
+#
+#  @returns -1 package not found
+#  @returns  0 all dependencies were built
+#
+#  @warning Sometimes the  `apt-file search` command (or equivalent) gives several
+#  packages. The program takes the first one and check if the package is already
+#  installed. If not, tuxml installs it. Else it installs the next one until all
+#  the package from the command above were installed.
 def build_dependencies(missing_files, missing_packages):
     cmds = {
         "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
         "pacman"  : ["pkgfile -d {}", "pacman -Fs {}"],
         "dnf"     : ["dnf whatprovides *{}", "rpm -qa | grep {}"],
         "yum"     : ["yum whatprovides *{}", "rpm -qa | grep {}"]
-        # "emerge": [],
-        # "zypper": []
     }
 
     if tset.VERBOSE > 0 and len(missing_files) > 0:
@@ -87,19 +115,24 @@ def build_dependencies(missing_files, missing_packages):
     tcom.pprint(0, "Dependencies built")
     return 0
 
-# authors : LE FLEM Erwan, MERZOUK Fahim
+
+## @author  LE FLEM Erwan
+#  @author  MERZOUK Fahim
 #
-# Check which package are preinstalled amongst the list of given package.
-# Useful to know which of the dependencies where already installed.
-# return
-# the list of already installed package amongst the list of given package.
+#  @brief   Check preinstalled package
+#  @details Check which package are preinstalled among the list of given package,
+#  useful to know which of the dependencies where already installed
+#
+#  @param dependencies list of packages
+#
+#  @returns list of already installed package amongt the list of given package
 def get_installed_packages(dependencies):
     installed_packages = list()
 
     cmds = {
         "apt-get" : "dpkg -s  {}",
         "pacman"  : "pacman -Qs {} | grep \"/{} \"",
-        "dnf"     : "rpm -qa | grep {}", #TODO test
+        "dnf"     : "rpm -qa | grep {}",
         "yum"     : [""]
         # "emerge": [],
         # "zypper": []
@@ -117,6 +150,16 @@ def get_installed_packages(dependencies):
     return installed_packages
 
 
+## @author LE FLEM Erwan
+#  @author MERZOUK Fahim
+#
+#  @brief   Install minimal dependencies required to compile the kernel
+#  @details Install the following packages :  gcc,  make, binutils,  util-linux,
+#  e2fsprogs, bc. By "Minimal dependencies", we mean the dependencies that will
+#  always be needed to compile the kernel, regardless of the config file.
+#
+#  @returns -1 Unable to install minimal dependencies
+#  @returns  0 Minimal dependencies successfully installed
 def install_minimal_dependencies():
     tcom.pprint(2, "Installing minimal dependencies")
     minimal_pkgs = ["gcc", "make", "binutils", "util-linux", "e2fsprogs", "bc"]
@@ -129,13 +172,18 @@ def install_minimal_dependencies():
         return 0
 
 
-# authors : LE FLEM Erwan, MERZOUK Fahim    output
-#    output
-# Install packages of required dependencies to compile the kernel
+## @author LE FLEM Erwan
+#  @author FAHIM Merzouk
 #
-# return
-#   -1 Unable to install some packages
-#    0 succes
+#  @brief   Install default dependencies required to compile the kernel
+#  @details Install the following packages : kmod, jfsutils, xfsprogs, btrfs-progs,
+#  pcmciautils, ppp, grub, iptables, openssl, reiserfsprogs, squashfs-tools, quotatool,
+#  nfs-kernel-server, procps, mcelog, libcrypto++6, apt-utils, gcc-6-plugin-dev,
+#  libssl-dev.
+#  Warning : names bases on debian packages, they may vary amongs distribution.
+#
+#  @returns -1 Unable to install some packages
+#  @returns  0 Successfull installation
 def install_default_dependencies():
     if (install_minimal_dependencies() != 0):
         return -1
@@ -167,12 +215,10 @@ def install_default_dependencies():
         tcom.pprint(2, "Default dependencies successfully installed.")
         return 0
 
-# Test code (temp)
-def main():
-    cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
-    print(get_installed_packages(cps))
 
 # ============================================================================ #
 
-if __name__ == '__main__':
-    main()
+
+#if __name__ == '__main__':
+    # cps = ["gcc", "make", "remake", "afur-makepkg", "xreader", "ppp", "grub","iptables","openssl", "bc"]
+    # print(get_installed_packages(cps))
