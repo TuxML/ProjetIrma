@@ -81,11 +81,22 @@ chaine = ""
 if args.silent:
     chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' > /TuxML/output.log'
 else:
-    # chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee >(sed "s/\\x1b[^m]*m//g" > output.log)'
     chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 
 print("")
 subprocess.run(chaine, shell=True).stdout
+
+if not args.silent:
+    print("Removing colors in output file ...")
+
+with open("/TuxML/output.log", 'r+') as f:
+    file = f.read()
+
+    escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+    res = escape.sub("", file)
+
+    f.write(res)
+
 if not args.silent:
     print("Try to send output.log ...")
 

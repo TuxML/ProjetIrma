@@ -193,6 +193,7 @@ def mlfood():
         errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
         configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
+        # Silent mode disable
         if not args.silent:
             print("")
             print(LIGHT_PURPLE + "Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder + GRAY)
@@ -205,6 +206,7 @@ def mlfood():
             subprocess.run(configFile, shell=True).stdout
             dockerid.close()
             print(GRAY)
+        # Silent mode enable
         else:
             subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
             subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
@@ -223,7 +225,7 @@ def mlfood():
                 print(LIGHT_PURPLE + "Clean done!" + GRAY)
                 print("")
             else:
-                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stderr=subprocess.DEVNULL)
+                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if args.silent:
             print(LIGHT_BLUE_1 + "Docker #" + str(i) + " done              ### SILENT MODE ###" + GRAY)
