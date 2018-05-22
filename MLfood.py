@@ -260,9 +260,9 @@ def check_log():
     # size = float(size/1048576.0)  # Mebioctet version
     size = float(size/1000000.0)    # Megaoctet version
 
-    if size > 10.0:
+    if size >= 10.0:
         print("You have " + RED + str(size)[0:4] + GRAY + " Mo of logs files, you should delete your logs.")
-    elif size > 1.0 and size < 10.0:
+    elif size >= 1.0 and size < 10.0:
         print("You have " + ORANGE + str(size)[0:4] + GRAY + " Mo of logs files, do not forget to delete it to gain space.")
     elif size < 1.0:
         print("You have " + GREEN + str(size)[0:4] + GRAY + " Mo of logs files.")
