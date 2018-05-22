@@ -143,6 +143,9 @@ def mlfood():
 
     # We check if the user is a super-user, to prevent users that the super-user privileges are used only to run dockers commands
     if os.geteuid() != 0:
+        if args.silent:
+            print(RED + "You need to run MLfood.py with super-user privileges because in silent mode the request for sudo password will not be displayed." + GRAY)
+            exit(0)
         if args.nbcompil >= 5:
             print(ORANGE + "You should run MLfood.py with 'sudo' to run a big number of compilations.")
             print("If you do not,you will be asked to enter your password before and after each compilations." + GRAY)
@@ -277,7 +280,6 @@ def check_log():
         print(LIGHT_BLUE_1 + "You have " + ORANGE + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, do not forget to delete it to gain space." + GRAY)
     elif size < 1.0:
         print(LIGHT_BLUE_1 + "You have " + GREEN + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files." + GRAY)
-    # print("You have " + ORANGE + str(size) + GRAY + " Bytes of logs files, do not forget to delete it to gain space." if size > 1048576 else '')
 
 
 #################### Section 13 ####################
