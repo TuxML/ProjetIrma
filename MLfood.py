@@ -104,8 +104,8 @@ def mlfood():
         dev = "--dev"
     else:
         print(ORANGE)
-        print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod")
-        print("With '--dev' it will use the current dev version tuxmldebian:dev")
+        print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod (stable)")
+        print("With '--dev' it will use the current dev version tuxmldebian:dev (possibly unstable)")
 
         ok = input("Are you sure you want to run MLfood without dev ? (y/n)")
 

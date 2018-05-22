@@ -1,4 +1,6 @@
-Last update may the 4th 2018
+Last updates:
+README: May the 4th 2018
+Prod docker image: May the 22th 2018
 
 # TuxML
 ## MLfood.py script
