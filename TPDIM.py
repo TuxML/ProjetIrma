@@ -121,7 +121,7 @@ def docker_push(repository, tag):
 def docker_generate(originImage, tag, dependencesFile=None):
     newImage = 'tuxml/{}tuxml:{}'.format(originImage, tag)
 
-    os.chdir('BuildImageInter')
+    os.chdir('./BuildImageInter')
 
     dockerFileI = open("Dockerfile", "w")
     dockerFileI.write("FROM {}:latest\n".format(originImage))
