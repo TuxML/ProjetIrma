@@ -1,4 +1,5 @@
 FROM tuxml/debiantuxml:dev
+RUN apt-get update && apt-get full-upgrade -y
 ADD core /TuxML
 ADD gcc-learn /TuxML/gcc-learn/ 
 ADD tuxLogs.py /TuxML

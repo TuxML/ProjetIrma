@@ -135,7 +135,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     # TODO expand the support of different package manager (like yum, rpm ...)
-    dockerFileI.write("RUN apt-get update && apt-get -qq -y install " + text_dep + ' ' + otherDep + " \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n")
+    dockerFileI.write('RUN echo "Europe/Paris" > /etc/timezone\nRUN apt-get update && apt-get full-upgrade -y && apt-get -qq -y install ' + text_dep + ' ' + otherDep + ' \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n')
     dockerFileI.close()
 
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
@@ -148,6 +148,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
+    dockerFile.write("RUN apt-get update && apt-get full-upgrade -y\n")
     dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
