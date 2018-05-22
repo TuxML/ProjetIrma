@@ -53,25 +53,26 @@ PURPLE          = "\033[38;5;5m"
 LIGHT_PURPLE    = "\033[38;5;13m"          # Informations
 
 
+
+#################### Section 1 ####################
+# Creation of help and arguments parser
+print(LIGHT_BLUE_1)
+parser = argparse.ArgumentParser()
+parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number of containers.")
+parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container.", nargs='?', default=0)
+parser.add_argument("--no-clean", help="Do not delete past containers.", action="store_true")
+parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
+parser.add_argument("--dev", help="Use image in current development.", action="store_true")
+parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
+parser.add_argument("--no-check-log", help="Do not compute the Logs folder size at the end of compilation.", action="store_true")
+args = parser.parse_args()
+print(GRAY)
+
 ## The main function, used to be a script but encapsulated in a function
 # in order to hide local variables and make the doc more readable.
 #
 # All sections annoted in the code are explained in the documentation
 def mlfood():
-
-
-    #################### Section 1 ####################
-    # Creation of help and arguments parser
-    print(LIGHT_BLUE_1)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number of containers.")
-    parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container.", nargs='?', default=0)
-    parser.add_argument("--no-clean", help="Do not delete past containers.", action="store_true")
-    parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
-    parser.add_argument("--dev", help="Use image in current development.", action="store_true")
-    parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
-    args = parser.parse_args()
-    print(GRAY)
 
     #################### Section 2 ####################
     # Check if there is the --reset-logs option to erase all the logs.
@@ -79,7 +80,7 @@ def mlfood():
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
         reset = input()
 
-        while reset != 'n' and ok != 'y':
+        while reset != 'n' and reset != 'y':
             reset = input("Please choose between 'y' and 'n'")
 
         reset.lower()
@@ -254,12 +255,23 @@ def check_log():
                 size = size + int(tmp.split()[-2])
 
     # Alert if the logs exceeds 1 Mo
-    print("You have " + ORANGE + str(size) + GRAY + " Bytes of logs files, do not forget to delete it to gain space." if size > 1048576 else '')
+    # 1048576 one mebioctet
+    # 1000000 one megaoctet
+    # size = float(size/1048576.0)  # Mebioctet version
+    size = float(size/1000000.0)    # Megaoctet version
+
+    if size > 10.0:
+        print("You have " + RED + str(size)[0:4] + GRAY + " Mo of logs files, you should delete your logs.")
+    elif size > 1.0 and size < 10.0:
+        print("You have " + ORANGE + str(size)[0:4] + GRAY + " Mo of logs files, do not forget to delete it to gain space.")
+    elif size < 1.0:
+        print("You have " + GREEN + str(size)[0:4] + GRAY + " Mo of logs files.")
+    # print("You have " + ORANGE + str(size) + GRAY + " Bytes of logs files, do not forget to delete it to gain space." if size > 1048576 else '')
 
 
 
 #################### Section 13 ####################
-
-if __name__=="__main__":
-    mlfood()
+mlfood()
+if not args.no_check_log:
+    print("Checking local logs size ...")
     check_log()
