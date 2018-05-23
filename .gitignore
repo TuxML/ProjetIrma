@@ -17,3 +17,4 @@ paramiko.log
 csvgen
 doc/
 Dockerfile
+compare/
