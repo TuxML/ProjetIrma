@@ -275,13 +275,24 @@ def check_log():
     # 1000000 one megaoctet
     # size = float(size/1048576.0)  # Mebioctet version
     size = float(size/1000000.0)    # Megaoctet version
+    unite = "Mo"
+    color = GREEN
 
-    if size >= 10.0:
-        print(LIGHT_BLUE_1 + "You have " + RED + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, you should delete your logs." + GRAY)
-    elif size >= 1.0 and size < 10.0:
-        print(LIGHT_BLUE_1 + "You have " + ORANGE + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, do not forget to delete it to gain space." + GRAY)
-    elif size < 1.0:
-        print(LIGHT_BLUE_1 + "You have " + GREEN + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files." + GRAY)
+    if size >= 100.0 and unite == "Mo":
+        color = ORANGE
+    if size >= 1000.0 and unite == "Mo":
+        size = size / 1000.0
+        unite = "Go"
+        color = RED
+
+    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, you should delete your logs." + GRAY)
+
+    # if size >= 1.0 and unite == "Go":
+    #     print(LIGHT_BLUE_1 + "You have " + RED + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, you should delete your logs." + GRAY)
+    # elif size >= 100.0 and size < 1000.0:
+    #     print(LIGHT_BLUE_1 + "You have " + ORANGE + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, do not forget to delete it to gain space." + GRAY)
+    # elif size < 100.0:
+    #     print(LIGHT_BLUE_1 + "You have " + GREEN + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files." + GRAY)
 
 
 #################### Section 13 ####################
