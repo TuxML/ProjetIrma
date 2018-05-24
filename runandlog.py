@@ -84,7 +84,7 @@ else:
     chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
 
 print("")
-subprocess.run(chaine, shell=True).stdout
+subprocess.run(chaine, shell=True)
 
 if not args.silent:
     print("Removing colors in output file ...")

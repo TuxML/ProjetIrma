@@ -181,7 +181,7 @@ def mlfood():
         else:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
-        subprocess.run(chaine, shell=True).stdout
+        subprocess.run(chaine, shell=True)
 
         #################### Section 10 ####################
         # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -200,10 +200,10 @@ def mlfood():
             # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
             # Thoses errors are only due to the logs files that does not exist because of the process error.
             # Consider it as warnings.
-            subprocess.run(outputlog, shell=True).stdout
-            subprocess.run(stdlogs, shell=True).stdout
-            subprocess.run(errlogs, shell=True).stdout
-            subprocess.run(configFile, shell=True).stdout
+            subprocess.run(outputlog, shell=True)
+            subprocess.run(stdlogs, shell=True)
+            subprocess.run(errlogs, shell=True)
+            subprocess.run(configFile, shell=True)
             dockerid.close()
             print(GRAY)
         # Silent mode enable
@@ -263,12 +263,14 @@ def check_log():
                         tmp = raw_size.stdout.read().decode()
                         tmp.replace("\n", " ")
                         size = size + int(tmp.split()[-2])
+                        raw_size.close()
             # Case were there are files in the Logs/ level.
             else:
                 raw_size = subprocess.Popen("wc -c " + path, shell=True,stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 tmp = raw_size.stdout.read().decode()
                 tmp.replace("\n", " ")
                 size = size + int(tmp.split()[-2])
+                raw_size.close()
 
     # Alert if the logs exceeds 1 Mo
     # 1048576 one mebioctet
@@ -285,14 +287,7 @@ def check_log():
         unite = "Go"
         color = RED
 
-    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, you should delete your logs." + GRAY)
-
-    # if size >= 1.0 and unite == "Go":
-    #     print(LIGHT_BLUE_1 + "You have " + RED + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, you should delete your logs." + GRAY)
-    # elif size >= 100.0 and size < 1000.0:
-    #     print(LIGHT_BLUE_1 + "You have " + ORANGE + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, do not forget to delete it to gain space." + GRAY)
-    # elif size < 100.0:
-    #     print(LIGHT_BLUE_1 + "You have " + GREEN + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files." + GRAY)
+    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, do not forget to clean up your logs." + GRAY)
 
 
 #################### Section 13 ####################
