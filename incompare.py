@@ -91,22 +91,24 @@ def compare(incremental:[kernel], basic:[kernel]) -> str:
     assert long == long_basic , "The two arrays of kernel are not the same size"
 
     # Return string with statistics on kernels comparison
-    stats = "Number of comparisons:", args.compare_number + "\n"
+    stats = "Number of comparisons: " + str(args.compare_number) + "\n"
 
     # Calculate the ratio of same kernel
-    ratio_size = []
-    ratio_time = []
+    ratio_size = [0] * long
+    ratio_time = [0] * long
 
-    for i in long:
+    for i in range(long):
         incr = incremental[i]
         base = basic[i]
         ratio_size[i] = (True if incr.get_size() == base.get_size() else False)
         ratio_time[i] = (True if incr.get_time() == base.get_time() else False)
+        print("incr_size:", incr.get_size(), " basic_size:", base.get_size())
+        print("incr_time:", incr.get_time(), " basic_time:", base.get_time())
 
     sizerat = float(ratio_size.count(True) / len(ratio_size))
     timerat = float(ratio_time.count(True) / len(ratio_time))
-    stats += "Size ratio: " + sizerat + ' (' + sizerat*100 + ')\n'
-    stats += "Time ratio: " + timerat + ' (' + timerat*100 + ')\n'
+    stats += "Size ratio: " + str(sizerat) + ' (' + str(sizerat*100) + ')\n'
+    stats += "Time ratio: " + str(timerat) + ' (' + str(timerat*100) + ')\n'
 
     if sizerat == 1:
         stats += "Incremental compilation and basic compilations give a kernel with exactly the same size\n"
@@ -134,15 +136,15 @@ if __name__=="__main__":
     for i in range(args.compare_number):
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
-        dockid = create_kernel() # Create incremental kernel
-        fetch_files(i,dockid, "incr") # Fetch .config file
+        # dockid = create_kernel() # Create incremental kernel
+        # fetch_files(i,dockid, "incr") # Fetch .config file
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
         if ker_incr == -1:
             print("Error while retrieving kernel from database")
             exit(1)
 
-        dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
-        fetch_files(i, dock_basic, "basic") # Fetch .config file
+        # dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
+        # fetch_files(i, dock_basic, "basic") # Fetch .config file
         print("")
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
         if ker_basic == -1:
@@ -154,3 +156,4 @@ if __name__=="__main__":
 
     result = compare(incremental, basic)
     print(result)
+    subprocess.run("./clean.py --docker", shell=True)
