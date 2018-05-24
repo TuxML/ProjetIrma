@@ -100,7 +100,7 @@ with open("/TuxML/output.log", 'r+') as f:
 if not args.silent:
     print("Try to send output.log ...")
 
-# tuxLogs.py has finished to run, output.log exist now
+# tuxLogs.py has finished to run, output.log now exists
 cid = -1
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)

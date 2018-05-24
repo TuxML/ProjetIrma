@@ -32,7 +32,7 @@ class kernel:
 
 # Run docker images to compile the kernel in incremental mode
 def create_kernel() -> str:
-    subprocess.run("sudo ./MLfood.py 1 1 --dev", shell=True)
+    subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
     return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
 
 
@@ -40,14 +40,13 @@ def create_kernel() -> str:
 def fetch_files(id:int, dockerid: str, mode:str):
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/.config ./compare/' + str(id) + '/' + mode + '.config', shell=True)
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/output.log ./compare/'+ str(id) + '/' + mode + '-output.log', shell=True)
-    print("FIN")
 
 
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id:int, mode:str) -> kernel:
 
     cid = -1
-    for line in open('compare/'+ str(id) +'/output.log'):
+    for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
         match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
         if match:
             cid = match.group(1)
@@ -80,12 +79,40 @@ def execute_config(id:int) -> str:
     # Copy on it the .config file to use
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/incr.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation
-    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/.config -v 4 --incremental 0", shell=True)
+    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/.config -v 4 --incremental 0 | tee /TuxML/output.log", shell=True)
+
+    return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
 
 
 # Give statistics about kernel in incremental mode and basic mode
 def compare(incremental:[kernel], basic:[kernel]) -> str:
-    return "/!\    compare(incremental, basic): Not implemented yet"
+    long_basic = len(basic)
+    long = len(incremental)
+    assert long == long_basic , "The two arrays of kernel are not the same size"
+
+    # Return string with statistics on kernels comparison
+    stats = "Number of comparisons:", args.compare_number + "\n"
+
+    # Calculate the ratio of same kernel
+    ratio_size = []
+    ratio_time = []
+
+    for i in long:
+        incr = incremental[i]
+        base = basic[i]
+        ratio_size[i] = (True if incr.get_size() == base.get_size() else False)
+        ratio_time[i] = (True if incr.get_time() == base.get_time() else False)
+
+    sizerat = float(ratio_size.count(True) / len(ratio_size))
+    timerat = float(ratio_time.count(True) / len(ratio_time))
+    stats += "Size ratio: " + sizerat + ' (' + sizerat*100 + ')\n'
+    stats += "Time ratio: " + timerat + ' (' + timerat*100 + ')\n'
+
+    if sizerat == 1:
+        stats += "Incremental compilation and basic compilations give a kernel with exactly the same size\n"
+        stats += "We can assume that for " + args.compare_number + " compilations, incremental and basic does an equivalent work\n"
+
+    return stats
 
 
 
@@ -108,17 +135,19 @@ if __name__=="__main__":
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
         dockid = create_kernel() # Create incremental kernel
-        print("Fetch files: " + dockid)
         fetch_files(i,dockid, "incr") # Fetch .config file
-
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
         if ker_incr == -1:
             print("Error while retrieving kernel from database")
             exit(1)
 
         dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
-        fetch_files(i, dock_basic, "basic")
+        fetch_files(i, dock_basic, "basic") # Fetch .config file
+        print("")
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
+        if ker_basic == -1:
+            print("Error while retrieving kernel from database")
+            exit(1)
 
         incremental.append(ker_incr)
         basic.append(ker_basic)
