@@ -40,7 +40,7 @@ def tuxLogs():
     print("")
     chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
     print("")
-    subprocess.run(chaine, shell=True).stdout
+    subprocess.run(chaine, shell=True)
 
 # Run the tuxLogs function
 tuxLogs()
