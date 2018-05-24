@@ -84,20 +84,18 @@ def compute_kernel(id:int, mode:str) -> kernel:
 
 # Basic compilation based on .config file from incremental
 def execute_config(id:int) -> str:
+    # docker start  `docker ps -q -l` # restart it in the background
+    # docker attach `docker ps -q -l` # reattach the terminal & stdin
+    # OR
+    # docker start -a -i `docker ps -q -l`
+
     # Create a new container
-
-# docker start  `docker ps -q -l` # restart it in the background
-# docker attach `docker ps -q -l` # reattach the terminal & stdin
-
-# OR
-
-# docker start -a -i `docker ps -q -l`
-
     subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
     # Copy on it the .config file to use
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/incr.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation
-    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/executor.py", shell=True)
+    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/.config -v 4 --incremental 0", shell=True)
+
 
 # Give statistics about kernel in incremental mode and basic mode
 def compare(incremental:[kernel], basic:[kernel]) -> str:
@@ -118,7 +116,7 @@ if __name__=="__main__":
     basic = []
 
     for i in range(args.compare_number):
-        os.makedirs("./compare" + str(i), exist_ok=True)
+        os.makedirs("./compare/" + str(i), exist_ok=True)
 
         dockid = create_kernel() # Create incremental kernel
         fetch_files(i,dockid, "incr") # Fetch .config file

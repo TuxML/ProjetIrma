@@ -181,6 +181,7 @@ def mlfood():
         else:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
+        print("     Command: ./MLfood.py", args.nbcompil, args.incremental)
         subprocess.run(chaine, shell=True)
 
         #################### Section 10 ####################
@@ -196,7 +197,7 @@ def mlfood():
         # Silent mode disable
         if not args.silent:
             print("")
-            print(LIGHT_PURPLE + "Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder + GRAY)
+            print("Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder)
             # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
             # Thoses errors are only due to the logs files that does not exist because of the process error.
             # Consider it as warnings.
@@ -219,10 +220,10 @@ def mlfood():
         # Clean all the containers used previously. Only if "--no-clean" is not given in argument.
         if not args.no_clean:
             if not args.silent:
-                print(LIGHT_PURPLE + "Cleaning containers . . ." + GRAY)
+                print("Cleaning containers . . .")
                 subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
                 print("")
-                print(LIGHT_PURPLE + "Clean done!" + GRAY)
+                print("Clean done!")
                 print("")
             else:
                 subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -233,7 +234,7 @@ def mlfood():
 
     #################### Section 12 ####################
     # The end
-    print(GREEN + "Your tamago... database Irma_DB ate " + str(args.nbcompil * (args.incremental + 1)) + " compilations data, come back later to feed it!" + GRAY)
+    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY)
     print("")
     print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY)
     print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )")

@@ -1,6 +1,6 @@
 Last updates:<br>
-README - May the 4th 2018<br>
-Prod docker image - May the 22th 2018
+README - May the 24th 2018<br>
+Prod docker image - May the 22th 2018 ( see https://github.com/TuxML/ProjetIrma/releases )
 
 # TuxML
 ## MLfood.py script
@@ -38,9 +38,12 @@ It will start 100 compiling sequentially on the functionnal docker image.
   The second Integer is optional, it is used in a case of incremental compiling with <Integer> number of compiling in a container.
   The default number of compiling in a container is set as 1
   Options: --no-clean    Do not delete used containers
-           -h, --help    Prompt Options
+           -h, --help    Show this help
            --reset-logs  Delete all the saved logs
            --dev         Use images in current developpement
+           --force_compilation_limits To not display user warning in case of large number of compilations
+           --no-check-log Do not compute the size of Logs directory.
+           --silent      Do not print the process of compilation, only display when a new container is created and the end of total computation.
 ```
 
 The script retrieves the logs file err.logs, std.logs and output.logs as well as the `.config` file generated in the RandConfig command in the Logs/ folder thanks to `tuxLogs.py`.
@@ -50,32 +53,8 @@ The script retrieves the logs file err.logs, std.logs and output.logs as well as
 See `tuxLogs.py`
 
 ```
-usage: MLfood.py [-h] [-b BRANCH] [-i IMAGE] [--no-clean] [-V] [-v {0,1,2}]
-                 NB_DOCKERS
+MLfood.py [-h] [--no-clean] [--reset-logs] [--dev] [--force-compilation-limits] [--no-check-log] [--silent] nbcompil [incremental]
 
-positional arguments:
-  NB_DOCKERS            number of dockers to launch, minimum 1
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -b BRANCH, --branch BRANCH
-                        choose which  version of TuxML to  execute between
-                        master and dev
-                          master : last stable version (default)
-                          dev    : last up-to-date version
-  -i IMAGE, --image IMAGE
-                        two kinds of images are available
-                          prod : TuxML is  already included in the docker image.
-                                 This is the fastest way. (default)
-                          dev  : download  TuxML repository  from  GitHub before
-                                 starting the compilation
-  --no-clean            do not clean containers
-  -V, --version         display the sampler version and exit
-  -v {0,1,2}, --verbose {0,1,2}
-                        increase or decrease output verbosity
-                          0 : quiet
-                          1 : normal (default)
-                          2 : chatty
 ```
 
 ## tuxml.py script
