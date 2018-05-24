@@ -263,15 +263,12 @@ def check_log():
                         tmp = raw_size.stdout.read().decode()
                         tmp.replace("\n", " ")
                         size = size + int(tmp.split()[-2])
-                        raw_size
             # Case were there are files in the Logs/ level.
             else:
                 raw_size = subprocess.Popen("wc -c " + path, shell=True,stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                 tmp = raw_size.stdout.read().decode()
                 tmp.replace("\n", " ")
                 size = size + int(tmp.split()[-2])
-                raw_size
-
     # Alert if the logs exceeds 1 Mo
     # 1048576 one mebioctet
     # 1000000 one megaoctet

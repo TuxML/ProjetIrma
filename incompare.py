@@ -7,11 +7,6 @@ import re
 import MySQLdb
 import core.tuxml_settings as tset
 
-parser = argparse.ArgumentParser()
-parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
-
-args = parser.parse_args()
-
 # Class kernel to compare two of them
 class kernel:
 
@@ -98,18 +93,22 @@ def execute_config(id:int) -> str:
 
 # docker start -a -i `docker ps -q -l`
 
-    subprocess.run("", shell=True)
+    subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
     # Copy on it the .config file to use
-    subprocess.run("", shell=True)
+    subprocess.run("sudo docker cp ./compare/" + str(id) + "/incr.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation
-    subprocess.run("", shell=True)
+    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/executor.py", shell=True)
 
 # Give statistics about kernel in incremental mode and basic mode
-def compare(id:int) -> str:
+def compare(incremental:[kernel], basic:[kernel]) -> str:
     pass
 
 
 if __name__=="__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
+    args = parser.parse_args()
 
     if args.compare_number <= 0:
         print("The number of compare to do must be a non-zero positive integer")
@@ -134,6 +133,5 @@ if __name__=="__main__":
         incremental.append(ker_incr)
         basic.append(ker_basic)
 
-        result = compare(i, incremental, basic)
-
-        print(result)
+    result = compare(incremental, basic)
+    print(result)

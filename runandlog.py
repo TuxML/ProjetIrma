@@ -87,7 +87,7 @@ print("")
 subprocess.run(chaine, shell=True)
 
 if not args.silent:
-    print("Removing colors in output file ...")
+    print("Processing output.log ...")
 
 with open("/TuxML/output.log", 'r+') as f:
     file = f.read()
@@ -108,6 +108,7 @@ for line in open('/TuxML/output.log'):
         cid=match.group(1)
         if not args.silent:
             print("CID found " + cid)
+        break
 
 if not cid == -1:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")

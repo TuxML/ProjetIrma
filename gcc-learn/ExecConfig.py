@@ -60,4 +60,4 @@ if int(argv[2]) <= 0:
 
 # It runs with a different behavior
 cmd = "/TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/gcc-learn/" + argv[1] + ".config -c " + argv[2] + " -v 4 --database alexis --incremental 0"
-subprocess.run(cmd, shell=True).stdout
+subprocess.run(cmd, shell=True)
