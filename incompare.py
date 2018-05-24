@@ -33,30 +33,21 @@ class kernel:
 # Run docker images to compile the kernel in incremental mode
 def create_kernel() -> str:
     subprocess.run("sudo ./MLfood.py 1 1 --dev", shell=True)
-    return subprocess.run("sudo docker ps -lq", shell=True).stdout
+    return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
+
 
 # Retrieves .config file and output.log from the docker container and store it in the folder created for this purpose.
 def fetch_files(id:int, dockerid: str, mode:str):
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/.config ./compare/' + str(id) + '/' + mode + '.config', shell=True)
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/output.log ./compare/'+ str(id) + '/' + mode + '-output.log', shell=True)
+    print("FIN")
 
-# Retrieves linux kernel from docker containers and store it in the folder dedicated to it.
-# True if the copie from the containers worked, False otherwise
-# def fetch_kernel(id:int, dockerid: str) -> bool:
-#
-#     possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
-#     for file in possible_filenames:
-#         rc = subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/' + file + ' ./compare/' + str(id) + '/', shell=True, stderr=subprocess.DEVNULL).returncode
-#         if rc == 0:
-#             return True
-#
-#     return False
 
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id:int, mode:str) -> kernel:
 
     cid = -1
-    for line in open('./compare/'+ str(id) +'/output.log'):
+    for line in open('compare/'+ str(id) +'/output.log'):
         match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
         if match:
             cid = match.group(1)
@@ -79,16 +70,11 @@ def compute_kernel(id:int, mode:str) -> kernel:
 
     else:
         print("Failed")
-        exit(1)
+        return -1
 
 
 # Basic compilation based on .config file from incremental
 def execute_config(id:int) -> str:
-    # docker start  `docker ps -q -l` # restart it in the background
-    # docker attach `docker ps -q -l` # reattach the terminal & stdin
-    # OR
-    # docker start -a -i `docker ps -q -l`
-
     # Create a new container
     subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
     # Copy on it the .config file to use
@@ -99,9 +85,12 @@ def execute_config(id:int) -> str:
 
 # Give statistics about kernel in incremental mode and basic mode
 def compare(incremental:[kernel], basic:[kernel]) -> str:
-    pass
+    return "/!\    compare(incremental, basic): Not implemented yet"
 
 
+
+
+# main
 if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
@@ -119,13 +108,16 @@ if __name__=="__main__":
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
         dockid = create_kernel() # Create incremental kernel
+        print("Fetch files: " + dockid)
         fetch_files(i,dockid, "incr") # Fetch .config file
-        # if fetch_kernel(i, dockid): # Fetch the kernel previously compiled
+
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
+        if ker_incr == -1:
+            print("Error while retrieving kernel from database")
+            exit(1)
 
         dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
         fetch_files(i, dock_basic, "basic")
-        # if fetch_kernel(i,dock_basic): # Fetch the kernel compiled
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
 
         incremental.append(ker_incr)
