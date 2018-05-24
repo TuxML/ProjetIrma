@@ -45,7 +45,8 @@ import re
 # Creation of help and argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
-parser.add_argument("--silent", help="No output on standard output", action="store_true")
+parser.add_argument("--silent", help="No output on standrd output", action="store_true")
+parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
 args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
@@ -76,12 +77,18 @@ if not args.silent:
     print('------ Running runandlog.py ... ------')
     print("")
 
+path = ''
+if args.path:
+    path = '--path ' + args.path + ' '
+else:
+    path = ""
+
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' > /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '> /TuxML/output.log'
 else:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| tee /TuxML/output.log'
 
 print("")
 subprocess.run(chaine, shell=True)

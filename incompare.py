@@ -78,9 +78,9 @@ def execute_config(id:int) -> str:
     subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
     # Copy on it the .config file to use
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/incr.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
-    # Run the compilation
-    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/tuxml.py /TuxML/linux-4.13.3/ -d /TuxML/.config -v 4 --incremental 0 | tee /TuxML/output.log", shell=True)
-
+    # Run the compilation with the .config file from the incremental compilation
+    subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
+    # Return the last docker id
     return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
 
 

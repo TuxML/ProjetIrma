@@ -7,7 +7,7 @@ import argparse
 parser = argparse.ArgumentParser()
 args = parser.parse_args()
 
-print("Deleting Logs:")
+print("Deleting Logs...")
 subprocess.run("sudo rm -rf Logs/*", shell=True)
 print("")
 print("Stopping running Docker containers:")
