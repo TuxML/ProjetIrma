@@ -56,7 +56,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
     for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
 
         if mode=="incr":
-            match = re.search('INCREMENTAL CONFIGURATION ID#1=(\d+)', line)
+            match = re.search('INCREMENTAL CONFIGURATION ID#0=(\d+)', line)
         else:
             match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
 
@@ -66,6 +66,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
     if not cid == -1:
         socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
         cursor = socket.cursor()
+        print("cid used:", cid)
         query = "SELECT * FROM Compilations WHERE cid = " + cid
         cursor.execute(query)
         entry = cursor.fetchone()
@@ -152,7 +153,7 @@ if __name__=="__main__":
         fetch_files(i,dockid, "incr") # Fetch .config file
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
         if ker_incr == -1:
-            print("Error while retrieving kernel from database")
+            print("Error while retrieving incremental kernel from database")
             exit(1)
 
         dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
@@ -160,7 +161,7 @@ if __name__=="__main__":
         print("")
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
         if ker_basic == -1:
-            print("Error while retrieving kernel from database")
+            print("Error while retrieving basic kernel from database")
             exit(1)
 
         incremental.append(ker_incr)
