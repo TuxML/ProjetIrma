@@ -18,3 +18,5 @@ csvgen
 doc/
 Dockerfile
 compare/
+test/
+test-incremental/

@@ -36,40 +36,47 @@ def create_kernel() -> str:
     return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
 
 
-# Retrieves .config file and output.log from the docker container and store it in the folder created for this purpose.
+# Retrieves .config file, output.log and the compiled kernel from the docker container and store it in the folder created for this purpose.
 def fetch_files(id:int, dockerid: str, mode:str):
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/.config ./compare/' + str(id) + '/' + mode + '.config', shell=True)
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/output.log ./compare/'+ str(id) + '/' + mode + '-output.log', shell=True)
+    subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/vmlinux ./compare/'+ str(id) + '/' + mode + '-vmlinux', shell=True)
 
 
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id:int, mode:str) -> kernel:
 
     cid = -1
-    for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
-        match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
-        if match:
-            cid = match.group(1)
 
-    if not cid == -1:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
-        cursor = socket.cursor()
-        query = "SELECT * FROM Compilations WHERE cid = " + cid
-        cursor.execute(query)
-        entry = cursor.fetchone()
+    size = subprocess.check_output("wc -c compare/" + str(id) + "/" + mode + "-vmlinux", shell=True).decode().split()[0]
+    time = "0"
 
-        time = entry[2] # Compilation time column
-        size = entry[7] # Size of kernel column
+    return kernel(size, time, "000")
 
-        cursor.close()
-        socket.close()
-
-        ker = kernel(size,time,cid)
-        return ker
-
-    else:
-        print("Failed")
-        return -1
+    # for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
+    #     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+    #     if match:
+    #         cid = match.group(1)
+    #
+    # if not cid == -1:
+    #     socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
+    #     cursor = socket.cursor()
+    #     query = "SELECT * FROM Compilations WHERE cid = " + cid
+    #     cursor.execute(query)
+    #     entry = cursor.fetchone()
+    #
+    #     time = entry[2] # Compilation time column
+    #     size = entry[7] # Size of kernel column
+    #
+    #     cursor.close()
+    #     socket.close()
+    #
+    #     ker = kernel(size,time,cid)
+    #     return ker
+    #
+    # else:
+    #     print("Failed")
+    #     return -1
 
 
 # Basic compilation based on .config file from incremental
@@ -94,7 +101,7 @@ def compare(incremental:[kernel], basic:[kernel]) -> str:
     stats = "Number of comparisons: " + str(args.compare_number) + "\n"
 
     # Calculate the ratio of same kernel
-    ratio_size = [0] * long
+    ratio_size = [0] * long # Creating arrays the size of one of the arrays of kernel to compare
     ratio_time = [0] * long
 
     for i in range(long):
@@ -107,12 +114,13 @@ def compare(incremental:[kernel], basic:[kernel]) -> str:
 
     sizerat = float(ratio_size.count(True) / len(ratio_size))
     timerat = float(ratio_time.count(True) / len(ratio_time))
-    stats += "Size ratio: " + str(sizerat) + ' (' + str(sizerat*100) + ')\n'
-    stats += "Time ratio: " + str(timerat) + ' (' + str(timerat*100) + ')\n'
+    stats += "Size ratio: " + str(sizerat) + ' (' + str(sizerat*100) + '%' + ' similar)\n'
+    stats += "Time ratio: " + str(timerat) + ' (' + str(timerat*100) + '%' + ' similar)\n'
 
-    if sizerat == 1:
-        stats += "Incremental compilation and basic compilations give a kernel with exactly the same size\n"
-        stats += "We can assume that for " + args.compare_number + " compilations, incremental and basic does an equivalent work\n"
+    if sizerat >= 0.98 and sizerat <= 1.02:
+        stats += "\n"
+        stats += "Incremental compilation and basic compilations give a kernel with the same size\n"
+        stats += "We can assume that for " + str(args.compare_number) + " compilations, incremental and basic does an equivalent work\n"
 
     return stats
 
@@ -156,4 +164,4 @@ if __name__=="__main__":
 
     result = compare(incremental, basic)
     print(result)
-    subprocess.run("./clean.py --docker", shell=True)
+    subprocess.run("./clean.py", shell=True)
