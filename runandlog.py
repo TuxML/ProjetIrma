@@ -102,6 +102,7 @@ with open("/TuxML/output.log", 'r+') as f:
     escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
     res = escape.sub("", file)
 
+    f.seek(0)   # Rewrite from the beginning
     f.write(res)
 
 if not args.silent:
