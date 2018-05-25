@@ -48,35 +48,39 @@ def compute_kernel(id:int, mode:str) -> kernel:
 
     cid = -1
 
-    size = subprocess.check_output("wc -c compare/" + str(id) + "/" + mode + "-vmlinux", shell=True).decode().split()[0]
-    time = "0"
+    # size = subprocess.check_output("wc -c compare/" + str(id) + "/" + mode + "-vmlinux", shell=True).decode().split()[0]
+    # time = "0"
+    #
+    # return kernel(size, time, "000")
 
-    return kernel(size, time, "000")
+    for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
 
-    # for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
-    #     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
-    #     if match:
-    #         cid = match.group(1)
-    #
-    # if not cid == -1:
-    #     socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
-    #     cursor = socket.cursor()
-    #     query = "SELECT * FROM Compilations WHERE cid = " + cid
-    #     cursor.execute(query)
-    #     entry = cursor.fetchone()
-    #
-    #     time = entry[2] # Compilation time column
-    #     size = entry[7] # Size of kernel column
-    #
-    #     cursor.close()
-    #     socket.close()
-    #
-    #     ker = kernel(size,time,cid)
-    #     return ker
-    #
-    # else:
-    #     print("Failed")
-    #     return -1
+        if mode=="incr":
+            match = re.search('INCREMENTAL CONFIGURATION ID#1=(\d+)', line)
+        else:
+            match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+
+        if match:
+            cid = match.group(1)
+
+    if not cid == -1:
+        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
+        cursor = socket.cursor()
+        query = "SELECT * FROM Compilations WHERE cid = " + cid
+        cursor.execute(query)
+        entry = cursor.fetchone()
+
+        time = entry[2] # Compilation time column
+        size = entry[7] # Size of kernel column
+
+        cursor.close()
+        socket.close()
+
+        return kernel(size,time,cid)
+
+    else:
+        print("Failed")
+        return -1
 
 
 # Basic compilation based on .config file from incremental
@@ -144,15 +148,15 @@ if __name__=="__main__":
     for i in range(args.compare_number):
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
-        # dockid = create_kernel() # Create incremental kernel
-        # fetch_files(i,dockid, "incr") # Fetch .config file
+        dockid = create_kernel() # Create incremental kernel
+        fetch_files(i,dockid, "incr") # Fetch .config file
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
         if ker_incr == -1:
             print("Error while retrieving kernel from database")
             exit(1)
 
-        # dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
-        # fetch_files(i, dock_basic, "basic") # Fetch .config file
+        dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
+        fetch_files(i, dock_basic, "basic") # Fetch .config file
         print("")
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
         if ker_basic == -1:

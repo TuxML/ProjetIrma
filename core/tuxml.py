@@ -286,7 +286,7 @@ def launcher():
 ## @author  LEBRETON Mickaël
 #
 #  @brief   Main function
-#  @details Init the lauchner then start an initial compilation (base config).
+#  @details Init the launcher then start an initial compilation (base config).
 #  If the incremental mod is ON, we launch INCITERS compilations.
 #
 #  @todo When using incremental mod save the base config files in an other folder
@@ -311,14 +311,23 @@ def main():
             sys.exit(-1)
         sys.exit(0)
 
+    cid_array = []
     for i in range(0, tset.INCITERS):
         tset.INCREMENTAL_MOD = 1
         tset.TUXML_ENV["compilation"]["incremental_mod"] = "1"
         tcom.pprint(2, "Launching incremental compilation #" + str(i + 1))
         gen_config()
-        if launcher() < 0:
+
+        tmp_cid = launcher()
+        if tmp_cid < 0:
             sys.exit(-1)
+        cid_array.append(tmp_cid)
+
     tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
+
+    for c in enumerate(cid_array):
+        tcom.pprint(0, "INCREMENTAL CONFIGURATION ID#{}={}".format(c,tset. cid_array[c]))
+
     sys.exit(0)
 
 
