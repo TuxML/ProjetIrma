@@ -325,7 +325,7 @@ def main():
 
     tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
 
-    for c in enumerate(cid_array):
+    for c in range(len(cid_array)):
         tcom.pprint(0, "INCREMENTAL CONFIGURATION ID#{}={}".format(c, cid_array[c]))
 
     sys.exit(0)
