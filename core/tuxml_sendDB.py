@@ -46,6 +46,7 @@ def get_kernel_size():
     for filename in possible_filenames:
         full_filename = tset.PATH + "/" + filename
         if os.path.isfile(full_filename):
+            tcom.pprint(2, "kernel found: " + filename)
             return os.path.getsize(full_filename)
     return 0
 
@@ -61,7 +62,7 @@ def get_kernel_size():
 #  @returns  0 all files were uploaded successfully
 #
 #  @warning Currently not in use
-#  @deprecated 
+#  @deprecated
 # def file_upload(logfiles, date):
 #     tcom.pprint(2, "Uploading log files to server")
 #     paramiko.util.log_to_file(tset.SFTP_LOGS)
