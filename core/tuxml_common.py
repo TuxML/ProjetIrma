@@ -105,7 +105,8 @@ def install_packages(packages):
         "zypper": " --non-interactive install "
     }
 
-    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    # status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Some packages were not found, installation stoped")
@@ -138,7 +139,8 @@ def update_system():
         "zypper": " refresh"
     }
 
-    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    # status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Error while updating packages repositories")

@@ -86,9 +86,9 @@ else:
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '> /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '> /TuxML/out.log'
 else:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| tee /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| tee /TuxML/out.log'
 
 print("")
 subprocess.run(chaine, shell=True)
@@ -96,14 +96,14 @@ subprocess.run(chaine, shell=True)
 if not args.silent:
     print("Processing output.log ...")
 
-with open("/TuxML/output.log", 'r+') as f:
-    file = f.read()
+with open("/TuxML/out.log", 'r+') as f:
+    with open("/TuxML/output.log", 'w') as out:
+        file = f.read()
 
-    escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-    res = escape.sub("", file)
+        escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        res = escape.sub("", file)
 
-    f.seek(0)   # Rewrite from the beginning
-    f.write(res)
+        out.write(res)
 
 if not args.silent:
     print("Try to send output.log ...")
