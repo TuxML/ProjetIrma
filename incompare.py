@@ -66,7 +66,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
     if not cid == -1:
         socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
         cursor = socket.cursor()
-        print("cid used:", cid)
+        print("\nCID Used:", cid)
         query = "SELECT * FROM Compilations WHERE cid = " + cid
         cursor.execute(query)
         entry = cursor.fetchone()
@@ -93,7 +93,8 @@ def execute_config(id:int) -> str:
     # Run the compilation with the .config file from the incremental compilation
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
     # Return the last docker id
-    return subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
+    out = subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
+    return out
 
 
 # Give statistics about kernel in incremental mode and basic mode
@@ -147,6 +148,9 @@ if __name__=="__main__":
     basic = []
 
     for i in range(args.compare_number):
+
+        print("Comparison number",i)
+
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
         dockid = create_kernel() # Create incremental kernel

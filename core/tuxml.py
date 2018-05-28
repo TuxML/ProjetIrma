@@ -118,6 +118,8 @@ def progress_bar(p):
     for i in range(int(progress), 20):
         print("-", end="", flush=True)
     print("] " + str(int(p)) + "%", end="", flush=True)
+    if p == 100:
+        print("\n")
 
 
 ## @author  LEBRETON Mickaël
@@ -315,7 +317,7 @@ def main():
     for i in range(0, tset.INCITERS):
         tset.INCREMENTAL_MOD = 1
         tset.TUXML_ENV["compilation"]["incremental_mod"] = "1"
-        tcom.pprint(2, "Launching incremental compilation #" + str(i + 1))
+        tcom.pprint(0, "Launching incremental compilation #" + str(i + 1))
         gen_config()
 
         tmp_cid = launcher()
