@@ -169,4 +169,4 @@ if __name__=="__main__":
 
     result = compare(incremental, basic)
     print(result)
-    subprocess.run("./clean.py", shell=True)
+    subprocess.run("./clean.py --docker", shell=True)
