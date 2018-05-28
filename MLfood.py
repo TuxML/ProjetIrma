@@ -196,6 +196,8 @@ def mlfood():
         errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
         configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
+        possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+
         # Silent mode disable
         if not args.silent:
             print("")
@@ -207,6 +209,11 @@ def mlfood():
             subprocess.run(stdlogs, shell=True)
             subprocess.run(errlogs, shell=True)
             subprocess.run(configFile, shell=True)
+
+            # retrieves differents possible kernels according to their names
+            for name in possible_filenames:
+                subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True)
+
             dockerid.close()
             print(GRAY)
         # Silent mode enable
@@ -215,6 +222,11 @@ def mlfood():
             subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
             subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
             subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+
+            # retrieves quietly differents possible kernels according to their names
+            for name in possible_filenames:
+                subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+
             dockerid.close()
 
 
