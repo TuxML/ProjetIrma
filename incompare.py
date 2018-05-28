@@ -159,7 +159,7 @@ if __name__=="__main__":
         dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
         fetch_files(i, dock_basic, "basic") # Fetch .config file
         print("")
-        ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attribuate to the kernel compiled in basic mode
+        ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attributed to the kernel compiled in basic mode
         if ker_basic == -1:
             print("Error while retrieving basic kernel from database")
             exit(1)
