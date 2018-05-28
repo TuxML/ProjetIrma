@@ -56,7 +56,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
     for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
 
         if mode=="incr":
-            match = re.search('INCREMENTAL CONFIGURATION ID#0=(\d+)', line)
+            match = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
         else:
             match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
 
