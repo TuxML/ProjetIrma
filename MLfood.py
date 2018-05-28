@@ -154,10 +154,13 @@ def mlfood():
 
     if args.silent:
         print(GREEN + "Silent mode enable" + GRAY)
+
+    print("     Command: ./MLfood.py", args.nbcompil, args.incremental)
+    print("")
+
     #################### Section 6 ####################
     # For each url in the url list "images", we run a new docker which run the TuxML command nbcompil times and saves the logs.
     for i in range(args.nbcompil):
-        # print("")
 
         #################### Section 7 ####################
         # Get the last version of the image.
@@ -181,7 +184,6 @@ def mlfood():
         else:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
-        print("     Command: ./MLfood.py", args.nbcompil, args.incremental)
         subprocess.run(chaine, shell=True)
 
         #################### Section 10 ####################
