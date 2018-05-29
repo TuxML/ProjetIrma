@@ -8,12 +8,10 @@ echo -n Password:
 read -s password
 echo
 
-# for elem in ${list[@]}
-# do
-#   for m in ${machine[@]}
-#   do
-#     sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 100 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
-#   done
-# done
-
-sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "echo test-test-test > outtest.txt; cat outtest.txt"
+for elem in ${list[@]}
+do
+  for m in ${machine[@]}
+  do
+    sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 100 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
+  done
+done
