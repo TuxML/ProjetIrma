@@ -1,7 +1,3 @@
-#!/usr/bin/bash
-
-# Require sshpass
-
 list=("e008m" "e003m" "e005m" "e010m" "e103m" "e105m" "e212m")
 
 machine=("01" "02" "03" "04" "05" "06" "07" "08" "09" "10")

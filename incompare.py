@@ -38,20 +38,21 @@ def create_kernel() -> str:
 
 # Retrieves .config file, output.log and the compiled kernel from the docker container and store it in the folder created for this purpose.
 def fetch_files(id:int, dockerid: str, mode:str):
+
+    possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/.config ./compare/' + str(id) + '/' + mode + '.config', shell=True)
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/output.log ./compare/'+ str(id) + '/' + mode + '-output.log', shell=True)
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/vmlinux ./compare/'+ str(id) + '/' + mode + '-vmlinux', shell=True)
+
+    for name in possible_filenames:
+        subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./compare/" + str(id) + "/" + mode + "-" + name, shell=True, stderr=subprocess.DEVNULL)
 
 
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id:int, mode:str) -> kernel:
 
     cid = -1
-
-    # size = subprocess.check_output("wc -c compare/" + str(id) + "/" + mode + "-vmlinux", shell=True).decode().split()[0]
-    # time = "0"
-    #
-    # return kernel(size, time, "000")
 
     for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
 
@@ -109,19 +110,39 @@ def compare(incremental:[kernel], basic:[kernel]) -> str:
     # Calculate the ratio of same kernel
     ratio_size = [0] * long # Creating arrays the size of one of the arrays of kernel to compare
     ratio_time = [0] * long
+    average_size = [0] * long
+    average_time = [0] * long
 
     for i in range(long):
         incr = incremental[i]
         base = basic[i]
         ratio_size[i] = (True if incr.get_size() == base.get_size() else False)
         ratio_time[i] = (True if incr.get_time() == base.get_time() else False)
-        print("incr_size:", incr.get_size(), " basic_size:", base.get_size())
-        print("incr_time:", incr.get_time(), " basic_time:", base.get_time())
+        average_size[i] = abs(incr.get_size() - base.get_size())
+        average_time[i] = abs(incr.get_time() - base.get_time())
+        print("incr_size:", incr.get_size(), " basic_size:", base.get_size(), " gap_size:", average_size[i])
+        print("incr_time:", incr.get_time(), " basic_time:", base.get_time(), " gap_time:" ,average_time[i])
 
     sizerat = float(ratio_size.count(True) / len(ratio_size))
     timerat = float(ratio_time.count(True) / len(ratio_time))
+
+    res = 0
+    for x in average_size:
+        res += x
+    size_av = res/len(average_size)
+
+    res2 = 0
+    for x in average_time:
+        res2 += x
+
+    time_av = res2/len(average_time)
+
+
+    stats += "\n"
     stats += "Size ratio: " + str(sizerat) + ' (' + str(sizerat*100) + '%' + ' similar)\n'
     stats += "Time ratio: " + str(timerat) + ' (' + str(timerat*100) + '%' + ' similar)\n'
+    stats += "Average size gap: " + str(size_av) + "\n"
+    stats += "Average time gap: " + str(time_av) + "\n"
 
     if sizerat >= 0.98 and sizerat <= 1.02:
         stats += "\n"

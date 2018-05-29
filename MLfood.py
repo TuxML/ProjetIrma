@@ -177,7 +177,6 @@ def mlfood():
             subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #################### Section 8 ####################
         # Generation of the logs folder create thanks to the execution date
-        # today = time.localtime(time.time())
         logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
         if not os.path.exists("Logs/"+logsFolder):
             os.makedirs("Logs/" + logsFolder)
@@ -227,8 +226,8 @@ def mlfood():
                 if not args.no_kernel:
                     # retrieves differents possible kernels according to their names
                     for name in possible_filenames:
-                        # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
                 print(GRAY)
             # Silent mode enable
             else:
@@ -245,8 +244,8 @@ def mlfood():
                 if not args.no_kernel:
                     # retrieves quietly differents possible kernels according to their names
                     for name in possible_filenames:
-                        # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-                        subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
         dockerid.close()
 
