@@ -67,6 +67,7 @@ parser.add_argument("--force-compilation-limits", help="Use this option to pass 
 parser.add_argument("--no-check-log", help="Do not compute the Logs folder size at the end of compilation.", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
 parser.add_argument("--no-kernel", help="Do not fetch vmlinux kernel from the Docker container ( use this to run several compilations without overload your disk )", action="store_true")
+parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -203,50 +204,51 @@ def mlfood():
 
         possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
 
+        if not args.no_logs:
+
         # Silent mode disable
-        if not args.silent:
-            print("")
-            print("Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder)
-            # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
-            # Thoses errors are only due to the logs files that does not exist because of the process error.
-            # Consider it as warnings.
+            if not args.silent:
+                print("")
+                print("Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder)
+                # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
+                # Thoses errors are only due to the logs files that does not exist because of the process error.
+                # Consider it as warnings.
 
-            # subprocess.run(outputlog, shell=True)
-            # subprocess.run(stdlogs, shell=True)
-            # subprocess.run(errlogs, shell=True)
-            # subprocess.run(configFile, shell=True)
+                # subprocess.run(outputlog, shell=True)
+                # subprocess.run(stdlogs, shell=True)
+                # subprocess.run(errlogs, shell=True)
+                # subprocess.run(configFile, shell=True)
 
-            subprocess.call(outputlog, shell=True)
-            subprocess.call(stdlogs, shell=True)
-            subprocess.call(errlogs, shell=True)
-            subprocess.call(configFile, shell=True)
+                subprocess.call(outputlog, shell=True)
+                subprocess.call(stdlogs, shell=True)
+                subprocess.call(errlogs, shell=True)
+                subprocess.call(configFile, shell=True)
 
-            if not args.no_kernel:
-                # retrieves differents possible kernels according to their names
-                for name in possible_filenames:
-                    # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-            dockerid.close()
-            print(GRAY)
-        # Silent mode enable
-        else:
-            # subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
-            # subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
-            # subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
-            # subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+                if not args.no_kernel:
+                    # retrieves differents possible kernels according to their names
+                    for name in possible_filenames:
+                        # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                print(GRAY)
+            # Silent mode enable
+            else:
+                # subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
 
-            subprocess.call(outputlog, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.call(stdlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.call(errlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.call(configFile, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(outputlog, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(errlogs, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(configFile, shell=True, stderr=subprocess.DEVNULL)
 
-            if not args.no_kernel:
-                # retrieves quietly differents possible kernels according to their names
-                for name in possible_filenames:
-                    # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                if not args.no_kernel:
+                    # retrieves quietly differents possible kernels according to their names
+                    for name in possible_filenames:
+                        # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
-            dockerid.close()
+        dockerid.close()
 
 
         #################### Section 11 ####################
