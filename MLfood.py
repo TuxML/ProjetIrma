@@ -66,6 +66,7 @@ parser.add_argument("--dev", help="Use image in current development.", action="s
 parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
 parser.add_argument("--no-check-log", help="Do not compute the Logs folder size at the end of compilation.", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
+parser.add_argument("--no-kernel", help="Do not fetch vmlinux kernel from the Docker container ( use this to run several compilations without overload your disk )", action="store_true")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -210,9 +211,10 @@ def mlfood():
             subprocess.run(errlogs, shell=True)
             subprocess.run(configFile, shell=True)
 
-            # retrieves differents possible kernels according to their names
-            for name in possible_filenames:
-                subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True)
+            if not args.no_kernel:
+                # retrieves differents possible kernels according to their names
+                for name in possible_filenames:
+                    subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
             dockerid.close()
             print(GRAY)
@@ -223,9 +225,10 @@ def mlfood():
             subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
             subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
 
-            # retrieves quietly differents possible kernels according to their names
-            for name in possible_filenames:
-                subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+            if not args.no_kernel:
+                # retrieves quietly differents possible kernels according to their names
+                for name in possible_filenames:
+                    subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
             dockerid.close()
 

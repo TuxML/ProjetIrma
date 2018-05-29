@@ -153,15 +153,15 @@ if __name__=="__main__":
 
         os.makedirs("./compare/" + str(i), exist_ok=True)
 
-        dockid = create_kernel() # Create incremental kernel
-        fetch_files(i,dockid, "incr") # Fetch .config file
+        # dockid = create_kernel() # Create incremental kernel
+        # fetch_files(i,dockid, "incr") # Fetch .config file
         ker_incr = compute_kernel(i, "incr") # Create a kernel instance corresponding to the physical kernel freshly compiled.
         if ker_incr == -1:
             print("Error while retrieving incremental kernel from database")
             exit(1)
 
-        dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
-        fetch_files(i, dock_basic, "basic") # Fetch .config file
+        # dock_basic = execute_config(i) # Run a basic compilation with the .config file retrieves from the incremental compilation
+        # fetch_files(i, dock_basic, "basic") # Fetch .config file
         print("")
         ker_basic = compute_kernel(i, "basic")  # Create a new kernel instance attributed to the kernel compiled in basic mode
         if ker_basic == -1:
