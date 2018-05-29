@@ -87,7 +87,8 @@ def mlfood():
         reset.lower()
         if reset == "y":
             print("Deleting all the logs in Logs/...")
-            subprocess.run("rm -rf Logs/*", shell=True)
+            # subprocess.run("rm -rf Logs/*", shell=True)
+            subprocess.call("rm -rf Logs/*", shell=True)
             print("Delete done.")
             print("" + GRAY)
             exit(0)
@@ -156,7 +157,7 @@ def mlfood():
     if args.silent:
         print(GREEN + "Silent mode enable" + GRAY)
 
-    print("     Command: ./MLfood.py", args.nbcompil, args.incremental)
+    print("     Real Command: ./MLfood.py", args.nbcompil, args.incremental)
     print("")
 
     #################### Section 6 ####################
@@ -168,9 +169,11 @@ def mlfood():
         str2 = "sudo docker pull " + images[i % len(images)]
         if not args.silent:
             print(LIGHT_PURPLE + "Recovering the last docker image " + images[i % len(images)] + "\n" + GRAY)
-            subprocess.run(str2, shell=True)
+            # subprocess.run(str2, shell=True)
+            subprocess.call(str2, shell=True)
         else:
-            subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #################### Section 8 ####################
         # Generation of the logs folder create thanks to the execution date
         # today = time.localtime(time.time())
@@ -185,7 +188,8 @@ def mlfood():
         else:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
-        subprocess.run(chaine, shell=True)
+        # subprocess.run(chaine, shell=True)
+        subprocess.call(chaine, shell=True)
 
         #################### Section 10 ####################
         # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
@@ -206,29 +210,41 @@ def mlfood():
             # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
             # Thoses errors are only due to the logs files that does not exist because of the process error.
             # Consider it as warnings.
-            subprocess.run(outputlog, shell=True)
-            subprocess.run(stdlogs, shell=True)
-            subprocess.run(errlogs, shell=True)
-            subprocess.run(configFile, shell=True)
+
+            # subprocess.run(outputlog, shell=True)
+            # subprocess.run(stdlogs, shell=True)
+            # subprocess.run(errlogs, shell=True)
+            # subprocess.run(configFile, shell=True)
+
+            subprocess.call(outputlog, shell=True)
+            subprocess.call(stdlogs, shell=True)
+            subprocess.call(errlogs, shell=True)
+            subprocess.call(configFile, shell=True)
 
             if not args.no_kernel:
                 # retrieves differents possible kernels according to their names
                 for name in possible_filenames:
-                    subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
-
+                    # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
             dockerid.close()
             print(GRAY)
         # Silent mode enable
         else:
-            subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+            # subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
+            # subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+            # subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
+            # subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+
+            subprocess.call(outputlog, shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call(errlogs, shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call(configFile, shell=True, stderr=subprocess.DEVNULL)
 
             if not args.no_kernel:
                 # retrieves quietly differents possible kernels according to their names
                 for name in possible_filenames:
-                    subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
             dockerid.close()
 
@@ -238,12 +254,14 @@ def mlfood():
         if not args.no_clean:
             if not args.silent:
                 print("Cleaning containers . . .")
-                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
+                # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
+                subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
                 print("")
                 print("Clean done!")
                 print("")
             else:
-                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if args.silent:
             print(LIGHT_BLUE_1 + "Docker #" + str(i) + " done              ### SILENT MODE ###" + GRAY)
