@@ -6,6 +6,7 @@ machine=("01" "02" "03" "04" "05" "06" "07" "08" "09" "10")
 
 echo -n Password:
 read -s password
+echo
 
 # for elem in ${list[@]}
 # do
@@ -15,4 +16,4 @@ read -s password
 #   done
 # done
 
-sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "echo test& echo suite& echo fin"
+sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "echo test-test-test > outtest.txt; cat outtest.txt"
