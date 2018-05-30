@@ -46,7 +46,7 @@ def fetch_files(id:int, dockerid: str, mode:str):
     subprocess.run('sudo docker cp ' + dockerid + ':/TuxML/linux-4.13.3/vmlinux ./compare/'+ str(id) + '/' + mode + '-vmlinux', shell=True)
 
     for name in possible_filenames:
-        subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./compare/" + str(id) + "/" + mode + "-" + name, shell=True, stderr=subprocess.DEVNULL)
+        subprocess.run("sudo docker cp " + dockerid + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./compare/" + str(id) + "/" + mode + "-" + name, shell=True, stderr=subprocess.DEVNULL)
 
 
 # Create a new kernel instance from the physical kernel
