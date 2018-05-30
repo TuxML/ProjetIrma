@@ -12,7 +12,7 @@ do
   for m in ${machine[@]}
   do
     #sshpass -p "$password" ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 100 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
-    (ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "echo \"$elem$m -- BEGIN\";~/TP/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log; exit; echo \"$elem$m -- DONE\"")&
+    (ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "echo \"$elem$m -- BEGIN\";~/TP/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log --silent > /dev/null; exit; echo \"$elem$m -- DONE\"")&
   done
 done
 
