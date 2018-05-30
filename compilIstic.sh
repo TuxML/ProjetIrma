@@ -1,23 +1,35 @@
 # To run this script, you have to set up RSA keys on the machines you wish to use
 
+room=("e008" "e010" "e103" "e105" "e212")
+
+machine=("m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10")
+
+cpt=0
+
+if [ $# -eq 0 ]
+  then
+    echo "Please precise a number of compilation to spread: ./compilIstic.sh [number]"
+    exit -1
+fi
+
+re='^[0-9]+$'
+if ! [[ $1 =~ $re ]] ; then
+   echo "error: Not a number" >&2; exit 1
+fi
+
 
 echo -n "login: "
 read login
 
-list=("e008m" "e010m" "e103m" "e105m" "e212m")
-
-machine=("01" "02" "03" "04" "05" "06" "07" "08" "09" "10")
-
-cpt=0
-
 # Machines de l'istic
-for elem in ${list[@]}
+for elem in ${room[@]}
 do
+  echo "Room $elem -- START"
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    (echo $elem$m -- BEGIN; ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/TP/ProjetIrma/MLfood.py 100 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log --silent > /dev/null; exit" > /dev/null;  echo $elem$m -- DONE)&
+    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/TP/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log --silent > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
   done
 done
 
-echo "$cpt machines are used"
+echo "$login has spread $1 compilations on $cpt machines"
