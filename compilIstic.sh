@@ -1,3 +1,6 @@
+# To run this script, you have to set up RSA keys on the machines you wish to use
+
+
 echo -n "login: "
 read login
 
@@ -13,7 +16,7 @@ do
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    (echo $elem$m -- BEGIN; ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log --silent; exit";  echo $elem$m -- DONE)&
+    (echo $elem$m -- BEGIN; ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log --silent; exit" > /dev/null;  echo $elem$m -- DONE)&
   done
 done
 
