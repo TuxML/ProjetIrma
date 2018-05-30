@@ -18,9 +18,3 @@ do
 done
 
 echo "$cpt machines are used"
-
-# Works for sudo asking computer
-# for x in $(seq 0 3)
-# do
-#   ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "echo \"$password\" | sudo -S ~/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
-# done
