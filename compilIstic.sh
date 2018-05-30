@@ -16,5 +16,5 @@ echo
 # done
 for x in $(seq 0 3)
 do
-  ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "sudo ~/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
+  ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "echo $password | sudo -S ~/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
 done
