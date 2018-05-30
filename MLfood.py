@@ -148,7 +148,7 @@ def mlfood():
     if os.geteuid() != 0:
         if args.silent:
             print(RED + "You need to run MLfood.py with super-user privileges because in silent mode the request for sudo password will not be displayed." + GRAY)
-            exit(0)
+            # exit(0)
         if args.nbcompil >= 5:
             print(ORANGE + "You should run MLfood.py with 'sudo' to run a big number of compilations.")
             print("If you do not,you will be asked to enter your password before and after each compilations." + GRAY)
