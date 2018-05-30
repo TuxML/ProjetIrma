@@ -306,22 +306,21 @@ def check_log():
                 tmp = raw_size.stdout.read().decode()
                 tmp.replace("\n", " ")
                 size = size + int(tmp.split()[-2])
-    # Alert if the logs exceeds 1 Mo
-    # 1048576 one mebioctet
-    # 1000000 one megaoctet
-    # size = float(size/1048576.0)  # Mebioctet version
+
+    # Alert if the logs exceeds 1 Go
     size = float(size/1000000.0)    # Megaoctet version
-    unite = "Mo"
+    unit = "Mo"
     color = GREEN
 
-    if size >= 100.0 and unite == "Mo":
+    # Conversion unit
+    if size >= 100.0 and unit == "Mo":
         color = ORANGE
-    if size >= 1000.0 and unite == "Mo":
+    if size >= 1000.0 and unit == "Mo":
         size = size / 1000.0
-        unite = "Go"
+        unit = "Go"
         color = RED
 
-    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unite + " of logs files, do not forget to clean up your logs." + GRAY)
+    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unit + " of logs files, do not forget to clean up your logs." + GRAY)
 
 
 #################### Section 13 ####################
