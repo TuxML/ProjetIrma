@@ -14,7 +14,7 @@ echo
 #     # ssh -o StrictHostKeyChecking=no -tt 14008349@$elem$m.istic.univ-rennes1.fr "~/TP/ProjetIrma/MLfood.py 100 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"&
 #   done
 # done
-for x in range(10)
+for x in $(seq 0 3)
 do
   ssh -o StrictHostKeyChecking=no -tt alemasle@131.254.18.201 "~/ProjetIrma/MLfood.py 1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log"
 done
