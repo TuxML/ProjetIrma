@@ -194,7 +194,7 @@ def gen_config(Kconfig=None):
             # debug config with given KCONFIG_SEED
             int(Kconfig, 16)
             tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + Kconfig)
-            status = subprocess.call(["KCONFIG_SEED=" + Kconfig + " make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+            status = subprocess.call(["KCONFIG_SEED=" + Kconfig + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
         except ValueError:
             # debug config with given KCONFIG_FILE
             if os.path.exists(Kconfig):
@@ -207,7 +207,7 @@ def gen_config(Kconfig=None):
     else:
         # generating new KConfig file
         tcom.pprint(2, "Randomising new KCONFIG_FILE")
-        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
 
     # testing status after subprocess call to make randconfig
     if status != 0:
