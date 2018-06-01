@@ -90,8 +90,8 @@ def get_compressed_sizes():
                 res = res + " , " + c + " : 0"
         else:
             subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            size = subprocess.check_output("wc -c arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            vm = subprocess.check_output("wc -c arch/x86/boot/compressed/vmlinux", shell=True, sterr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, sterr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
 
             if size == "":
                 size = "0"

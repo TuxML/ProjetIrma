@@ -135,6 +135,8 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     # TODO expand the support of different package manager (like yum, rpm ...)
+    dockerFileI.write("ENV TZ=Europe/Paris\n")
+    dockerFileI.write("RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone\n")
     dockerFileI.write('RUN apt-get update && apt-get full-upgrade -y && apt-get -qq -y install ' + text_dep + ' ' + otherDep + ' \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n')
     dockerFileI.close()
 
