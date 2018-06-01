@@ -62,7 +62,7 @@ def get_kernel_size():
 # @returns 0 can not find the vmlinux file
 # @returns >0 size of kernel "vmlinux" in bytes
 def get_size_kernel():
-    full_filename = tset.PATH + "/" + full_filename
+    full_filename = tset.PATH + "/vmlinux"
     if os.path.isfile(full_filename):
         tcom.pprint(2, "kernel found: " + filename)
         return os.path.getsize(full_filename)
@@ -82,7 +82,7 @@ def get_compressed_sizes():
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
     for c in compression:
-        if compres.enable(c) == -1:
+        if compress.enable(c) == -1:
             if res == "":
                 res = res + c + " : 0"
             else:
@@ -140,7 +140,7 @@ def send_data(compile_time, boot_time):
             "stdlog_file": bz2.compress(open(logfiles[1], "rb").read()),
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_size_kernel()),
-            "compressed_sizes": get_compressed_sizes()
+            "compressed_sizes": get_compressed_sizes(),
             "dependencies": "",
         }
 

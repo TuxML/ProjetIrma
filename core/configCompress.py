@@ -29,10 +29,6 @@ import argparse
 #   limitations under the License.
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("compression", type=str, choices= ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"], help="Precise the compression you wish to use in the .config file")
-args = parser.parse_args()
-
 def rewrite(old, new):
     f = open(".config", "r")
     lines = f.readlines()
@@ -72,6 +68,10 @@ def enable(compress):
 
 # main
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("compression", type=str, choices= ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"], help="Precise the compression you wish to use in the .config file")
+    args = parser.parse_args()
+    
     enable(args.compression)
 
     print("")

@@ -11,6 +11,7 @@ cpt=0
 
 echo -n "login: "
 read login
+echo ""
 
 # Machines de l'istic
 for elem in ${room[@]}
@@ -24,4 +25,4 @@ do
   echo ""
 done
 
-echo "$login check $cpt machines"
+echo "$login -- $cpt machines CHECKED"
