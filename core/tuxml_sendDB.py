@@ -64,7 +64,7 @@ def get_kernel_size():
 def get_size_kernel():
     full_filename = tset.PATH + "/vmlinux"
     if os.path.isfile(full_filename):
-        tcom.pprint(2, "kernel found: " + filename)
+        tcom.pprint(2, "kernel found: vmlinux")
         return os.path.getsize(full_filename)
     return 0
 
@@ -81,22 +81,27 @@ def get_compressed_sizes():
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
+    
     for c in compression:
-        if compress.enable(c) == -1:
+        if compress.enable(c, tset.PATH) == -1:
             if res == "":
                 res = res + c + " : 0"
             else:
                 res = res + " , " + c + " : 0"
         else:
-            subprocess.run("make -C tset.PATH -j " + str(tset.NB_CORES), shell=True)
+            subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True)
             size = subprocess.getoutput("wc -c arch/x86/boot/compressed/*" + extension[compression.index(c)]).split()[0]
+            vm = subprocess.getoutput("wc -c arch/x86/boot/compressed/vmlinux")
+
             if size == "":
                 size = "0"
+            if vm == "":
+                vm = "0"
 
             if res == "":
-                res = res + c + " : " + size
+                res = res + c + "-vmlinux : " + vm + " , " + c + " : " + size
             else:
-                res = res + " , " + c + " : " + size
+                res = res + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
 
     return res
 
