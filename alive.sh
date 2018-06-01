@@ -21,6 +21,7 @@ do
     cpt=$((cpt + 1))
     (echo -n "Machine $elem$m : "; ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux | grep -m1 MLfood; exit") | grep -v grep
   done
+  echo ""
 done
 
 echo "$login check $cpt machines"

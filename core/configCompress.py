@@ -68,7 +68,11 @@ def enable(compress):
 
     return 0
 
-enable(args.compression)
 
-print("")
-subprocess.run("cat .config | grep CONFIG_KERNEL", shell=True)
+
+# main
+if __name__ == "__main__":
+    enable(args.compression)
+
+    print("")
+    subprocess.run("cat .config | grep CONFIG_KERNEL", shell=True)

@@ -19,6 +19,7 @@
 ## @file tuxml_sendDB.py
 #  @author LE LURON Pierre
 #  @author LEBRETON Mickaël
+#  @author LE MASLE Alexis
 #  @copyright Apache License 2.0
 #  @brief The file contains the functions used to send compilation and test results
 #  to the database
@@ -28,11 +29,11 @@ import time
 import os
 import MySQLdb
 import argparse
-# import paramiko
 import bz2
 import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_environment as tenv
+import configCompress as compress
 
 
 ## @author  LE LURON Pierre
@@ -41,6 +42,7 @@ import tuxml_environment as tenv
 #
 #  @returns  0 can't find kernel image
 #  @returns >0 size of kernel in bytes
+#  @deprecated
 def get_kernel_size():
     possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
     for filename in possible_filenames:
@@ -50,50 +52,60 @@ def get_kernel_size():
             return os.path.getsize(full_filename)
     return 0
 
+## @author LE MASLE Alexis
+#
+# @brief Get the "vmlinux" size
+#
+# @details New version of get_kernel_size() which was inaccurate, only get the "vmlinux" size
+# without looking for others name possible
+#
+# @returns 0 can not find the vmlinux file
+# @returns >0 size of kernel "vmlinux" in bytes
+def get_size_kernel():
+    full_filename = tset.PATH + "/" + full_filename
+    if os.path.isfile(full_filename):
+        tcom.pprint(2, "kernel found: " + filename)
+        return os.path.getsize(full_filename)
+    return 0
 
-## @author  LEBRETON Mickaël
+
+
+
+## @author LE MASLE Alexis
 #
-#  @brief   Function used to upload logfiles on the server with the SFTP protocole
+# @brief Get the size of the differents compressed kernels
 #
-#  @param   logfiles table containing path to log files
-#  @param   date the date
-#
-#  @returns -1 can't upload log files on server
-#  @returns  0 all files were uploaded successfully
-#
-#  @warning Currently not in use
-#  @deprecated
-# def file_upload(logfiles, date):
-#     tcom.pprint(2, "Uploading log files to server")
-#     paramiko.util.log_to_file(tset.SFTP_LOGS)
-#
-#     try:
-#         transport = paramiko.Transport((tset.HOST, tset.SFTP_PORT))
-#         transport.connect(username=tset.SFTP_USER, password=tset.SFTP_PASSWD)
-#         sftp = paramiko.SFTPClient.from_transport(transport)
-#
-#         remote_dir = time.strftime("%Y%m%d_%H%M%S/", date)
-#         sftp.mkdir(tset.SFTP_DIR + remote_dir)
-#
-#         for logfile in logfiles:
-#             remotepath = tset.SFTP_DIR + remote_dir + os.path.basename(logfile)
-#             localpath = logfile
-#             sftp.put(localpath, remotepath)
-#             if (tset.VERBOSE > 2):
-#                 print(tset.GRAY + " " * 4 + "==> " + localpath + ": OK")
-#
-#         sftp.close()
-#         transport.close()
-#
-#         tcom.pprint(0, "All files were uploaded successfully")
-#         return 0
-#     except paramiko.SSHException as err:
-#         tcom.pprint(1, "Can't upload log files on server : {}".format(err))
-#         return -1
+# @returns The string formated as "compressed_name_1 : size1 , compressed_name_2 : size2 ..."
+# @returns "compressed_name_1 : 0 , compressed_name_2 : 0 ..." when no compressed_sizes could be found
+def get_compressed_sizes():
+    compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
+    extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
+    res = ""
+    for c in compression:
+        if compres.enable(c) == -1:
+            if res == "":
+                res = res + c + " : 0"
+            else:
+                res = res + " , " + c + " : 0"
+        else:
+            subprocess.run("make -C tset.PATH -j " + str(tset.NB_CORES), shell=True)
+            size = subprocess.getoutput("wc -c arch/x86/boot/compressed/*" + extension[compression.index(c)]).split()[0]
+            if size == "":
+                size = "0"
+
+            if res == "":
+                res = res + c + " : " + size
+            else:
+                res = res + " , " + c + " : " + size
+
+    return res
+
+
 
 
 ## @author  LE LURON Pierre
 #  @author  LEBRETON Mickaël
+#  @author  LE MASLE Alexis
 #
 #  @brief   Sends compilation and boot results to the mysql database
 #
@@ -124,13 +136,11 @@ def send_data(compile_time, boot_time):
         args = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", date),
             "compilation_time": str(compile_time),
-            # "config_file": time.strftime("%Y%m%d_%H%M%S", date) + "/.config",
-            # "stdlog_file": time.strftime("%Y%m%d_%H%M%S", date) + "/std.log",
-            # "errlog_file": time.strftime("%Y%m%d_%H%M%S", date) + "/err.log",
             "config_file": bz2.compress(open(logfiles[0], "rb").read()),
             "stdlog_file": bz2.compress(open(logfiles[1], "rb").read()),
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
-            "core_size": str(get_kernel_size()),
+            "core_size": str(get_size_kernel()),
+            "compressed_sizes": get_compressed_sizes()
             "dependencies": "",
         }
 
