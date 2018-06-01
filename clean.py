@@ -16,7 +16,7 @@ if not (args.ssh or args.logs or args.docker or args.all):
 
 if args.ssh:
     print("Stopping all ssh connections...")
-    subprocess.call("ps aux | grep ssh | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9", shell=True)
+    subprocess.call("ps aux | grep ssh | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9 > /dev/null", shell=True)
     print("All ssh connections have been stopped")
 
 if args.logs:
@@ -38,7 +38,7 @@ if args.docker:
 if args.all:
 
     print("Stopping all ssh connections...")
-    subprocess.call("ps aux | grep ssh | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9", shell=True)
+    subprocess.call("ps aux | grep ssh | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9 > /dev/null", shell=True)
     print("")
 
     print("Deleting Logs...")
