@@ -9,18 +9,6 @@ machine=("m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10")
 
 cpt=0
 
-if [ $# -eq 0 ]
-  then
-    echo "Please precise a number of compilation to spread: ./compilIstic.sh [number]"
-    exit -1
-fi
-
-re='^[0-9]+$'
-if ! [[ $1 =~ $re ]] ; then
-   echo "error: Not a number" >&2; exit 1
-fi
-
-
 echo -n "login: "
 read login
 
@@ -31,8 +19,8 @@ do
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux |grep MLfood; exit") | grep -v grep
+    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux | grep MLfood; exit") | grep -v grep
   done
 done
 
-echo "$login has spread $1 compilations on $cpt machines"
+echo "$login check $cpt machines"
