@@ -322,6 +322,7 @@ def check_log():
 
     treatment = str(size).split(".")
 
+    # Only display two numbers after comma
     printing = treatment[0] + "." + treatment[1][0:2]
 
     print(LIGHT_BLUE_1 + "You have " + color + printing + LIGHT_BLUE_1 + " " + unit + " of logs files, do not forget to clean up your logs." + GRAY)
