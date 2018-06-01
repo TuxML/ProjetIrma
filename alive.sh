@@ -15,11 +15,11 @@ read login
 # Machines de l'istic
 for elem in ${room[@]}
 do
-  echo "Room $elem -- START"
+  echo "Room $elem -- CHECK"
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux | grep MLfood; exit") | grep -v grep
+    (echo -n $elem$m : ; ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux | grep -m1 MLfood; exit > /dev/null") | grep -v grep
   done
 done
 
