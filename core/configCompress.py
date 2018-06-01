@@ -1,8 +1,33 @@
 #!/usr/bin/python3
 
 import subprocess
-import re
 import argparse
+
+## @file configCompress.py
+# @author LE MASLE Alexis
+# @copyright Apache License 2.0
+# @brief Recompile with differents kernel compressions
+#
+# @details Running this script is only to rewrite .config with a different compression set up
+# you need to choose between different compressions methods then it will be enable in the .config file
+# the second effect is to disable other compressions that could be enable. If GZIP was enable and
+# you choose BZIP2, then GZIP will be disable and commented, BZIP2 will be set at "y".
+# It take place in the "harvesting data" part to gather different size about kernel compressions.
+
+#   Copyright 2018 TuxML Team
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("compression", type=str, choices= ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"], help="Precise the compression you wish to use in the .config file")
@@ -21,7 +46,6 @@ def rewrite(old, new):
             f.seek(0)
             f.writelines(lines)
             f.close()
-            print("REWRITING DONE")
             return 0
 
     return -1

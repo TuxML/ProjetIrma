@@ -1,3 +1,6 @@
+
+# spring.sh is the "spring" from where comes all the ssh connexions to your IT infrastructure to run
+# a given number of compilation via MLfood.py
 # To run this script, you have to set up RSA keys on the machines you wish to use
 
 room=("e008" "e010" "e103" "e105" "e212")
