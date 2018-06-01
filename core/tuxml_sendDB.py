@@ -34,7 +34,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_environment as tenv
 import configCompress as compress
-
+import subprocess
 
 ## @author  LE LURON Pierre
 #
@@ -81,7 +81,7 @@ def get_compressed_sizes():
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
-    
+
     for c in compression:
         if compress.enable(c, tset.PATH) == -1:
             if res == "":

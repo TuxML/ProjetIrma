@@ -320,7 +320,11 @@ def check_log():
         unit = "Go"
         color = RED
 
-    print(LIGHT_BLUE_1 + "You have " + color + str(size)[0:4] + LIGHT_BLUE_1 + " " + unit + " of logs files, do not forget to clean up your logs." + GRAY)
+    treatment = str(size).split(".")
+
+    printing = treatment[0] + "." + treatment[1][0:2]
+
+    print(LIGHT_BLUE_1 + "You have " + color + printing + LIGHT_BLUE_1 + " " + unit + " of logs files, do not forget to clean up your logs." + GRAY)
 
 
 #################### Section 13 ####################
