@@ -61,6 +61,8 @@ def pprint(s, message):
     else:
         print(date + func + msg)
 
+    sys.stdout.flush() # Make sur to print at the right time
+
 
 ## @author  LE FLEM Erwan
 #  @author  MERZOUK Fahim
