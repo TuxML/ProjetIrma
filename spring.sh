@@ -31,7 +31,7 @@ do
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/TP/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log; exit";  echo $elem$m -- END)&
+    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/TP/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-kernel --no-logs --no-check-log; exit" > /dev/null;  echo $elem$m -- END)&
   done
 done
 
