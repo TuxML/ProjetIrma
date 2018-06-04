@@ -70,9 +70,10 @@ def enable(compress, path_to_config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("compression", type=str, choices= ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"], help="Precise the compression you wish to use in the .config file")
+    parser.add_argument("path", type=str, help="Path to the .config file to change")
     args = parser.parse_args()
 
-    enable(args.compression)
+    enable(args.compression, args.path)
 
     print("")
     subprocess.run("cat .config | grep CONFIG_KERNEL", shell=True)

@@ -90,8 +90,10 @@ def get_compressed_sizes():
                 res = res + " , " + c + " : 0"
         else:
             subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
             size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
             vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
 
             if size == "":
                 size = "0"
@@ -99,9 +101,9 @@ def get_compressed_sizes():
                 vm = "0"
 
             if res == "":
-                res = res + c + "-vmlinux : " + vm + " , " + c + " : " + size
+                res = res + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
             else:
-                res = res + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
+                res = res + " , " + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
 
     return res
 
