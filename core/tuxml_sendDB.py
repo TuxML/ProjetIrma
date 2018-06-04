@@ -86,9 +86,9 @@ def get_compressed_sizes():
     for c in compression:
         if compress.enable(c, tset.PATH) == -1:
             if res == "":
-                res = res + c + " : 0"
+                res = res + c + " : -1"
             else:
-                res = res + " , " + c + " : 0"
+                res = res + " , " + c + " : -1"
         else:
             subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -97,9 +97,11 @@ def get_compressed_sizes():
             bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
 
             if size == "":
-                size = "0"
+                size = "-1"
             if vm == "":
-                vm = "0"
+                vm = "-1"
+            if bzImage == "":
+                bzImage == "-1"
 
             if res == "":
                 res = res + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
