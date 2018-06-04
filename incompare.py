@@ -194,4 +194,6 @@ if __name__=="__main__":
 
     result = compare(incremental, basic)
     print(result)
+    print("")
+    print("Cleaning docker containers...")
     subprocess.run("./clean.py --docker", shell=True)
