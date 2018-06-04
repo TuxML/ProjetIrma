@@ -66,7 +66,7 @@ parser.add_argument("--dev", help="Use image in current development.", action="s
 parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
 parser.add_argument("--no-check-log", help="Do not compute the Logs folder size at the end of compilation.", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
-parser.add_argument("--no-kernel", help="Do not fetch vmlinux kernel from the Docker container ( use this to run several compilations without overload your disk )", action="store_true")
+parser.add_argument("--fetch-kernel", help="Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
 parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
 args = parser.parse_args()
 
@@ -223,7 +223,7 @@ def mlfood():
                 subprocess.call(errlogs, shell=True)
                 subprocess.call(configFile, shell=True)
 
-                if not args.no_kernel:
+                if args.fetch_kernel:
                     # retrieves differents possible kernels according to their names
                     for name in possible_filenames:
                         # subprocess.run("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
@@ -241,7 +241,7 @@ def mlfood():
                 subprocess.call(errlogs, shell=True, stderr=subprocess.DEVNULL)
                 subprocess.call(configFile, shell=True, stderr=subprocess.DEVNULL)
 
-                if not args.no_kernel:
+                if args.fetch_kernel:
                     # retrieves quietly differents possible kernels according to their names
                     for name in possible_filenames:
                         # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
