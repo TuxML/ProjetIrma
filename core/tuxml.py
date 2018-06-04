@@ -260,8 +260,7 @@ def launcher():
 
     if status == 0:
         compile_time = end_compil_time - start_compil_time - install_time
-        # duration = time.strftime("%H:%M:%S", time.gmtime(compile_time))
-        duration = time.strftime("%H:%M:%S", time.localtime(compile_time))
+        duration = time.strftime("%H:%M:%S", time.gmtime(compile_time))
         tcom.pprint(0, "Successfully compiled in {}".format(duration))
 
         # launching tests

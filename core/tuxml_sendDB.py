@@ -78,6 +78,7 @@ def get_size_kernel():
 # @returns The string formated as "compressed_name_1 : size1 , compressed_name_2 : size2 ..."
 # @returns "compressed_name_1 : 0 , compressed_name_2 : 0 ..." when no compressed_sizes could be found
 def get_compressed_sizes():
+    tcom.pprint(2, "Getting compressed kernels")
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
@@ -139,7 +140,8 @@ def send_data(compile_time, boot_time):
         cursor = socket.cursor()
 
         # Values for request
-        date = time.gmtime(time.time())
+        # date = time.gmtime(time.time())
+        date = time.localtime(time.time())
         args = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", date),
             "compilation_time": str(compile_time),
@@ -148,7 +150,7 @@ def send_data(compile_time, boot_time):
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_size_kernel()),
             "compressed_sizes": get_compressed_sizes(),
-            "dependencies": open("dependences.txt", "r").read()
+            "dependencies": open("/TuxML/dependences.txt", "r").read()
         }
 
         for dico in tset.TUXML_ENV:
