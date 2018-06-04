@@ -73,7 +73,7 @@ def get_size_kernel():
 
 ## @author LE MASLE Alexis
 #
-# @brief Get the size of the differents compressed kernels
+# @brief Get the size of the 18 differents compressed kernels
 #
 # @returns The string formated as "compressed_name_1 : size1 , compressed_name_2 : size2 ..."
 # @returns "compressed_name_1 : 0 , compressed_name_2 : 0 ..." when no compressed_sizes could be found
@@ -148,7 +148,7 @@ def send_data(compile_time, boot_time):
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_size_kernel()),
             "compressed_sizes": get_compressed_sizes(),
-            "dependencies": "",
+            "dependencies": bz2.compress(open("dependences.txt", "rb").read())
         }
 
         for dico in tset.TUXML_ENV:

@@ -153,7 +153,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
     dockerFile.write("ENV TZ=Europe/Paris\n")
     dockerFile.write("RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone\n")
     dockerFile.write("RUN apt-get update && apt-get upgrade -y && apt-get full-upgrade -y\n")
-    dockerFile.write("ADD core /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
+    dockerFile.write("ADD core /TuxML\nADD dependences.txt /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
 
 
