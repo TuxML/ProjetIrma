@@ -148,7 +148,7 @@ def send_data(compile_time, boot_time):
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_size_kernel()),
             "compressed_sizes": get_compressed_sizes(),
-            "dependencies": bz2.compress(open("dependences.txt", "rb").read())
+            "dependencies": open("dependences.txt", "r").read()
         }
 
         for dico in tset.TUXML_ENV:

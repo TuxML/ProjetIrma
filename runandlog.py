@@ -86,12 +86,13 @@ else:
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '> /TuxML/out.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path
+    subprocess.run(chaine, shell=True, stdout="/TuxML/out.log")
 else:
     chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| tee /TuxML/out.log'
+    subprocess.run(chaine, shell=True)
 
 print("")
-subprocess.run(chaine, shell=True)
 
 if not args.silent:
     print("Processing output.log ...")
