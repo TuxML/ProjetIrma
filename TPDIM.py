@@ -133,6 +133,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
     if dependencesFile is not None:
         otherDep = dependencesFile
 
+    ########### tuxml/debiantuxml ##########
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     # TODO expand the support of different package manager (like yum, rpm ...)
     dockerFileI.write("ENV TZ=Europe/Paris\n")
@@ -145,9 +146,10 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
     strPushI = 'sudo docker push tuxml/{}tuxml:{}'.format(originImage, tag)
     subprocess.run(strPushI, shell=True).stdout
-
+    ########### tuxml/debiantuxml ##########
     os.chdir('..')
 
+    ########### tuxml/tuxmldebian ##########
     dockerFile = open("Dockerfile", "w")
     dockerFile.write("FROM {}\n".format(newImage))
     dockerFile.write("ENV TZ=Europe/Paris\n")
@@ -155,7 +157,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
     dockerFile.write("RUN apt-get update && apt-get upgrade -y && apt-get full-upgrade -y\n")
     dockerFile.write("ADD core /TuxML\nADD dependences.txt /TuxML\nADD gcc-learn /TuxML/gcc-learn/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
-
+    ########### tuxml/tuxmldebian ##########
 
 # Start of the script
 
