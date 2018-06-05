@@ -177,7 +177,7 @@ def mlfood():
             subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #################### Section 8 ####################
         # Generation of the logs folder create thanks to the execution date
-        logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
+        logsFolder = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
         if not os.path.exists("Logs/"+logsFolder):
             os.makedirs("Logs/" + logsFolder)
 

@@ -106,9 +106,6 @@ with open("/TuxML/out.log", 'r+') as f:
 
         out.write(res)
 
-if not args.silent:
-    print("Try to send output.log ...")
-
 # tuxLogs.py has finished to run, output.log now exists
 cid = -1
 for line in open('/TuxML/output.log'):
