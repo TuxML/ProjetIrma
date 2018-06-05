@@ -125,7 +125,7 @@ def get_compressed_sizes():
 #  @returns -1 can't send info to db
 #  @returns  0 successfully sent info to db
 def send_data(compile_time, boot_time):
-    tcom.pprint(2, "Sending compilation and test results to database")
+    tcom.pprint(2, "Sending compilation and tests results to database")
 
     # Log files
     logfiles = [tset.PATH + "/.config",

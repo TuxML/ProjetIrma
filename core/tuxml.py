@@ -137,7 +137,7 @@ def compilation():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call("make -C tset.PATH -j" + str(tset.NB_CORES) + " | ts -s", shell=True, stdout=std_logs, stderr=err_logs)
+        status = subprocess.call("make -C "+ tset.PATH + " -j" + str(tset.NB_CORES) + " | ts -s", shell=True, stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         tcom.pprint(0, "Compilation done")
