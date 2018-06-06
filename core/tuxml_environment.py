@@ -301,9 +301,9 @@ def export_as_csv(os_details, hw_details, comp_details):
 #  between os, hardware and compilation dictionnaries
 def environment_pprinter(env_details):
     for dico in env_details:
-        print(" " * 4 + "==> "+ dico)
+        print(" " * 4 + "==> "+ dico, flush=True)
         for key in env_details[dico]:
-            print(" " * 6 + "--> " + key + ": " + env_details[dico][key])
+            print(" " * 6 + "--> " + key + ": " + env_details[dico][key], flush=True)
 
 
 ## @author LEBRETON Mickaël
@@ -351,4 +351,4 @@ def overlay_to_partition():
 
 if __name__ == '__main__':
     env = get_environment_details()
-    print(env)
+    print(env, flush=True)
