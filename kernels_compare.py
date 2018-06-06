@@ -89,8 +89,8 @@ def compilations(number):
 
         for i in range(number):
             os.makedirs("./compare/" + str(i), exist_ok=True)
-            print("Running MLfood 1 1 --dev --no-clean", flush=True)
-            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
+            print("Running MLfood 1 1 --dev --no-clean --no-logs --no-check-log", flush=True)
+            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean --no-logs --no-check-log", shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
