@@ -6,6 +6,7 @@ import subprocess
 import re
 import MySQLdb
 import os
+import csv
 import core.tuxml_settings as tset
 
 # Class kernel to compare two of them
@@ -26,7 +27,7 @@ class kernel:
         return str(self.cid)
 
     def kernel2csv(self):
-        return "\"kernel : " + self.get_size()  + " , " + self.get_compressed() + "\""
+        return [self.get_size(), self.get_compressed()]
 
     def pprint(self):
         return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
@@ -69,27 +70,29 @@ def compute_kernel(id:int, mode:str) -> kernel:
 
 
 # Basic compilation based on .config file from incremental
-def execute_config(id:int) -> str:
+def execute_config(id:int):
     # Create a new container
     subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
     # Copy on it the .config file to use
-    subprocess.run("sudo docker cp ./compare/" + str(id) + "/incr.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
+    subprocess.run("sudo docker cp ./compare/" + str(id) + "/.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation with the .config file from the incremental compilation
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
-    # Return the last docker id
-    out = subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
-    return out
+    # # Return the last docker id
+    # out = subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
+    # return out
 
 
 def compilations(number):
 
-    with open("kernels_compare.csv", 'a') as csv:
+    with open("kernels_compare.csv", 'a') as file:
+        writer = csv.writer(file)
+
         for i in range(number):
+            os.makedirs("./compare/" + str(i), exist_ok=True)
             print("Running MLfood 1 1 --dev --no-clean", flush=True)
             subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
-            os.makedirs("./compare/" + str(i), exist_ok=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
-            subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/incr.config" , shell=True)
+            subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
             print("Computing kernel incr", flush=True)
             inkernel = compute_kernel(i, "incr")
@@ -100,9 +103,9 @@ def compilations(number):
             print("Computing kernel basic", flush=True)
             basekernel = compute_kernel(i, "basic")
 
-            entry = inkernel.kernel2csv() + "," + basekernel.kernel2csv()
+            entry = inkernel.kernel2csv() + basekernel.kernel2csv()
 
-            csv.write(entry)
+            writer.writerow(entry)
 
 
 def main():
@@ -113,9 +116,12 @@ def main():
 
     compilations(args.compare_number)
 
+    print("Cleaning containers ...")
+    subprocess.run("./clean.py --docker", shell=True)
+
     # compare()
 
-    subprocess.run("cat kernels_compare.csv", shell=True)
+    # subprocess.run("cat kernels_compare.csv", shell=True)
 
 
 
