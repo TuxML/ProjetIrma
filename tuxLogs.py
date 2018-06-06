@@ -44,9 +44,8 @@ def tuxLogs():
         path = ''
 
     # Run tuxml.py and retrieves the output converted in a log file.
-    print("")
+    print("\n\n", flush=True)
     chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 ' + path + '-v 4 --incremental ' + str(args.incremental)
-    print("")
     subprocess.run(chaine, shell=True)
 
 # Run the tuxLogs function

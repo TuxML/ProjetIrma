@@ -73,9 +73,7 @@ def send_outputlog(cid, outputfilename, databasename):
 
 # Run tuxLogs.py and retrieves the output converted in a log file.
 if not args.silent:
-    print("")
-    print('------ Running runandlog.py ... ------')
-    print("")
+    print('\n------ Running runandlog.py ... ------\n', flush=True)
 
 path = ''
 if args.path:
@@ -92,10 +90,10 @@ else:
 
 subprocess.run(chaine, shell=True)
 
-print("")
+print("", flush=True)
 
 if not args.silent:
-    print("Processing output.log ...")
+    print("Processing output.log ...", flush=True)
 
 with open("/TuxML/out.log", 'r+') as f:
     with open("/TuxML/output.log", 'w') as out:
@@ -113,12 +111,11 @@ for line in open('/TuxML/output.log'):
     if match:
         cid=match.group(1)
         if not args.silent:
-            print("CID found " + cid)
+            print("CID found " + cid, flush=True)
         break
 
 if not cid == -1:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
 
 else:
-    print("Cid unfound, no output.log file has been sent")
-    print("")
+    print("Cid unfound, no output.log file has been sent\n", flush=True)
