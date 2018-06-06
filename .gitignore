@@ -20,4 +20,3 @@ Dockerfile
 compare/
 test/
 test-incremental/
-kernels_compare.csv

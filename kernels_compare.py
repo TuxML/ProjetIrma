@@ -107,6 +107,8 @@ def compilations(number):
 
             writer.writerow(entry)
 
+            subprocess.run("./clean.py --docker", shell=True)
+
 
 def main():
 
@@ -115,9 +117,6 @@ def main():
     args = parser.parse_args()
 
     compilations(args.compare_number)
-
-    print("Cleaning containers ...")
-    subprocess.run("./clean.py --docker", shell=True)
 
     # compare()
 
