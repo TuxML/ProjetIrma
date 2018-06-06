@@ -72,7 +72,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
 # Basic compilation based on .config file from incremental
 def execute_config(id:int):
     # Create a new container
-    subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True)
+    subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True, stdout=subprocess.DEVNULL)
     # Copy on it the .config file to use
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation with the .config file from the incremental compilation
