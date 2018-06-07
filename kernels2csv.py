@@ -27,6 +27,12 @@ class kernel:
         return str(self.cid)
 
     def kernel2csv(self):
+        # compressed = self.get_compressed().split(" , ")
+        # parse_array = [i.split(" : ") for i in compressed]
+        #
+        # final = [fin[1] for fin in parse_array]
+        #
+        # # return final
         return [self.get_size(), self.get_compressed()]
 
     def pprint(self):
