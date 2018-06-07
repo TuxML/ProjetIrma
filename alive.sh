@@ -9,6 +9,8 @@ machine=("m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10")
 
 cpt=0
 action="ps -aux | grep -m1 MLfood"
+act="CHECKING"
+act2="CHECKED"
 
 if [ "$#" -ne 0 ] && ([ "$1" != "--help" ] && [ "$1" != "-h" ] && [ "$1" != "--kill" ])
   then
@@ -28,7 +30,9 @@ fi
 if [ $1 = "--kill" ]
   then
     echo "You choose to kill all process."
-    action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9 > /dev/null"
+    action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | xargs kill -9 > /dev/null"
+    act="KILLING"
+    act2="KILLED"
 fi
 
 echo -n "login: "
@@ -38,7 +42,7 @@ echo ""
 # Machines de l'istic
 for elem in ${room[@]}
 do
-  echo "CHECKING -- Room $elem"
+  echo "$act -- Room $elem"
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
@@ -47,4 +51,4 @@ do
   echo ""
 done
 
-echo "$login -- $cpt machines CHECKED"
+echo "$login -- $cpt machines $act2"
