@@ -20,14 +20,14 @@ if [ "$#" -ne 0 ] && ([ "$1" != "--help" ] && [ "$1" != "-h" ] && [ "$1" != "--k
 fi
 
 
-if [ $1 = "-h" ] || [ $1 = "--help" ]
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]
   then
     echo "Use ./alive.sh [-h,--help] [--kill]"
     exit 0
 fi
 
 
-if [ $1 = "--kill" ]
+if [ "$1" = "--kill" ]
   then
     echo "You choose to kill all process."
     action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | xargs kill -9 2>& /dev/null"
