@@ -30,7 +30,7 @@ fi
 if [ "$1" = "--kill" ]
   then
     echo "You choose to kill all process."
-    action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | xargs kill -9 2> /dev/null"
+    action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | xargs kill -9 2> /dev/null; sudo docker stop $(sudo docker ps -aq); sudo docker rm $(sudo docker ps -aq)"
     act="KILLING"
     act2="KILLED"
 fi
