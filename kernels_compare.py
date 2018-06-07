@@ -77,9 +77,6 @@ def execute_config(id:int):
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation with the .config file from the incremental compilation
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
-    # # Return the last docker id
-    # out = subprocess.check_output("sudo docker ps -lq", shell=True).decode().replace("\n","")
-    # return out
 
 
 def compilations(number):
@@ -89,8 +86,8 @@ def compilations(number):
 
         for i in range(number):
             os.makedirs("./compare/" + str(i), exist_ok=True)
-            print("Running MLfood 1 1 --dev --no-clean --no-logs --no-check-log", flush=True)
-            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean --no-logs --no-check-log", shell=True)
+            print("Running MLfood 1 1 --dev --no-clean --no-logs", flush=True)
+            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean --no-logs", shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
