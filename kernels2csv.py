@@ -115,8 +115,6 @@ def main():
 
     compilations(args.compare_number)
 
-    # compare()
-
     # subprocess.run("cat kernels_compare.csv", shell=True)
 
 
