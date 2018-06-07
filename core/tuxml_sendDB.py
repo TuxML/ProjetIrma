@@ -144,6 +144,7 @@ def send_data(compile_time, boot_time):
         # Values for request
         # date = time.gmtime(time.time())
         date = time.localtime(time.time())
+        sizes_compressed = get_compressed_sizes()
         args = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", date),
             "compilation_time": str(compile_time),
@@ -151,7 +152,7 @@ def send_data(compile_time, boot_time):
             "stdlog_file": bz2.compress(open(logfiles[1], "rb").read()),
             "errlog_file": bz2.compress(open(logfiles[2], "rb").read()),
             "core_size": str(get_size_kernel()),
-            "compressed_sizes": get_compressed_sizes(),
+            "compressed_sizes": sizes_compressed,
             "dependencies": open("/TuxML/dependences.txt", "r").read()
         }
 
