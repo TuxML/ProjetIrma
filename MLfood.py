@@ -175,11 +175,13 @@ def mlfood():
         else:
             # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         #################### Section 8 ####################
-        # Generation of the logs folder create thanks to the execution date
-        logsFolder = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
-        if not os.path.exists("Logs/"+logsFolder):
-            os.makedirs("Logs/" + logsFolder)
+        if not args.no_logs:
+            # Generation of the logs folder create thanks to the execution date
+            logsFolder = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
+            if not os.path.exists("Logs/"+logsFolder):
+                os.makedirs("Logs/" + logsFolder)
 
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
