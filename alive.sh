@@ -8,6 +8,28 @@ room=("e008" "e010" "e103" "e105" "e212")
 machine=("m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10")
 
 cpt=0
+action="ps -aux | grep -m1 MLfood"
+
+if [ "$#" -ne 0 ] && ([ "$1" != "--help" ] && [ "$1" != "-h" ] && [ "$1" != "--kill" ])
+  then
+    echo "Error \"$1\""
+    echo "Use ./alive.sh [-h,--help] [--kill]"
+    exit -1
+fi
+
+
+if [ $1 = "-h" ] || [ $1 = "--help" ]
+  then
+    echo "Use ./alive.sh [-h,--help] [--kill]"
+    exit 0
+fi
+
+
+if [ $1 = "--kill" ]
+  then
+    echo "You choose to kill all process."
+    action="ps aux | grep MLfood | grep -v grep | grep -v clean.py | awk '{ print $2; }' | sudo xargs kill -9 > /dev/null"
+fi
 
 echo -n "login: "
 read login
@@ -20,7 +42,7 @@ do
   for m in ${machine[@]}
   do
     cpt=$((cpt + 1))
-    echo -n "Machine $elem$m : "; (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "ps -aux | grep -m1 MLfood; exit") | grep -v grep
+    echo -n "Machine $elem$m : "; (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "$action; exit") | grep -v grep
   done
   echo ""
 done
