@@ -143,8 +143,8 @@ def send_data(compile_time, boot_time):
 
         # Values for request
         # date = time.gmtime(time.time())
-        date = time.localtime(time.time())
         sizes_compressed = get_compressed_sizes()
+        date = time.localtime(time.time())
         args = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S", date),
             "compilation_time": str(compile_time),
