@@ -56,16 +56,13 @@ def enable(compress, path_to_config):
         return -1
 
     # enable
-    rc = rewrite("# CONFIG_KERNEL_" + compress+ " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
-    if rc == -1:
-        return -1
+    rewrite("# CONFIG_KERNEL_" + compress+ " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
 
     # disable
     for c in compression:
             if not c == compress:
-                rc = rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
-                if rc == -1:
-                    return -1
+                rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
+
     return 0
 
 
