@@ -20,3 +20,6 @@ Dockerfile
 compare/
 test/
 test-incremental/
+tmp.py
+tmp.txt
+copie.csv
