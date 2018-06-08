@@ -177,6 +177,7 @@ def mlfood():
             subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         #################### Section 8 ####################
+        logsFolder = ""
         if not args.no_logs:
             # Generation of the logs folder create thanks to the execution date
             logsFolder = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
@@ -185,6 +186,7 @@ def mlfood():
 
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
+        chaine = ""
         if args.silent:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " --silent"
         else:
@@ -193,21 +195,20 @@ def mlfood():
         # subprocess.run(chaine, shell=True)
         subprocess.call(chaine, shell=True)
 
-        #################### Section 10 ####################
-        # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
-        dockerid = os.popen("sudo docker ps -lq", "r")
-        dock = dockerid.read()
-        dock = dock[0:len(dock) -1]
-        outputlog = 'sudo docker cp ' + dock + ':/TuxML/output.log ./Logs/' + logsFolder
-        stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
-        errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
-        configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
-
-        possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
-
         if not args.no_logs:
+            #################### Section 10 ####################
+            # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
+            dockerid = os.popen("sudo docker ps -lq", "r")
+            dock = dockerid.read()
+            dock = dock[0:len(dock) -1]
+            outputlog = 'sudo docker cp ' + dock + ':/TuxML/output.log ./Logs/' + logsFolder
+            stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
+            errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
+            configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
-        # Silent mode disable
+            possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"
+
+            # Silent mode disable
             if not args.silent:
                 print("")
                 print("Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder)
@@ -272,12 +273,12 @@ def mlfood():
 
     #################### Section 12 ####################
     # The end
-    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY)
+    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY, flush=True)
     print("")
-    print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY)
-    print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )")
-    print(LIGHT_BLUE_1 + "Total number of compilations: " + GREEN + str(args.nbcompil * (args.incremental + 1)) + GRAY)
-    print("")
+    print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY, flush=True)
+    print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )", flush=True)
+    print(LIGHT_BLUE_1 + "Total number of compilations: " + GREEN + str(args.nbcompil * (args.incremental + 1)) + GRAY, flush=True)
+    print("", flush=True)
 
 
 # Check the size of log directory to remind the user to delete them.
