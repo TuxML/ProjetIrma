@@ -51,7 +51,7 @@ def enable(compress, path_to_config):
 
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
     if compress not in compression:
-        print(compress,"not in compression list")
+        print(compress,"not in compression list", flush=True)
         return -1
 
     # enable
@@ -75,5 +75,5 @@ if __name__ == "__main__":
 
     enable(args.compression, args.path)
 
-    print("")
+    print("", flush=True)
     subprocess.run("cat .config | grep CONFIG_KERNEL", shell=True)
