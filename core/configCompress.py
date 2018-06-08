@@ -47,6 +47,7 @@ def rewrite(old, new, path_to_config):
     return -1
 
 # enable a compression and disable the others
+# @return 0 if it succeeds, -1 otherwise
 def enable(compress, path_to_config):
 
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
@@ -55,13 +56,16 @@ def enable(compress, path_to_config):
         return -1
 
     # enable
-    rewrite("# CONFIG_KERNEL_" + compress+ " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
+    rc = rewrite("# CONFIG_KERNEL_" + compress+ " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
+    if rc == -1:
+        return -1
 
     # disable
     for c in compression:
             if not c == compress:
-                rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
-
+                rc = rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
+                if rc == -1:
+                    return -1
     return 0
 
 
