@@ -114,7 +114,6 @@ def compilations(number):
             basekernel = compute_kernel(i, "basic")
 
             entry = inkernel.kernel2csv() + basekernel.kernel2csv()
-            print("New entry:\n", flush=True)
             print(entry, flush=True)
 
             writer.writerow(entry)
