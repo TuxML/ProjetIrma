@@ -250,7 +250,7 @@ def mlfood():
                         # subprocess.run("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
                         subprocess.call("sudo docker cp" + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/" + name + " ./Logs/" +logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
-        dockerid.close()
+            dockerid.close()
 
 
         #################### Section 11 ####################
