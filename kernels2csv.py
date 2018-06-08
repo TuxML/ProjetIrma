@@ -35,12 +35,12 @@ class kernel:
     def kernel2csv(self):
         compressed = self.get_compressed().split(" , ")
         parse_array = [i.split(" : ") for i in compressed]
-
         final = [fin[1] for fin in parse_array]
+
         final.insert(0, self.get_size())
 
         return final
-        # return [self.get_size(), self.get_compressed()]
+
 
     def pprint(self):
         return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
@@ -78,7 +78,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
         return kernel(size,compressed,cid)
 
     else:
-        print("Failed")
+        print("Failed to retrieves CID")
         return kernel(-1,-1,-1)
 
 
@@ -113,7 +113,9 @@ def compilations(number):
             print("Computing kernel basic", flush=True)
             basekernel = compute_kernel(i, "basic")
 
-            entry = inkernel.kernel2csv().append(basekernel.kernel2csv())
+            entry = inkernel.kernel2csv() + basekernel.kernel2csv()
+            print("New entry:\n", flush=True)
+            print(entry, flush=True)
 
             writer.writerow(entry)
 

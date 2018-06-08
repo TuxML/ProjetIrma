@@ -206,7 +206,7 @@ def mlfood():
             errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
             configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
-            possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"
+            possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
 
             # Silent mode disable
             if not args.silent:
