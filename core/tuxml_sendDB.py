@@ -91,10 +91,25 @@ def get_compressed_sizes():
                 res = res + " , " + c + " : -1"
         else:
             subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            size = ""
+            vm = ""
+            bzImage = ""
 
-            size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            try:
+                size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except Exception as e:
+                size = ""
+
+            try:
+                vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except Exception as e:
+                vm = ""
+
+            try:
+                bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except Exception as e:
+                bzImage = ""
+
 
             if size == "":
                 size = "-1"
