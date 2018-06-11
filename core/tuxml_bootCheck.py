@@ -48,7 +48,6 @@ def boot_try():
 		sbStatus = -1;
 
 	cmd = "qemu-system-x86_64"
-	print(sbStatus)
 	if sbStatus == 0:
 		# procId = subprocess.Popen([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 		procId = subprocess.run([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT)
