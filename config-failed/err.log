@@ -1,0 +1,8 @@
+Makefile:936: "Cannot use CONFIG_STACK_VALIDATION, please install libelf-dev, libelf-devel or elfutils-libelf-devel"
+/bin/sh: 1: as68k: not found
+make[3]: *** [drivers/net/wan/wanxlfw.inc] Error 127
+make[2]: *** [drivers/net/wan] Error 2
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [drivers/net] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make: *** [drivers] Error 2
