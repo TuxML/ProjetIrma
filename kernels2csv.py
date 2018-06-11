@@ -95,7 +95,7 @@ def execute_config(id:int):
 
 def compilations(number):
 
-    with open("kernels_compare.csv", 'a') as file:
+    with open("csv/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
 
         for i in range(number):
