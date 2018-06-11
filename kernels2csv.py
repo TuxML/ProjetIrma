@@ -26,7 +26,8 @@ class kernel:
     def get_cid(self):
         return str(self.cid)
 
-
+# Example of formatted compressed_sizes:
+#
 # "GZIP-bzImage : 6726608 , GZIP-vmlinux : 8811992 , GZIP : 6580441 , BZIP2-bzImage : 10433488 ,
 # BZIP2-vmlinux : 12518312 , BZIP2 : 6167633 , LZMA-bzImage : 5346256 , LZMA-vmlinux : 7431120 ,
 # LZMA : 5209210 , XZ-bzImage : 4662224 , XZ-vmlinux : 6747512 , XZ : 4515160 , LZO-bzImage : 7406544 ,

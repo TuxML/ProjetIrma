@@ -59,14 +59,14 @@ def get_kernel_size():
 # @details New version of get_kernel_size() which was inaccurate, only get the "vmlinux" size
 # without looking for others name possible
 #
-# @returns 0 can not find the vmlinux file
+# @returns -1 can not find the vmlinux file
 # @returns >0 size of kernel "vmlinux" in bytes
 def get_size_kernel():
     full_filename = tset.PATH + "/vmlinux"
     if os.path.isfile(full_filename):
         tcom.pprint(2, "kernel found: vmlinux")
         return os.path.getsize(full_filename)
-    return 0
+    return -1
 
 
 
@@ -116,7 +116,7 @@ def get_compressed_sizes():
             if vm == "":
                 vm = "-1"
             if bzImage == "":
-                bzImage == "-1"
+                bzImage = "-1"
 
             if res == "":
                 res = res + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
