@@ -2,7 +2,7 @@ FROM debian:latest
 ADD linux-4.13.3 /TuxML/linux-4.13.3
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get update && apt-get full-upgrade -y && apt-get -qq -y install python3 apt-file apt-utils gcc g++ make binutils util-linux kmod e2fsprogs jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool nfs-kernel-server procps mcelog libcrypto++6 python3-dev default-libmysqlclient-dev git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool dialog moreutils bison
+RUN apt-get update && apt-get full-upgrade -y && apt-get -qq -y install python3 apt-file apt-utils gcc g++ make binutils util-linux kmod e2fsprogs jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool nfs-kernel-server procps mcelog libcrypto++6 python3-dev default-libmysqlclient-dev git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool dialog moreutils bison libelf-dev
   
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python3 get-pip.py
