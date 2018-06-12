@@ -64,8 +64,8 @@ def send_outputlog(cid, outputfilename, databasename):
         for c in cid:
             data = (bzoutput, cid)
             cursor.execute(query, data)
-
-        socket.commit()
+            socket.commit()
+            
         socket.close()
         return cid
 
