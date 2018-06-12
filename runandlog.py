@@ -60,8 +60,10 @@ def send_outputlog(cid, outputfilename, databasename):
         bzoutput = bz2.compress(open(outputfilename, "rb").read())
 
         query = "UPDATE Compilations SET output_file = %s WHERE cid = %s"
-        data = (bzoutput, cid)
-        cursor.execute(query, data)
+
+        for c in cid:
+            data = (bzoutput, cid)
+            cursor.execute(query, data)
 
         socket.commit()
         socket.close()
@@ -105,16 +107,20 @@ with open("/TuxML/out.log", 'r+') as f:
         out.write(res)
 
 # tuxLogs.py has finished to run, output.log now exists
-cid = -1
+cid = []
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+    match2 = re.search('INCREMENTAL CONFIGURATION ID #(\d+)=(\d+)', line)
     if match:
-        cid=match.group(1)
+        cid.append(match.group(1))
         if not args.silent:
-            print("CID found " + cid, flush=True)
-        break
+            print("CID found " + match.group(1), flush=True)
+        if not match2:
+            break
+    if match2:
+        cid.append(match2.group(2))
 
-if not cid == -1:
+if not cid == []:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
 
 else:
