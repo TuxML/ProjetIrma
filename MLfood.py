@@ -233,7 +233,7 @@ def mlfood():
                     subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./Logs/" + logsFolder + "/compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
                     subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
                     for ext in extension:
-                        subprocess.call("sudo docker cp " + dock + ":/TuML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True)
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True)
 
                 print(GRAY)
             # Silent mode enable
@@ -254,7 +254,7 @@ def mlfood():
                     subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
                     subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
                     for ext in extension:
-                        subprocess.call("sudo docker cp " + dock + ":/TuML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
 
 
             dockerid.close()
