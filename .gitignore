@@ -2,7 +2,6 @@ __pycache__
 .config
 vmlinux
 vmlinuz
-present.txt
 linux-4.13.3
 tuxml/
 Logs/
@@ -20,7 +19,4 @@ Dockerfile
 compare/
 test/
 test-incremental/
-tmp.py
-tmp.txt
-copie.csv
 nohup.out
