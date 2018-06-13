@@ -62,7 +62,7 @@ def send_outputlog(cid, outputfilename, databasename):
         query = "UPDATE Compilations SET output_file = %s WHERE cid = %s"
 
         for c in cid:
-            data = (bzoutput, cid)
+            data = (bzoutput, c)
             cursor.execute(query, data)
             socket.commit()
 
