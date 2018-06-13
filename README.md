@@ -39,26 +39,26 @@ A more complexe command could be:
 sudo ./MLfood.py 100 10 --dev --fetch-kernel --no-clean --force-compilation-limits --no-logs --silent
 ```
 
-Sudo : in order to run the entire process without asking for super user password during it ( sending to database for instance )
+* `sudo` : in order to run the entire process without asking for super user password during it ( sending to database for instance )
 
-`./MLfood.py 100 10` To run 100 new containers and run in it 1 basic compilation plus 10 incrementals next. So 1100 compilations.
+* `./MLfood.py 100 10` To run 100 new containers and run in it 1 basic compilation plus 10 incrementals next. So 1100 compilations.
 
-`--dev` To use the developpement docker image. ( Can be unstable and down )
+* `--dev` To use the developpement docker image. ( Can be unstable and down )
 
-`--fetch-kernel` Used to retrieves the kernel generated and its compressed versions. ( May be heavy, be careful to not fulfill your hard drive )
+* `--fetch-kernel` Used to retrieves the kernel generated and its compressed versions. ( May be heavy, be careful to not fulfill your hard drive )
 
-`--no-clean` Do not clean the all 100 Docker containers, takes place in memory.
+* `--no-clean` Do not clean the all 100 Docker containers, takes place in memory.
 
-`--force-compilation-limits` To pass the demand to the user if he is sure to run more than 50 compilations.
+* `--force-compilation-limits` To pass the demand to the user if he is sure to run more than 50 compilations.
 
-`--no-logs` Do not keep local logs during the all process. ( Logs are still sent to the database )
+* `--no-logs` Do not keep local logs during the all process. ( Logs are still sent to the database )
 
-`--silent` To run MLfood without show the intern process, only the current Docker containers.
+* `--silent` To run MLfood without show the intern process, only the current Docker containers.
 
 
-  The first Integer run MLfood into the given number of containers
-  The second Integer is optional, it is used in a case of incremental compilation with <Integer> number of compilation in a container.
-  The default number of compilations in a container is set as 1
+The first Integer run MLfood into the given number of containers.
+The second Integer is optional, it is used in a case of incremental compilation with <Integer> number of compilation in a container.
+The default number of compilations in a container is set as 1
 
 ```
 Options:
