@@ -115,6 +115,8 @@ for line in open('/TuxML/output.log'):
         cid.append(match.group(1))
         if not args.silent:
             print("CID found " + match.group(1), flush=True)
+        if args.incremental == 0:
+            break
     if match2:
         cid.append(match2.group(2))
 
