@@ -94,7 +94,7 @@ def execute_config(id:int):
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
 
 
-def compilations(number):
+def compilations(args):
 
     with open("csv/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
@@ -102,10 +102,11 @@ def compilations(number):
         possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
-        for i in range(number):
+        ker = "" if args.fetch_kernel else "--fetch-kernel"
+
+        for i in range(args.compare_number):
             os.makedirs("./compare/" + str(i), exist_ok=True)
-            print("Running MLfood 1 1 --dev --no-clean --no-logs", flush=True)
-            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean --fetch-kernel", shell=True)
+            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + ker, shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
@@ -149,7 +150,7 @@ def main():
     args = parser.parse_args()
 
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
-    compilations(args.compare_number)
+    compilations(args)
 
 if __name__ == '__main__':
     main()
