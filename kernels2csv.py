@@ -5,6 +5,7 @@ import argparse
 import subprocess
 import re
 import MySQLdb
+import sys
 import os
 import csv
 import core.tuxml_settings as tset
@@ -144,9 +145,10 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
-    parser.add_argument("--fetch-kernel",type=int, help="Retrieves kernel and compressed kernels", action="store_true")
+    parser.add_argument("--fetch-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     args = parser.parse_args()
 
+    print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
     compilations(args.compare_number)
 
 if __name__ == '__main__':

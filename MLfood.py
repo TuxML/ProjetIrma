@@ -33,6 +33,7 @@ import os
 import subprocess
 import time
 import argparse
+import sys
 
 
 ## COLORS
@@ -158,7 +159,7 @@ def mlfood():
     if args.silent:
         print(GREEN + "Silent mode enable" + GRAY)
 
-    print("     Real Command: ./MLfood.py", args.nbcompil, args.incremental)
+    print("     Real Command: " + " ".join(sys.argv))
     print("")
 
     #################### Section 6 ####################
