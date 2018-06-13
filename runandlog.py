@@ -65,7 +65,7 @@ def send_outputlog(cid, outputfilename, databasename):
             data = (bzoutput, cid)
             cursor.execute(query, data)
             socket.commit()
-            
+
         socket.close()
         return cid
 
@@ -115,10 +115,10 @@ for line in open('/TuxML/output.log'):
         cid.append(match.group(1))
         if not args.silent:
             print("CID found " + match.group(1), flush=True)
-        if not match2:
-            break
     if match2:
         cid.append(match2.group(2))
+
+print("CID array: " + str(cid))
 
 if not cid == []:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
