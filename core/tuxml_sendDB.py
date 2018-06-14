@@ -78,7 +78,7 @@ def get_size_kernel():
 # @returns The string formated as "compressed_name_1 : size1 , compressed_name_2 : size2 ..."
 # @returns "compressed_name_1 : 0 , compressed_name_2 : 0 ..." when no compressed_sizes could be found
 def get_compressed_sizes():
-    tcom.pprint(2, "Getting compressed kernels")
+    tcom.pprint(2, "Computing compressed kernels")
     compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
