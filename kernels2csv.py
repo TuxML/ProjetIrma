@@ -110,7 +110,7 @@ def compilations(args):
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
-            if args.fetch_kernel:
+            if not args.no_kernel:
                 # retrieves differents possible kernels according to their names
                 subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
                 subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
@@ -124,7 +124,7 @@ def compilations(args):
             execute_config(i)
             subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
 
-            if args.fetch_kernel:
+            if not args.no_kernel:
                 # retrieves differents possible kernels according to their names
                 subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
                 subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
