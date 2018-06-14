@@ -34,13 +34,18 @@ def tuxLogs():
     # Creation of help and argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
+    parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
     args = parser.parse_args()
 
+    path = ""
+    if args.path:
+        path = "-d " + args.path + ' '
+    else:
+        path = ''
+
     # Run tuxml.py and retrieves the output converted in a log file.
-    print("")
-    chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 -v 4 --incremental ' + str(args.incremental)
-    print("")
-    subprocess.run(chaine, shell=True).stdout
+    chaine = '/TuxML/tuxml.py /TuxML/linux-4.13.3 ' + path + '-v 4 --incremental ' + str(args.incremental)
+    subprocess.run(chaine, shell=True)
 
 # Run the tuxLogs function
 tuxLogs()

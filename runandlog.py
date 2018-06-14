@@ -45,7 +45,8 @@ import re
 # Creation of help and argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
-parser.add_argument("--silent", help="No output on standard output", action="store_true")
+parser.add_argument("--silent", help="No output on standrd output", action="store_true")
+parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
 args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
@@ -59,10 +60,12 @@ def send_outputlog(cid, outputfilename, databasename):
         bzoutput = bz2.compress(open(outputfilename, "rb").read())
 
         query = "UPDATE Compilations SET output_file = %s WHERE cid = %s"
-        data = (bzoutput, cid)
-        cursor.execute(query, data)
 
-        socket.commit()
+        for c in cid:
+            data = (bzoutput, c)
+            cursor.execute(query, data)
+            socket.commit()
+
         socket.close()
         return cid
 
@@ -72,46 +75,55 @@ def send_outputlog(cid, outputfilename, databasename):
 
 # Run tuxLogs.py and retrieves the output converted in a log file.
 if not args.silent:
-    print("")
-    print('------ Running runandlog.py ... ------')
-    print("")
+    print('\n------ Running runandlog.py ... ------\n', flush=True)
+
+path = ''
+if args.path:
+    path = '--path ' + args.path + ' '
+else:
+    path = ""
 
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' > /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + "| ts -s > /TuxML/out.log"
 else:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + ' | tee /TuxML/output.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| ts -s | tee /TuxML/out.log'
 
-print("")
-subprocess.run(chaine, shell=True).stdout
+subprocess.run(chaine, shell=True)
 
-if not args.silent:
-    print("Removing colors in output file ...")
-
-with open("/TuxML/output.log", 'r+') as f:
-    file = f.read()
-
-    escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-    res = escape.sub("", file)
-
-    f.write(res)
+print("", flush=True)
 
 if not args.silent:
-    print("Try to send output.log ...")
+    print("Processing output.log ...", flush=True)
 
-# tuxLogs.py has finished to run, output.log exist now
-cid = -1
+with open("/TuxML/out.log", 'r+') as f:
+    with open("/TuxML/output.log", 'w') as out:
+        file = f.read()
+
+        escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        res = escape.sub("", file)
+
+        out.write(res)
+
+# tuxLogs.py has finished to run, output.log now exists
+cid = []
 for line in open('/TuxML/output.log'):
     match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+    match2 = re.search('INCREMENTAL CONFIGURATION ID #(\d+)=(\d+)', line)
     if match:
-        cid=match.group(1)
+        cid.append(match.group(1))
         if not args.silent:
-            print("CID found " + cid)
+            print("CID found " + match.group(1), flush=True)
+        if args.incremental == 0:
+            break
+    if match2:
+        cid.append(match2.group(2))
 
-if not cid == -1:
+print("CID array: " + str(cid))
+
+if not cid == []:
     send_outputlog(cid, "/TuxML/output.log", "IrmaDB_prod")
 
 else:
-    print("Cid unfound, no output.log file has been sent")
-    print("")
+    print("Cid unfound, no output.log file has been sent\n", flush=True)

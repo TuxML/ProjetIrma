@@ -2,7 +2,6 @@ __pycache__
 .config
 vmlinux
 vmlinuz
-present.txt
 linux-4.13.3
 tuxml/
 Logs/
@@ -17,3 +16,8 @@ paramiko.log
 csvgen
 doc/
 Dockerfile
+compare/
+test/
+test-incremental/
+nohup.out
+To_Compare/

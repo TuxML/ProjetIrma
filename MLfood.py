@@ -33,6 +33,7 @@ import os
 import subprocess
 import time
 import argparse
+import sys
 
 
 ## COLORS
@@ -60,12 +61,14 @@ print("")
 parser = argparse.ArgumentParser()
 parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number of containers.")
 parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container.", nargs='?', default=0)
-parser.add_argument("--no-clean", help="Do not delete past containers.", action="store_true")
+parser.add_argument("--no-clean", help="[dev] Do not delete past containers.", action="store_true")
 parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
-parser.add_argument("--dev", help="Use image in current development.", action="store_true")
+parser.add_argument("--dev", help="[dev] Use image in current development.", action="store_true")
 parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
-parser.add_argument("--no-check-log", help="Do not compute the Logs folder size at the end of compilation.", action="store_true")
+parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation.", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
+parser.add_argument("--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
+parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -86,7 +89,8 @@ def mlfood():
         reset.lower()
         if reset == "y":
             print("Deleting all the logs in Logs/...")
-            subprocess.run("rm -rf Logs/*", shell=True).stdout
+            # subprocess.run("rm -rf Logs/*", shell=True)
+            subprocess.call("rm -rf Logs/*", shell=True)
             print("Delete done.")
             print("" + GRAY)
             exit(0)
@@ -145,7 +149,7 @@ def mlfood():
     if os.geteuid() != 0:
         if args.silent:
             print(RED + "You need to run MLfood.py with super-user privileges because in silent mode the request for sudo password will not be displayed." + GRAY)
-            exit(0)
+            # exit(0)
         if args.nbcompil >= 5:
             print(ORANGE + "You should run MLfood.py with 'sudo' to run a big number of compilations.")
             print("If you do not,you will be asked to enter your password before and after each compilations." + GRAY)
@@ -154,64 +158,106 @@ def mlfood():
 
     if args.silent:
         print(GREEN + "Silent mode enable" + GRAY)
+
+    print("     Real Command: " + " ".join(sys.argv))
+    print("")
+
     #################### Section 6 ####################
     # For each url in the url list "images", we run a new docker which run the TuxML command nbcompil times and saves the logs.
     for i in range(args.nbcompil):
-        # print("")
 
         #################### Section 7 ####################
         # Get the last version of the image.
         str2 = "sudo docker pull " + images[i % len(images)]
         if not args.silent:
             print(LIGHT_PURPLE + "Recovering the last docker image " + images[i % len(images)] + "\n" + GRAY)
-            subprocess.run(str2, shell=True)
+            # subprocess.run(str2, shell=True)
+            subprocess.call(str2, shell=True)
         else:
-            subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.call(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         #################### Section 8 ####################
-        # Generation of the logs folder create thanks to the execution date
-        # today = time.localtime(time.time())
-        logsFolder = time.strftime("%Y%m%d_%H%M%S", time.gmtime(time.time()))
-        if not os.path.exists("Logs/"+logsFolder):
-            os.makedirs("Logs/" + logsFolder)
+        logsFolder = ""
+        if not args.no_logs:
+            # Generation of the logs folder create thanks to the execution date
+            logsFolder = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
+            if not os.path.exists("Logs/"+logsFolder):
+                os.makedirs("Logs/" + logsFolder)
 
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
+        chaine = ""
         if args.silent:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " --silent"
         else:
             chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
         print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
-        subprocess.run(chaine, shell=True).stdout
+        # subprocess.run(chaine, shell=True)
+        subprocess.call(chaine, shell=True)
 
-        #################### Section 10 ####################
-        # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
-        dockerid = os.popen("sudo docker ps -lq", "r")
-        dock = dockerid.read()
-        dock = dock[0:len(dock) -1]
-        outputlog = 'sudo docker cp ' + dock + ':/TuxML/output.log ./Logs/' + logsFolder
-        stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
-        errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
-        configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
+        if not args.no_logs:
+            #################### Section 10 ####################
+            # Get the logs output.log, std.logs and err.logs from the last used container and retrieves the ".config" file.
+            dockerid = os.popen("sudo docker ps -lq", "r")
+            dock = dockerid.read()
+            dock = dock[0:len(dock) -1]
+            outputlog = 'sudo docker cp ' + dock + ':/TuxML/output.log ./Logs/' + logsFolder
+            stdlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/std.log ./Logs/' + logsFolder
+            errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
+            configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
-        # Silent mode disable
-        if not args.silent:
-            print("")
-            print(LIGHT_PURPLE + "Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder + GRAY)
-            # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
-            # Thoses errors are only due to the logs files that does not exist because of the process error.
-            # Consider it as warnings.
-            subprocess.run(outputlog, shell=True).stdout
-            subprocess.run(stdlogs, shell=True).stdout
-            subprocess.run(errlogs, shell=True).stdout
-            subprocess.run(configFile, shell=True).stdout
-            dockerid.close()
-            print(GRAY)
-        # Silent mode enable
-        else:
-            subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
-            subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+            possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+            extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
+
+            # Silent mode disable
+            if not args.silent:
+                print("")
+                print("Fetch logs and .config file from container:" + dock + " to the folder ./Logs/" + logsFolder)
+                # Thoses following lines can print errors in the case where the compilation process has crash or even the Docker container.
+                # Thoses errors are only due to the logs files that does not exist because of the process error.
+                # Consider it as warnings.
+
+                # subprocess.run(outputlog, shell=True)
+                # subprocess.run(stdlogs, shell=True)
+                # subprocess.run(errlogs, shell=True)
+                # subprocess.run(configFile, shell=True)
+
+                subprocess.call(outputlog, shell=True)
+                subprocess.call(stdlogs, shell=True)
+                subprocess.call(errlogs, shell=True)
+                subprocess.call(configFile, shell=True)
+
+                if args.fetch_kernel:
+                    # retrieves differents possible kernels according to their names
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/vmlinux ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./Logs/" + logsFolder + "/compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    for ext in extension:
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True)
+
+                print(GRAY)
+            # Silent mode enable
+            else:
+                # subprocess.run(outputlog, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
+                # subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+
+                subprocess.call(outputlog, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(stdlogs, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(errlogs, shell=True, stderr=subprocess.DEVNULL)
+                subprocess.call(configFile, shell=True, stderr=subprocess.DEVNULL)
+
+                if args.fetch_kernel:
+                    # retrieves differents possible kernels according to their names
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/vmlinux ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+                    for ext in extension:
+                        subprocess.call("sudo docker cp " + dock + ":/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./Logs/" + logsFolder, shell=True, stderr=subprocess.DEVNULL)
+
+
             dockerid.close()
 
 
@@ -219,13 +265,15 @@ def mlfood():
         # Clean all the containers used previously. Only if "--no-clean" is not given in argument.
         if not args.no_clean:
             if not args.silent:
-                print(LIGHT_PURPLE + "Cleaning containers . . ." + GRAY)
-                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
+                print("Cleaning containers . . .")
+                # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
+                subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
                 print("")
-                print(LIGHT_PURPLE + "Clean done!" + GRAY)
+                print("Clean done!")
                 print("")
             else:
-                subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if args.silent:
             print(LIGHT_BLUE_1 + "Docker #" + str(i) + " done              ### SILENT MODE ###" + GRAY)
@@ -233,12 +281,12 @@ def mlfood():
 
     #################### Section 12 ####################
     # The end
-    print(GREEN + "Your tamago... database Irma_DB ate " + str(args.nbcompil * (args.incremental + 1)) + " compilations data, come back later to feed it!" + GRAY)
+    print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY, flush=True)
     print("")
-    print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY)
-    print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )")
-    print(LIGHT_BLUE_1 + "Total number of compilations: " + GREEN + str(args.nbcompil * (args.incremental + 1)) + GRAY)
-    print("")
+    print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY, flush=True)
+    print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )", flush=True)
+    print(LIGHT_BLUE_1 + "Total number of compilations: " + GREEN + str(args.nbcompil * (args.incremental + 1)) + GRAY, flush=True)
+    print("", flush=True)
 
 
 # Check the size of log directory to remind the user to delete them.
@@ -270,18 +318,25 @@ def check_log():
                 tmp.replace("\n", " ")
                 size = size + int(tmp.split()[-2])
 
-    # Alert if the logs exceeds 1 Mo
-    # 1048576 one mebioctet
-    # 1000000 one megaoctet
-    # size = float(size/1048576.0)  # Mebioctet version
+    # Alert if the logs exceeds 1 Go
     size = float(size/1000000.0)    # Megaoctet version
+    unit = "Mo"
+    color = GREEN
 
-    if size >= 10.0:
-        print(LIGHT_BLUE_1 + "You have " + RED + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, you should delete your logs." + GRAY)
-    elif size >= 1.0 and size < 10.0:
-        print(LIGHT_BLUE_1 + "You have " + ORANGE + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files, do not forget to delete it to gain space." + GRAY)
-    elif size < 1.0:
-        print(LIGHT_BLUE_1 + "You have " + GREEN + str(size)[0:4] + LIGHT_BLUE_1 + " Mo of logs files." + GRAY)
+    # Conversion unit
+    if size >= 100.0 and unit == "Mo":
+        color = ORANGE
+    if size >= 1000.0 and unit == "Mo":
+        size = size / 1000.0
+        unit = "Go"
+        color = RED
+
+    treatment = str(size).split(".")
+
+    # Only display two numbers after comma
+    printing = treatment[0] + "." + treatment[1][0:2]
+
+    print(LIGHT_BLUE_1 + "You have " + color + printing + LIGHT_BLUE_1 + " " + unit + " of logs files, do not forget to clean up your logs." + GRAY)
 
 
 #################### Section 13 ####################
