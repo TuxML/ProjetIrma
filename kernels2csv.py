@@ -102,7 +102,7 @@ def compilations(args):
         possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
-        ker = "" if args.fetch_kernel else "--fetch-kernel"
+        ker = "--fetch-kernel" if args.fetch_kernel else "--no-kernel"
 
         for i in range(args.compare_number):
             os.makedirs("./compare/" + str(i), exist_ok=True)
@@ -146,7 +146,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
-    parser.add_argument("--fetch-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
+    parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     args = parser.parse_args()
 
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
