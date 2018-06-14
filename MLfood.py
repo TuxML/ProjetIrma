@@ -292,6 +292,9 @@ def mlfood():
 # Check the size of log directory to remind the user to delete them.
 def check_log():
     current_path = './Logs'
+    if not os.path.exists(current_path):
+        os.makedirs(current_path)
+
     list = os.listdir(current_path)
     raw_size = ''
     size = 0
