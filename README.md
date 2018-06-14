@@ -1,6 +1,6 @@
 Last updates:<br>
 README - June the 13th 2018<br>
-Prod docker image - May the 22th 2018 ( see https://github.com/TuxML/ProjetIrma/releases )
+Prod docker image - June the 14th 2018 ( see https://github.com/TuxML/ProjetIrma/releases )
 
 # TuxML
 ## MLfood.py script
