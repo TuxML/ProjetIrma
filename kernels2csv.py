@@ -102,7 +102,7 @@ def compilations(args):
         possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
-        ker = "--fetch-kernel" if args.fetch_kernel else "--no-kernel"
+        ker = "--no-kernel" if args.no_kernel else "--fetch-kernel"
 
         for i in range(args.compare_number):
             os.makedirs("./compare/" + str(i), exist_ok=True)
