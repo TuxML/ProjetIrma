@@ -93,8 +93,6 @@ def execute_config(id:int):
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation with the .config file from the incremental compilation
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
-    # Stop the container Docker
-    subprocess.run("sudo docker stop $(sudo docker ps -lq)", shell=True)
 
 
 def compilations(args):
@@ -142,6 +140,8 @@ def compilations(args):
 
             writer.writerow(entry)
 
+            # Stop the container Docker and erase it
+            subprocess.run("sudo docker stop $(sudo docker ps -aq)", shell=True)
             subprocess.run("sudo docker rm $(sudo docker ps -aq)", shell=True)
 
 
