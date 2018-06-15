@@ -343,7 +343,8 @@ def check_log():
 
 
 #################### Section 13 ####################
-mlfood()
-if not args.no_check_log:
-    print(LIGHT_BLUE_1 + "Checking local logs size ..." + GRAY)
-    check_log()
+if __name__ == '__main__':
+    mlfood()
+    if not args.no_check_log:
+        print(LIGHT_BLUE_1 + "Checking local logs size ..." + GRAY)
+        check_log()
