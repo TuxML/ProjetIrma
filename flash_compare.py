@@ -20,8 +20,10 @@ def diff_size(n):
 
     if number > max_number:
         number = max_number
+    elif number < 0:
+        number = 0
 
-    print("Number of comparison:", number, flush=True)
+    print("Number of comparisons:", number, flush=True)
 
     for i in range(number):
 
