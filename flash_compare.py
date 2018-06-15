@@ -46,7 +46,7 @@ def diff_size(n):
     for i in range(len(liste)):
         temp += float(liste[i][1:-1])
 
-    average = '+' + str(temp/len(liste))[:4] + '%'
+    average = '+' + str(temp/len(liste))[:6] + '%'
     print("average difference:", average, flush=True)
 
 if __name__ == "__main__":
