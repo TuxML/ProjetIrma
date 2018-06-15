@@ -9,16 +9,26 @@ parser = argparse.ArgumentParser()
 parser.add_argument("number", type=int, help="The number of comparisons to do (all by default)", nargs='?', default=-1)
 args = parser.parse_args()
 
-number = args.number
+def diff_size(n):
 
-if number == -1 and os.path.exists("./compare/"):
-    number = len([name for name in os.listdir('./compare/')])
+    number = n
 
-print("Number of comparison:", number, flush=True)
+    if not os.path.exists("./compare/"):
+        os.makedirs("./compare/")
 
-for i in range(number):
+    max_number = len([name for name in os.listdir('./compare/')])
 
-    print("Number:",i , flush=True)
-    subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True)
+    if number > max_number:
+        number = max_number
 
-print("Size compared", flush=True)
+    print("Number of comparison:", number, flush=True)
+
+    for i in range(number):
+
+        print("Number:",i , flush=True)
+        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True)
+
+    print("Size compared", flush=True)
+
+if __name__ == "__main__":
+    diff_size(args.number)

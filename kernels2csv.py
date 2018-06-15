@@ -9,6 +9,7 @@ import sys
 import os
 import csv
 import core.tuxml_settings as tset
+import flash_compare
 
 # Class kernel to compare two of them
 class kernel:
@@ -92,6 +93,8 @@ def execute_config(id:int):
     subprocess.run("sudo docker cp ./compare/" + str(id) + "/.config $(sudo docker ps -lq):/TuxML/.config", shell=True)
     # Run the compilation with the .config file from the incremental compilation
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
+    # Stop the container Docker
+    subprocess.run("sudo docker stop $(sudo docker ps -lq)", shell=True)
 
 
 def compilations(args):
@@ -149,8 +152,12 @@ def main():
     parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     args = parser.parse_args()
 
+    print("Parameters:\n",flush=True)
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
     compilations(args)
+
+    flash_compare.diff_size(args.compare_number)
+    print("Differences of sizes done in compare/X/diff.txt", flush=True)
 
 if __name__ == '__main__':
     main()
