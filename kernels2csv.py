@@ -141,8 +141,7 @@ def compilations(args):
             writer.writerow(entry)
 
             # Stop the container Docker and erase it
-            subprocess.run("sudo docker stop $(sudo docker ps -aq)", shell=True)
-            subprocess.run("sudo docker rm $(sudo docker ps -aq)", shell=True)
+            subprocess.run("sudo ./clean.py --docker", shell=True)
 
 
 def main():
