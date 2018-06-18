@@ -44,7 +44,7 @@ RED             = "\033[38;5;1m"           # Errors messages
 LIGHT_RED       = "\033[38;5;9m"
 GREEN           = "\033[38;5;2m"           # Success messages
 LIGHT_GREEN     = "\033[38;5;10m"
-ORANGE          = "\033[38;5;3m"
+ORANGE          = "\033[38;5;3m"           # Warning
 LIGHT_ORANGE    = "\033[38;5;11m"
 BLUE_1          = "\033[38;5;4m"
 LIGHT_BLUE_1    = "\033[38;5;12m"          # Informations
@@ -59,16 +59,17 @@ LIGHT_PURPLE    = "\033[38;5;13m"          # Informations
 # Creation of help and arguments parser
 print("")
 parser = argparse.ArgumentParser()
-parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number of containers.")
-parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container.", nargs='?', default=0)
-parser.add_argument("--no-clean", help="[dev] Do not delete past containers.", action="store_true")
-parser.add_argument("--reset-logs", help="Delete all the saved logs and exit.", action="store_true")
-parser.add_argument("--dev", help="[dev] Use image in current development.", action="store_true")
-parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50.", action="store_true")
-parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation.", action="store_true")
+parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number of containers")
+parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container", nargs='?', default=0)
+parser.add_argument("--no-clean", help="[dev] Do not delete past containers", action="store_true")
+parser.add_argument("--reset-logs", help="Delete all the saved logs and exit", action="store_true")
+parser.add_argument("--dev", help="[dev] Use image in current development", action="store_true")
+parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50", action="store_true")
+parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
 parser.add_argument("--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
 parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
+parser.add_argument("--path", help="Give a .config file to compile, only this one and no more")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -188,11 +189,22 @@ def mlfood():
         #################### Section 9 ####################
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
         chaine = ""
-        if args.silent:
-            chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " --silent"
+        path = ""
+
+        # If a path to a .config file is precise
+        if args.path:
+            path = "--path " + args.path
+            # Create a new container
+            subprocess.call("sudo docker run -i -d " + images[i % len(images)], shell=True, stdout=subprocess.DEVNULL)
+            # Copy on it the .config file to use
+            subprocess.call("sudo docker cp " + args.path + " $(sudo docker ps -lq):/TuxML/.config", shell=True)
+            chaine = "sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config"
         else:
-            chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental)
-        print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
+            if args.silent:
+                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path + " --silent"
+            else:
+                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path
+            print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
         # subprocess.run(chaine, shell=True)
         subprocess.call(chaine, shell=True)
 
@@ -279,6 +291,8 @@ def mlfood():
             print(LIGHT_BLUE_1 + "Docker #" + str(i) + " done              ### SILENT MODE ###" + GRAY)
         print(LIGHT_BLUE_1 + "===============================================\n" + GRAY)
 
+    # Give permissions to the current users on Logs folder
+    subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u| awk '{print $1}') ./Logs", shell=True)
     #################### Section 12 ####################
     # The end
     print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY, flush=True)
