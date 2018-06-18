@@ -29,14 +29,17 @@ def diff_size(n):
 
     for i in range(number):
 
-        print("Number:",i , flush=True, end='')
-        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=open("compare/" + str(i) + "/diff_size.txt",'w'))
+        print("Number: " + str(i) + " ", flush=True, end='')
+        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=open("compare/" + str(i) + "/diff_size.txt",'w'), stderr=subprocess.DEVNULL)
 
         with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
             lines = f.readlines()
             tmp = lines[-1].split()[-1]
-            diff[str(i)] = tmp
-            print(" " + tmp, flush=True)
+            if not (tmp == "-100.00%" or tmp == "+100.00%"):
+                diff[str(i)] = tmp
+                print(tmp, flush=True)
+            else:
+                print('---ERR---', flush=True)
 
     print("Percentage of differences between incremental and basic compiled kernels:")
     liste = list(diff.values())
