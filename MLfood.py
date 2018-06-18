@@ -63,13 +63,13 @@ parser.add_argument("nbcompil", type=int, help="Run MLfood into the given number
 parser.add_argument("incremental", type=int, help="Used in a case of incremental compilation with <Integer> compilation in a container", nargs='?', default=0)
 parser.add_argument("--no-clean", help="[dev] Do not delete past containers", action="store_true")
 parser.add_argument("--reset-logs", help="Delete all the saved logs and exit", action="store_true")
-parser.add_argument("--dev", help="[dev] Use image in current development", action="store_true")
+parser.add_argument("--dev", help="[dev] Use the image in current development", action="store_true")
 parser.add_argument("--force-compilation-limits", help="Use this option to pass the user check if the requested number of compilations exceeds 50", action="store_true")
 parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation", action="store_true")
 parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
 parser.add_argument("--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
 parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
-parser.add_argument("--path", help="Give a .config file to compile, only this one and no more")
+parser.add_argument("--path", help="[dev] Give a .config file to compile, only this one and no more")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -111,10 +111,8 @@ def mlfood():
 
     #################### Section 3 ####################
     images = []
-    dev = ""
     if args.dev:
         images = ["tuxml/tuxmldebian:dev"]
-        dev = "--dev"
     else:
         print(ORANGE + "Advice:")
         print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod (stable)")
@@ -219,7 +217,6 @@ def mlfood():
             errlogs = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/logs/err.log ./Logs/' + logsFolder
             configFile = 'sudo docker cp ' + dock + ':/TuxML/linux-4.13.3/.config ./Logs/' + logsFolder + '/' + logsFolder + '.config'
 
-            possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
             extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
             # Silent mode disable
@@ -279,12 +276,14 @@ def mlfood():
             if not args.silent:
                 print("Cleaning containers . . .")
                 # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
+                subprocess.call("sudo docker stop $(sudo docker ps -aq)", shell=True)
                 subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True)
                 print("")
                 print("Clean done!")
                 print("")
             else:
                 # subprocess.run("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.call("sudo docker stop $(sudo docker ps -aq)", shell=True)
                 subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         if args.silent:
@@ -296,7 +295,7 @@ def mlfood():
     #################### Section 12 ####################
     # The end
     print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY, flush=True)
-    print("")
+    print("", flush=True)
     print(LIGHT_BLUE_1 + "Total number of containers used: " + GREEN + str(args.nbcompil) + GRAY, flush=True)
     print(LIGHT_BLUE_1 + "Number of compilations in a container: " + GREEN + str(args.incremental + 1) + LIGHT_BLUE_1 + " ( 1 basic compilation + " + GREEN + str(args.incremental) + LIGHT_BLUE_1 + " incremental compilations )", flush=True)
     print(LIGHT_BLUE_1 + "Total number of compilations: " + GREEN + str(args.nbcompil * (args.incremental + 1)) + GRAY, flush=True)
