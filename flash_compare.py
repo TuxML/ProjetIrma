@@ -5,10 +5,6 @@ import os
 import subprocess
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("number", type=int, help="The number of comparisons to do (all by default)", nargs='?', default=-1)
-args = parser.parse_args()
-
 if not os.path.exists("./compare/"):
     os.makedirs("./compare/")
 
@@ -17,6 +13,7 @@ max_number = len([name for name in os.listdir('./compare/')])
 def diff_size(n):
 
     number = n
+    err = []
 
     if number > max_number:
         number = max_number
@@ -40,17 +37,25 @@ def diff_size(n):
                 print(tmp, flush=True)
             else:
                 print('---ERR---', flush=True)
+                err.append(str(i))
 
-    print("Percentage of differences between incremental and basic compiled kernels:")
+    # print("Percentage of differences between incremental and basic compiled kernels:")
     liste = list(diff.values())
-    print(liste)
+    # print(liste)
 
     temp = 0.0
     for i in range(len(liste)):
         temp += float(liste[i][1:-1])
 
-    average = str(temp/len(liste))[:6] + '%'
-    print("average difference:", average, flush=True)
+    # if len(liste) == 0:
+    average = str(temp/len(liste))[:6] + '%' if not len(liste) == 0 else "No values"
+    # print("average difference:", average, flush=True)
+    return err, average
 
 if __name__ == "__main__":
-    diff_size(args.number)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("number", type=int, help="The number of comparisons to do (all by default)", nargs='?', default=-1)
+    args = parser.parse_args()
+    err,average = diff_size(args.number)
+    print("Error on: ", err)
+    print("Average:", average)
