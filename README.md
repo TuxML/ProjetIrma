@@ -1,5 +1,5 @@
 Last updates:<br>
-README - June the 13th 2018<br>
+README - June the 18th 2018<br>
 Prod docker image - June the 14th 2018 ( see https://github.com/TuxML/ProjetIrma/releases )
 
 # TuxML
@@ -70,19 +70,21 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --no-clean            [dev] Do not delete past containers.
-  --reset-logs          Delete all the saved logs and exit.
-  --dev                 [dev] Use image in current development.
+  --no-clean            [dev] Do not delete past containers
+  --reset-logs          Delete all the saved logs and exit
+  --dev                 [dev] Use image in current development
   --force-compilation-limits
                         Use this option to pass the user check if the
-                        requested number of compilations exceeds 50.
+                        requested number of compilations exceeds 50
   --no-check-log        [dev] Do not compute the Logs folder size at the end
-                        of compilation.
+                        of compilation
   --silent              Do not print on standard output. Used to compute only
                         without printing
   --fetch-kernel        [dev] Fetch vmlinux kernel from the Docker container (
                         Be careful to not overload your hard drive )
   --no-logs             Do not create local logs
+  --path PATH           Give a .config file to compile, only this one and no
+                        more
 ```
 
 The script retrieves the logs file err.logs, std.logs and output.logs as well as the `.config` file generated in the RandConfig command in the Logs/ folder thanks to `runandlog.py`.
