@@ -5,7 +5,6 @@ import argparse
 import subprocess
 import re
 import MySQLdb
-import sys
 import os
 import csv
 import core.tuxml_settings as tset
@@ -50,7 +49,7 @@ class kernel:
 
 
 # Create a new kernel instance from the physical kernel
-def compute_kernel(id:int, mode:str) -> kernel:
+def compute_kernel(id, mode):
 
     cid = -1
 
@@ -86,7 +85,7 @@ def compute_kernel(id:int, mode:str) -> kernel:
 
 
 # Basic compilation based on .config file from incremental
-def execute_config(id:int):
+def execute_config(id):
     # Create a new container
     subprocess.run("sudo docker run -i -d tuxml/tuxmldebian:dev", shell=True, stdout=subprocess.DEVNULL)
     # Copy on it the .config file to use
@@ -100,62 +99,99 @@ def compilations(args):
     with open("csv/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
 
-        possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
         ker = "--no-kernel" if args.no_kernel else "--fetch-kernel"
-
         for i in range(args.compare_number):
-            os.makedirs("./compare/" + str(i), exist_ok=True)
-            subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + ker, shell=True)
-            subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
-            subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
+            if (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
+                os.makedirs("./compare/" + str(i), exist_ok=True)
+                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + ker, shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
-            if not args.no_kernel:
-                # retrieves differents possible kernels according to their names
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
-                for ext in extension:
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
+                if not args.no_kernel:
+                    # retrieves differents possible kernels according to their names
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
+                    for ext in extension:
+                        subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
 
-            print("Computing kernel incr", flush=True)
-            inkernel = compute_kernel(i, "incr")
+                print("Computing kernel incr", flush=True)
+                inkernel = compute_kernel(i, "incr")
 
-            execute_config(i)
-            subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+                execute_config(i)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+                if not args.no_kernel:
+                    # retrieves differents possible kernels according to their names
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
+                    for ext in extension:
+                        subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
 
-            if not args.no_kernel:
-                # retrieves differents possible kernels according to their names
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
-                for ext in extension:
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
+                print("Computing kernel basic", flush=True)
+                basekernel = compute_kernel(i, "basic")
 
-            print("Computing kernel basic", flush=True)
-            basekernel = compute_kernel(i, "basic")
+                entry = inkernel.kernel2csv() + basekernel.kernel2csv()
 
-            entry = inkernel.kernel2csv() + basekernel.kernel2csv()
+                writer.writerow(entry)
 
-            writer.writerow(entry)
+                # Stop the container Docker and erase it
+                subprocess.run("sudo ./clean.py --docker", shell=True)
 
-            # Stop the container Docker and erase it
-            subprocess.run("sudo ./clean.py --docker", shell=True)
+def fix_err(err, args):
+
+    extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
+
+    for i in err:
+        os.makedirs("./compare/" + str(i), exist_ok=True)
+        subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
+
+        if not args.no_kernel:
+            # retrieves differents possible kernels according to their names
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
+            for ext in extension:
+                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
+
+        execute_config(i)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+
+        if not args.no_kernel:
+            # retrieves differents possible kernels according to their names
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+            subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
+            for ext in extension:
+                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
 
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
     parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
+    parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
     args = parser.parse_args()
 
-    print("Parameters:\n",flush=True)
-    print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
-    compilations(args)
+    if args.rewrite:
+        args.compare_number = args.rewrite + 1
 
-    flash_compare.diff_size(args.compare_number)
+    print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
+    # compilations(args)
+
+    err,average = flash_compare.diff_size(args.compare_number)
+    # Repeat to replace the compilations error with real values from successed compilations
+    while not len(err) == 0:
+        print("Number of errors to correct:", len(err), flush=True)
+        print("Correction in progress....", flush=True)
+        fix_err(err, args)
+        err,average = flash_compare.diff_size(args.compare_number)
+
+    print("Average:", average, flush=True)
     print("Differences of sizes done in compare/X/diff.txt", flush=True)
 
 if __name__ == '__main__':
