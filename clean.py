@@ -32,7 +32,7 @@ if args.docker:
     print("")
     print("Deleting Docker containers:")
     # subprocess.run("sudo docker rm $(sudo docker ps -aq)", shell=True, stderr=subprocess.DEVNULL)
-    subprocess.call("sudo docker rm $(sudo docker ps -aq)", shell=True, stderr=subprocess.DEVNULL)
+    subprocess.call("sudo docker rm -v $(sudo docker ps -aq)", shell=True, stderr=subprocess.DEVNULL)
     print("All docker containers have been cleaned")
 
 if args.all:
