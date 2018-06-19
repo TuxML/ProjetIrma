@@ -27,13 +27,6 @@ class kernel:
     def get_cid(self):
         return str(self.cid)
 
-# Example of formatted compressed_sizes:
-#
-# "GZIP-bzImage : 6726608 , GZIP-vmlinux : 8811992 , GZIP : 6580441 , BZIP2-bzImage : 10433488 ,
-# BZIP2-vmlinux : 12518312 , BZIP2 : 6167633 , LZMA-bzImage : 5346256 , LZMA-vmlinux : 7431120 ,
-# LZMA : 5209210 , XZ-bzImage : 4662224 , XZ-vmlinux : 6747512 , XZ : 4515160 , LZO-bzImage : 7406544 ,
-# LZO-vmlinux : 9491320 , LZO : 7271308 , LZ4-bzImage : 7934928 , LZ4-vmlinux : 10020016 , LZ4 : 7785825"
-
     def kernel2csv(self):
         compressed = self.get_compressed().split(" , ")
         parse_array = [i.split(" : ") for i in compressed]
@@ -42,7 +35,6 @@ class kernel:
         final.insert(0, self.get_size())
 
         return final
-
 
     def pprint(self):
         return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
