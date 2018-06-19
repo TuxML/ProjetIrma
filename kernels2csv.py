@@ -177,7 +177,7 @@ def main():
     parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
     args = parser.parse_args()
 
-    if args.rewrite:
+    if not args.rewrite == -1:
         args.compare_number = args.rewrite + 1
 
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
