@@ -181,7 +181,7 @@ def main():
         args.compare_number = args.rewrite + 1
 
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
-    # compilations(args)
+    compilations(args)
 
     err,average = flash_compare.diff_size(args.compare_number)
     # Repeat to replace the compilations error with real values from successed compilations
