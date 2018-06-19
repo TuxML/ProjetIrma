@@ -25,8 +25,6 @@
 
 import subprocess
 import argparse
-import os
-from sys import argv
 
 # Author Alexis LE MASLE
 

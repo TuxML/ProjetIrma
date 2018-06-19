@@ -35,7 +35,6 @@ sys.path.insert(0, 'core')
 import tuxml_common as tcom
 import tuxml_settings as tset
 import bz2
-import os
 import subprocess
 import argparse
 import re
