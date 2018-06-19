@@ -148,7 +148,7 @@ def fix_err(err, args):
             subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
             subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
             for ext in extension:
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
+                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True, stderr=subprocess.DEVNULL)
 
         execute_config(i)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
@@ -159,7 +159,7 @@ def fix_err(err, args):
             subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
             subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
             for ext in extension:
-                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
+                subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True, stderr=subprocess.DEVNULL)
 
 
 def main():
