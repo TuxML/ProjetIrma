@@ -169,7 +169,7 @@ def mlfood():
         # Get the last version of the image.
         str2 = "sudo docker pull " + images[i % len(images)]
         if not args.silent:
-            print(LIGHT_PURPLE + "Recovering the last docker image " + images[i % len(images)] + "\n" + GRAY)
+            print(LIGHT_BLUE_1 + "Recovering the last docker image " + images[i % len(images)] + "\n" + GRAY)
             # subprocess.run(str2, shell=True)
             subprocess.call(str2, shell=True)
         else:
