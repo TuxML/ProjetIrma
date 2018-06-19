@@ -141,10 +141,10 @@ def compilations(args):
                 subprocess.run("sudo ./clean.py --docker", shell=True)
 
 def fix_err(err, args):
-
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
     for i in err:
+        print("Fixing ...", i, flush=True)
         os.makedirs("./compare/" + str(i), exist_ok=True)
         subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
@@ -186,8 +186,7 @@ def main():
     err,average = flash_compare.diff_size(args.compare_number)
     # Repeat to replace the compilations error with real values from successed compilations
     while not len(err) == 0:
-        print("Number of errors to correct:", len(err), flush=True)
-        print("Correction in progress....", flush=True)
+        print("\nErrors to correct:", len(err), flush=True)
         fix_err(err, args)
         err,average = flash_compare.diff_size(args.compare_number)
 
