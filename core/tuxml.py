@@ -28,7 +28,6 @@ import subprocess
 import re
 import shutil
 import time
-import curses
 import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset

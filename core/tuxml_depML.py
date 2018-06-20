@@ -36,7 +36,6 @@ import tuxml_environment as tenv
 import tuxml as tml
 import sys
 import MySQLdb
-import time
 import ast
 import csv
 import tuxml_argshandler as targs
@@ -118,7 +117,6 @@ def sendToDB():
         cursor = socket.cursor()
 
         # Values for request
-        date = time.gmtime(time.time())
         args_env = {
             "config_file": open(tset.PATH + "/.config", "r").read(),
             "environnement": tset.TUXML_ENV,

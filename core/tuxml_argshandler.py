@@ -68,7 +68,6 @@ def args_handler():
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     gexcl1 = parser.add_mutually_exclusive_group()
-    excl2 = ""
     parser.add_argument("source_path",     help=p_help)
     parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=range(1,5))
     parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')

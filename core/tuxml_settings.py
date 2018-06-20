@@ -19,13 +19,7 @@
 #  @copyright Apache License 2.0
 #  @brief File containing all the tuxml's global variables
 
-
-import sys
 import subprocess
-import time
-import math
-import os
-
 
 ## Path to the linux sources
 PATH = ""
