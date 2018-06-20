@@ -182,8 +182,12 @@ def main():
         fix_err(err, args)
         err,average = flash_compare.diff_size(args.compare_number)
 
-    print("Average:", average, flush=True)
+    print("Size average:", average, flush=True)
     print("Differences of sizes done in compare/X/diff.txt", flush=True)
+
+    diff_time, time_average = flash_compare.diff_time(args.compare_number)
+
+    print("Time average:", time_average , flush=True)
 
 if __name__ == '__main__':
     main()
