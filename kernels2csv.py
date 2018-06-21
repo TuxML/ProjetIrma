@@ -40,6 +40,11 @@ class kernel:
         return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
 
 
+if not os.path.exists("./compare/"):
+    os.makedirs("./compare/")
+
+max_number = len([name for name in os.listdir('./compare/')])
+
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id, mode):
 
@@ -94,7 +99,11 @@ def compilations(args):
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
         ker = "--no-kernel" if args.no_kernel else "--fetch-kernel"
-        for i in range(args.compare_number):
+
+        if args.rewrite:
+            max_number = 0
+
+        for i in range(max_number, max_number + args.compare_number):
             if (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
                 subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + ker, shell=True)
@@ -174,20 +183,23 @@ def main():
 
     print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
     compilations(args)
+    max = len([name for name in os.listdir('./compare/')])
 
-    err,average = flash_compare.diff_size(args.compare_number)
+    err,average = flash_compare.diff_size(max)
     # Repeat to replace the compilations error with real values from successed compilations
     while not len(err) == 0:
         print("\nErrors to correct:", len(err), flush=True)
         fix_err(err, args)
-        err,average = flash_compare.diff_size(args.compare_number)
+        err,average = flash_compare.diff_size(max)
 
     print("Size average:", average, flush=True)
     print("Differences of sizes done in compare/X/diff.txt", flush=True)
 
-    diff_time, time_average = flash_compare.diff_time(args.compare_number)
+    diff_time, time_average = flash_compare.diff_time(max)
 
     print("Time average:", time_average , flush=True)
+
+    subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u| awk '{print $1}') ./compare", shell=True)
 
 if __name__ == '__main__':
     main()

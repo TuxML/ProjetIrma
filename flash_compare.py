@@ -67,7 +67,7 @@ def diff_time(n):
                 time_diff.append(diff) # Size of kernel column
 
         except Exception as e:
-            raise
+            raise e
         finally:
             cursor.close()
             socket.close()
@@ -76,6 +76,7 @@ def diff_time(n):
             time_average += t
 
         time_average /= len(time_diff)
+        print("Number:", len(time_diff), flush=True)
 
         return time_diff, time_average
 
@@ -93,8 +94,6 @@ def diff_size(n):
         number = max_number
     elif number < 0:
         number = max_number
-
-    print("Number of comparisons:", number, flush=True)
 
     diff = {}
 
