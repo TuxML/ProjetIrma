@@ -98,15 +98,13 @@ def compilations(args):
 
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
-        ker = "--no-kernel" if args.no_kernel else "--fetch-kernel"
-
         if args.rewrite:
             max_number = 0
 
         for i in range(max_number, max_number + args.compare_number):
             if (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
-                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + ker, shell=True)
+                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean ", shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
@@ -200,7 +198,7 @@ def main():
 
     print("Time average:", time_average , flush=True)
 
-    subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u| awk '{print $1}') ./compare", shell=True)
+    subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u | awk '{print $1}') ./compare", shell=True)
 
 if __name__ == '__main__':
     main()

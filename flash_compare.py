@@ -120,7 +120,6 @@ def diff_size(n):
     for i in range(len(liste)):
         temp += float(liste[i][1:-1])
 
-    # if len(liste) == 0:
     average = str(temp/len(liste))[:6] + '%' if not len(liste) == 0 else "No values"
     # print("average difference:", average, flush=True)
     return err, average
