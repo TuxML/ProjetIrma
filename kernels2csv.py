@@ -187,10 +187,11 @@ def main():
 
     err,average = flash_compare.diff_size(max)
     # Repeat to replace the compilations error with real values from successed compilations
-    while not len(err) == 0:
-        print("\nErrors to correct:", len(err), flush=True)
-        fix_err(err, args)
-        err,average = flash_compare.diff_size(max)
+    if not args.rewrite:
+        while not len(err) == 0:
+            print("\nErrors to correct:", len(err), flush=True)
+            fix_err(err, args)
+            err,average = flash_compare.diff_size(max)
 
     print("Size average:", average, flush=True)
     print("Differences of sizes done in compare/X/diff.txt", flush=True)
