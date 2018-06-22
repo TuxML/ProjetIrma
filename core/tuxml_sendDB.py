@@ -88,24 +88,24 @@ def get_compressed_sizes():
             else:
                 res = res + " , " + c + " : -1"
         else:
-            subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run("make -C " + tset.PATH + " -j" + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             size = ""
             vm = ""
             bzImage = ""
 
             try:
                 size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+            except:
                 size = ""
 
             try:
                 vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+            except:
                 vm = ""
 
             try:
                 bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+            except:
                 bzImage = ""
 
 
