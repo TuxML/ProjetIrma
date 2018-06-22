@@ -108,7 +108,7 @@ def compilations(args):
 
                 subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + path, shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
                 if not args.no_kernel:
@@ -124,7 +124,7 @@ def compilations(args):
 
                 execute_config(i)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
                 if not args.no_kernel:
                     # retrieves differents possible kernels according to their names
@@ -153,7 +153,7 @@ def fix_err(err, args):
         subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
-        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
@@ -165,7 +165,7 @@ def fix_err(err, args):
 
         execute_config(i)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
