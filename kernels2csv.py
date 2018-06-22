@@ -39,12 +39,6 @@ class kernel:
     def pprint(self):
         return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
 
-
-if not os.path.exists("./compare/"):
-    os.makedirs("./compare/")
-
-max_number = len([name for name in os.listdir('./compare/')])
-
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id, mode):
 
@@ -93,12 +87,14 @@ def execute_config(id):
 
 def compilations(args):
 
+    max_number = len([name for name in os.listdir('./compare/')])
+
     with open("csv/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
 
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
-        if args.rewrite:
+        if not args.rewrite == -1:
             max_number = 0
 
         for i in range(max_number, max_number + args.compare_number):
@@ -176,6 +172,10 @@ def main():
     parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
     args = parser.parse_args()
 
+    if not os.path.exists("./compare/"):
+        os.makedirs("./compare/")
+
+
     if not args.rewrite == -1:
         args.compare_number = args.rewrite + 1
 
@@ -184,7 +184,7 @@ def main():
     max = len([name for name in os.listdir('./compare/')])
 
     err,average = flash_compare.diff_size(max)
-    # Repeat to replace the compilations error with real values from successed compilations
+    # Repeat to replace the compilations errors with correct values from successed compilations
     if not args.rewrite:
         while not len(err) == 0:
             print("\nErrors to correct:", len(err), flush=True)
