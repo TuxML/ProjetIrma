@@ -102,6 +102,7 @@ def compilations(args):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
                 subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean ", shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
                 if not args.no_kernel:
@@ -117,6 +118,7 @@ def compilations(args):
 
                 execute_config(i)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
                 if not args.no_kernel:
                     # retrieves differents possible kernels according to their names
                     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
@@ -144,6 +146,7 @@ def fix_err(err, args):
         subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
@@ -155,6 +158,7 @@ def fix_err(err, args):
 
         execute_config(i)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
@@ -170,11 +174,11 @@ def main():
     parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
     parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
+    parser.add_argument("--recompile", type=str, help="Re-compile a given .config to ensure the result")
     args = parser.parse_args()
 
     if not os.path.exists("./compare/"):
         os.makedirs("./compare/")
-
 
     if not args.rewrite == -1:
         args.compare_number = args.rewrite + 1
@@ -185,7 +189,7 @@ def main():
 
     err,average = flash_compare.diff_size(max)
     # Repeat to replace the compilations errors with correct values from successed compilations
-    if not args.rewrite:
+    if not args.rewrite and not args.recompile:
         while not len(err) == 0:
             print("\nErrors to correct:", len(err), flush=True)
             fix_err(err, args)
