@@ -104,7 +104,7 @@ def diff_size(n):
 
         with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
             lines = f.readlines()
-            tmp = lines[-1].split()[-1]
+            tmp = lines[-1].split()[-1] if lines else "-100.00%"
             if not (tmp == "-100.00%" or tmp == "+100.00%"):
                 diff[str(i)] = tmp
                 print(tmp, flush=True)
@@ -139,20 +139,18 @@ if __name__ == "__main__":
     if args.size:
         err,average = diff_size(args.number)
         print("Error on: ", err)
-        print("Average:", average)
+        print("size_average:", average)
 
     elif args.time:
         time_diff, time_average = diff_time(args.number)
-        print("time_diff:", time_diff)
         print("time_average:", time_average)
 
     elif args.all:
         err,average = diff_size(args.number)
         print("Error on: ", err)
-        print("Average:", average)
+        print("size_average:", average)
 
         time_diff, time_average = diff_time(args.number)
-        print("time_diff:", time_diff)
         print("time_average:", time_average)
 
     else:
