@@ -3,7 +3,7 @@
 # a given number of compilation via MLfood.py
 # To run this script, you have to set up RSA keys on the machines you wish to use
 
-room=("e008" "e010" "d020" "d022" "d024" "d026" "d028" "d122")
+room=("e010" "d020" "d022" "d024" "d026" "d028" "d122")
 
 machine=("m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10")
 
@@ -30,8 +30,11 @@ do
   echo "Room $elem -- START"
   for m in ${machine[@]}
   do
-    cpt=$((cpt + 1))
-    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
+    if [ "$elem$m" != "d122m01" ]
+    then
+      cpt=$((cpt + 1))
+      (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
+    fi
   done
 done
 
