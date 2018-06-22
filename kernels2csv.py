@@ -94,15 +94,21 @@ def compilations(args):
 
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
 
+
         if not args.rewrite == -1:
             max_number = 0
 
         for i in range(max_number, max_number + args.compare_number):
-            if (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
+            if (not args.recompile == -1 and i == args.recompile) or (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
-                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean ", shell=True)
+
+                path = ""
+                if not args.recompile == -1:
+                    path = "--path compare/" + str(i) + "/.config"
+
+                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + path, shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
 
                 if not args.no_kernel:
@@ -118,7 +124,8 @@ def compilations(args):
 
                 execute_config(i)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+
                 if not args.no_kernel:
                     # retrieves differents possible kernels according to their names
                     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
@@ -146,7 +153,7 @@ def fix_err(err, args):
         subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean", shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
-        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
@@ -158,7 +165,7 @@ def fix_err(err, args):
 
         execute_config(i)
         subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+        subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
 
         if not args.no_kernel:
             # retrieves differents possible kernels according to their names
@@ -174,22 +181,30 @@ def main():
     parser.add_argument("compare_number",type=int, help="The number of comparaison between a basic compilation and a incremental one.\nThe bigger it is, the better")
     parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
-    parser.add_argument("--recompile", type=str, help="Re-compile a given .config to ensure the result")
+    parser.add_argument("--recompile", type=int, help="Re-compile a given .config to ensure the result", default=-1)
     args = parser.parse_args()
 
     if not os.path.exists("./compare/"):
         os.makedirs("./compare/")
 
-    if not args.rewrite == -1:
+    max = len([name for name in os.listdir('./compare/')])
+
+    if args.recompile > max:
+        args.recompile = max
+
+    if args.recompile < 0:
+        args.recompile = -1
+
+    if not args.rewrite == -1 and not args.recompile == -1:
         args.compare_number = args.rewrite + 1
 
-    print("\n".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
+    print(" ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
     compilations(args)
     max = len([name for name in os.listdir('./compare/')])
 
     err,average = flash_compare.diff_size(max)
     # Repeat to replace the compilations errors with correct values from successed compilations
-    if not args.rewrite and not args.recompile:
+    if not args.rewrite == -1 and not args.recompile == -1:
         while not len(err) == 0:
             print("\nErrors to correct:", len(err), flush=True)
             fix_err(err, args)
