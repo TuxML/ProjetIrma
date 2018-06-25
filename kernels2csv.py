@@ -195,7 +195,7 @@ def main():
     if args.recompile < 0:
         args.recompile = -1
 
-    if not args.rewrite == -1 and not args.recompile == -1:
+    if not args.rewrite == -1 or not args.recompile == -1:
         args.compare_number = args.rewrite + 1
 
     print(" ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
