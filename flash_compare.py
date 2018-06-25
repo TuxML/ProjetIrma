@@ -123,6 +123,7 @@ def diff_size(n):
         except:
             temp += 0
             print(str(i) + ": ERR", flush=True)
+            err.append(str(i))
 
     average = str(temp/len(liste))[:6] + '%' if not len(liste) == 0 else "No values"
     # print("average difference:", average, flush=True)
