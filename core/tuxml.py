@@ -206,7 +206,9 @@ def gen_config(Kconfig=None):
     else:
         # generating new KConfig file
         tcom.pprint(2, "Randomising new KCONFIG_FILE")
-        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
+        if not tset.TUXCONFIG == "tuxml.config":
+            tcom.pprint(2, "\"" + tset.TUXCONFIG + "\" used")
+        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG + " make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     # testing status after subprocess call to make randconfig
     if status != 0:

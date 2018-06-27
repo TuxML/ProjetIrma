@@ -65,6 +65,7 @@ def args_handler():
     i_help += "of incremental compilation to launch."
     j_help  = "incremental mod with two specifics KCONFIG"
     s_help  = "choose on which database send the compilation results"
+    t_help  = "choose to use the tiny_tuxml.config pre-set file"
 
     parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     gexcl1 = parser.add_mutually_exclusive_group()
@@ -75,7 +76,8 @@ def args_handler():
     parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG")
     gexcl1.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
     gexcl1.add_argument("--incrementalVS", help=j_help, type=str, metavar="KCONFIG", nargs=2)
-    parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev', "alexis"])
+    parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
+    parser.add_argument("--tiny",          help=t_help, type=str, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials
@@ -86,6 +88,9 @@ def args_handler():
 
     # setting up the database
     tset.DB_NAME += args.database
+
+    if args.tiny:
+        tset.TUXCONFIG = "tiny_tuxml.config"
 
     # manage level of verbosity
     if args.verbose:

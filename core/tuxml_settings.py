@@ -36,6 +36,8 @@ ERR_LOG_FILE = LOG_DIR + "/err.log"
 ## Path to the tuxml config file
 CONF_FILE = PATH + "tuxml.conf"
 
+TUXCONFIG = "tuxml.config"
+
 ## Verbose level : 1 = very quiet, 2 = quiet, 3 = chatty, 4 = very chatty
 VERBOSE = 3
 

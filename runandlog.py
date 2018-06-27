@@ -46,6 +46,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
 parser.add_argument("--silent", help="No output on standrd output", action="store_true")
 parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
+parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", type=str, action="store_true")
 args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
@@ -82,12 +83,16 @@ if args.path:
 else:
     path = ""
 
+tiny = ""
+if args.tiny:
+    tiny = " --tiny"
+
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + "| ts -s > /TuxML/out.log"
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + tiny + "| ts -s > /TuxML/out.log"
 else:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| ts -s | tee /TuxML/out.log'
+    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + tiny + '| ts -s | tee /TuxML/out.log'
 
 subprocess.run(chaine, shell=True)
 
