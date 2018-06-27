@@ -194,7 +194,7 @@ def mlfood():
         if args.tiny:
             tiny = " --tiny"
 
-        # If a path to a .config file is precise
+        # If a path to a .config file is precised
         if args.path:
             path = "--path " + args.path
             # Create a new container
