@@ -70,6 +70,7 @@ parser.add_argument("--silent", help="Do not print on standard output. Used to c
 parser.add_argument("--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
 parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
 parser.add_argument("--path", help="[dev] Give a .config file to compile, only this one and no more")
+parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -189,6 +190,10 @@ def mlfood():
         chaine = ""
         path = ""
 
+        tiny = ""
+        if args.tiny:
+            tiny = " --tiny"
+
         # If a path to a .config file is precise
         if args.path:
             path = "--path " + args.path
@@ -199,9 +204,9 @@ def mlfood():
             chaine = "sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config"
         else:
             if args.silent:
-                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path + " --silent"
+                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path + tiny +  " --silent"
             else:
-                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path
+                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(args.incremental) + " " + path + tiny
             print(LIGHT_BLUE_1 + "\n=============== Docker number " + str(i + 1)+ " ===============" + GRAY)
         # subprocess.run(chaine, shell=True)
         subprocess.call(chaine, shell=True)

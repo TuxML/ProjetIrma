@@ -77,7 +77,7 @@ def args_handler():
     gexcl1.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
     gexcl1.add_argument("--incrementalVS", help=j_help, type=str, metavar="KCONFIG", nargs=2)
     parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
-    parser.add_argument("--tiny",          help=t_help, type=str, action="store_true")
+    parser.add_argument("--tiny",          help=t_help, action="store_true")
     args = parser.parse_args()
 
     # ask root credentials

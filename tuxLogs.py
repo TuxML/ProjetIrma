@@ -33,7 +33,7 @@ def tuxLogs():
     parser = argparse.ArgumentParser()
     parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
     parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
-    parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", type=str, action="store_true")
+    parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
     args = parser.parse_args()
 
     path = ""
