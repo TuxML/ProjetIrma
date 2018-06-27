@@ -92,7 +92,7 @@ def docker_build(image, tag, *location):
         pass
     else:
         strBuild = 'sudo docker build -t tuxml/tuxml{}:{} .'.format(image, tag)
-    subprocess.run(strBuild, shell=True).stdout
+    subprocess.run(strBuild, shell=True)
 
 
 ## dockerpush
@@ -109,7 +109,7 @@ def docker_push(repository, tag):
     if rstrpush == 1:
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
-        subprocess.run(str3, shell=True).stdout
+        subprocess.run(str3, shell=True)
         docker_push(repository, tag)
 
 
