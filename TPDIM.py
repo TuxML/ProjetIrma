@@ -142,10 +142,10 @@ def docker_generate(originImage, tag, dependencesFile=None):
     dockerFileI.close()
 
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
-    subprocess.run(strBuildI, shell=True).stdout
+    subprocess.run(strBuildI, shell=True)
 
     strPushI = 'sudo docker push tuxml/{}tuxml:{}'.format(originImage, tag)
-    subprocess.run(strPushI, shell=True).stdout
+    subprocess.run(strPushI, shell=True)
     ########### tuxml/debiantuxml ##########
     os.chdir('..')
 
@@ -181,9 +181,9 @@ if __name__ == "__main__":
         if "linux-4.13.3" not in linux_dir:
             os.chdir('./BuildImageInter')
             wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
-            subprocess.run(wget, shell=True).stdout
+            subprocess.run(wget, shell=True)
             targz = "tar -xJf linux-4.13.3.tar.xz"
-            subprocess.run(targz, shell=True).stdout
+            subprocess.run(targz, shell=True)
         args.generate = args.all
         args.push = args.all
         args.build = args.all
