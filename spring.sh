@@ -19,6 +19,7 @@ tiny=""
 if [ "$2" = "--tiny" ]
   then
     tiny="--tiny"
+fi
 
 re='^[0-9]+$'
 if ! [[ $1 =~ $re ]] ; then
