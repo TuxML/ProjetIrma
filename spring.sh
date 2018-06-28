@@ -11,9 +11,14 @@ cpt=0
 
 if [ $# -eq 0 ]
   then
-    echo "Please precise a number of compilation to spread: ./compilIstic.sh [number]"
+    echo "Please precise a number of compilation to spread: ./spring.sh number [--tiny]"
     exit -1
 fi
+
+tiny=""
+if [ "$2" = "--tiny" ]
+  then
+    tiny="--tiny"
 
 re='^[0-9]+$'
 if ! [[ $1 =~ $re ]] ; then
@@ -33,7 +38,7 @@ do
     if [ "$elem$m" != "d122m01" ]
     then
       cpt=$((cpt + 1))
-      (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
+      (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log $tiny > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
     fi
   done
 done
