@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import argparse
 import subprocess
 import re
@@ -13,31 +12,24 @@ import flash_compare
 # Class kernel to compare two of them
 class kernel:
 
-    def __init__(self, size, compressed, cid):
-        self.size = size    # Size of kernel
-        self.compressed = compressed    # Compilation kernels list
-        self.cid = cid      # Cid of the kernel in Database
-
-    def get_size(self):
-        return str(self.size)
-
-    def get_compressed(self):
-        return str(self.compressed)
+    def __init__(self, entry):
+        self.entry = entry
 
     def get_cid(self):
-        return str(self.cid)
+        return str(self.entry[0])
+
+    def get_entry(self):
+        return self.entry
 
     def kernel2csv(self):
-        compressed = self.get_compressed().split(" , ")
-        parse_array = [i.split(" : ") for i in compressed]
-        final = [fin[1] for fin in parse_array]
 
-        final.insert(0, self.get_size())
+        final = list([self.entry[0]] + [str(self.entry[1])] + [str(self.entry[2])] + [self.entry[7]])
+        compressed = self.entry[8].split(" , ")
+        parse_array = [i.split(" : ") for i in compressed]
+        cprss = [fin[1] for fin in parse_array]
+        final += cprss
 
         return final
-
-    def pprint(self):
-        return "Cid: " + str(self.cid) + "\nSize: " + str(self.size) + "\nCompressed kernels sizes: " + str(self.compressed)
 
 # Create a new kernel instance from the physical kernel
 def compute_kernel(id, mode):
@@ -62,17 +54,14 @@ def compute_kernel(id, mode):
         cursor.execute(query)
         entry = cursor.fetchone()
 
-        size = entry[7] # Size of kernel column
-        compressed = entry[8] # Compressed kernels size column
-
         cursor.close()
         socket.close()
 
-        return kernel(size,compressed,cid)
+        return kernel(entry)
 
     else:
         print("Failed to retrieves CID")
-        return kernel(-1,-1,-1)
+        return kernel([])
 
 
 # Basic compilation based on .config file from incremental
@@ -89,11 +78,21 @@ def compilations(args):
 
     max_number = len([name for name in os.listdir('./compare/')])
 
+    if not os.path.exists("csv/kernels_compare.csv"):
+        with open("csv/kernels_compare.csv", "w") as f:
+            print("csv/kernels_compare.csv created", flush=True)
+
+            head = "cid,date,time,vmlinux,GZIP-bzImage,GZIP-vmlinux,GZIP,BZIP2-bzImage,BZIP2-vmlinux,BZIP2,LZMA-bzImage,LZMA-vmlinux,LZMA,XZ-bzImage,XZ-vmlinux,XZ,LZO-bzImage,LZO-vmlinux,LZO,LZ4-bzImage,LZ4-vmlinux,LZ4,\
+            basic-cid,basic-date,basic-time,basic-vmlinux,basic-GZIP-bzImage,basic-GZIP-vmlinux,basic-GZIP,basic-BZIP2-bzImage,basic-BZIP2-vmlinux,basic-BZIP2,basic-LZMA-bzImage,basic-LZMA-vmlinux,basic-LZMA,basic-XZ-bzImage,\
+            basic-XZ-vmlinux,basic-XZ,basic-LZO-bzImage,basic-LZO-vmlinux,basic-LZO,basic-LZ4-bzImage,basic-LZ4-vmlinux,basic-LZ".split(",")
+
+            writer = csv.DictWriter(f, head)
+            writer.writeheader()
+
     with open("csv/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
 
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
-
 
         if not args.rewrite == -1:
             max_number = 0
@@ -124,7 +123,7 @@ def compilations(args):
 
                 execute_config(i)
                 subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/basic-err.log" , shell=True)
 
                 if not args.no_kernel:
                     # retrieves differents possible kernels according to their names
