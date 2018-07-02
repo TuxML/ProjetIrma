@@ -184,6 +184,7 @@ def main():
     parser.add_argument("--no-kernel", help="Retrieves kernel and compressed kernels", action="store_true")
     parser.add_argument("--rewrite", type=int, help="Rewrite the given number of the directory with new kernels to compare", default=-1)
     parser.add_argument("--recompile", type=int, help="Re-compile a given .config to ensure the result", default=-1)
+    parser.add_argument("--fix-errors", help="Correct all failed compilations", action="store_true")
     args = parser.parse_args()
 
     if not os.path.exists("./compare/"):
@@ -209,7 +210,7 @@ def main():
 
     err,average = flash_compare.diff_size(max)
     # Repeat to replace the compilations errors with correct values from successed compilations
-    if not args.rewrite == -1 and not args.recompile == -1:
+    if (not args.rewrite == -1 and not args.recompile == -1) or args.fix_errors:
         while not len(err) == 0:
             print("\nErrors to correct:", len(err), flush=True)
             fix_err(err, args)
