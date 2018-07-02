@@ -97,8 +97,11 @@ def compilations(args):
         if not args.rewrite == -1:
             max_number = 0
 
+        if not args.recompile == -1:
+            max_number = 0
+
         for i in range(max_number, max_number + args.compare_number):
-            if (not args.recompile == -1 and i == args.recompile) or (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1):
+            if (not args.recompile == -1 and i == args.recompile) or (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1 and args.recompile == -1):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
 
                 path = ""
@@ -194,8 +197,11 @@ def main():
     if args.recompile < 0:
         args.recompile = -1
 
-    if not args.rewrite == -1 or not args.recompile == -1:
+    if not args.rewrite == -1:
         args.compare_number = args.rewrite + 1
+
+    if not args.recompile == -1:
+        args.compare_number = args.recompile + 1
 
     print(" ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
     compilations(args)
