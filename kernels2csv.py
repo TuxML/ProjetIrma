@@ -6,8 +6,9 @@ import re
 import MySQLdb
 import os
 import csv
-import core.tuxml_settings as tset
+from core import tuxml_settings as tset
 import flash_compare
+from csv_kernels import genCSV
 
 # Class kernel to compare two of them
 class kernel:
@@ -36,32 +37,34 @@ def compute_kernel(id, mode):
 
     cid = -1
 
-    for line in open('compare/'+ str(id) +'/' + mode + '-output.log'):
+    with open('compare/'+ str(id) + '/' + mode + '-output.log', 'r') as file:
 
-        if mode=="incr":
-            match = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
+        for line in file:
+
+            if mode=="incr":
+                match = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
+            else:
+                match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+
+            if match:
+                cid = match.group(1)
+
+        if not cid == -1:
+            socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
+            cursor = socket.cursor()
+            print("CID Used:", cid)
+            query = "SELECT * FROM Compilations WHERE cid = " + cid
+            cursor.execute(query)
+            entry = cursor.fetchone()
+
+            cursor.close()
+            socket.close()
+
+            return kernel(entry)
+
         else:
-            match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
-
-        if match:
-            cid = match.group(1)
-
-    if not cid == -1:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
-        cursor = socket.cursor()
-        print("\nCID Used:", cid)
-        query = "SELECT * FROM Compilations WHERE cid = " + cid
-        cursor.execute(query)
-        entry = cursor.fetchone()
-
-        cursor.close()
-        socket.close()
-
-        return kernel(entry)
-
-    else:
-        print("Failed to retrieves CID")
-        return kernel([])
+            print("Failed to retrieves CID")
+            return kernel([])
 
 
 # Basic compilation based on .config file from incremental
@@ -74,22 +77,61 @@ def execute_config(id):
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
 
 
+def config_values(id):
+    cid = -1
+
+    with open('compare/' + str(id) + '/incr-output.log') as file:
+        for line in file:
+            match = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
+
+            if match:
+                cid = match.group(1)
+
+        if not cid == -1:
+            config = genCSV.genCSV("/dev/null", cid)
+            return config
+
+        else:
+            print("Failed to retrieves CID")
+            return ["NULL"]
+
+
+
 def compilations(args):
 
     max_number = len([name for name in os.listdir('./compare/')])
 
-    if not os.path.exists("csv/kernels_compare.csv"):
-        with open("csv/kernels_compare.csv", "w") as f:
-            print("csv/kernels_compare.csv created", flush=True)
+    if not os.path.exists("csv_kernels/kernels_compare.csv"):
 
-            head = "cid,date,time,vmlinux,GZIP-bzImage,GZIP-vmlinux,GZIP,BZIP2-bzImage,BZIP2-vmlinux,BZIP2,LZMA-bzImage,LZMA-vmlinux,LZMA,XZ-bzImage,XZ-vmlinux,XZ,LZO-bzImage,LZO-vmlinux,LZO,LZ4-bzImage,LZ4-vmlinux,LZ4,\
-            basic-cid,basic-date,basic-time,basic-vmlinux,basic-GZIP-bzImage,basic-GZIP-vmlinux,basic-GZIP,basic-BZIP2-bzImage,basic-BZIP2-vmlinux,basic-BZIP2,basic-LZMA-bzImage,basic-LZMA-vmlinux,basic-LZMA,basic-XZ-bzImage,\
-            basic-XZ-vmlinux,basic-XZ,basic-LZO-bzImage,basic-LZO-vmlinux,basic-LZO,basic-LZ4-bzImage,basic-LZ4-vmlinux,basic-LZ".split(",")
+        conn = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "IrmaDB_prod")
+        cursor = conn.cursor()
+
+        get_prop = "SELECT name, type FROM Properties"
+        # Extract properties
+        cursor.execute(get_prop)
+        types_results = list(cursor.fetchall())
+
+        if len(types_results) == 0:
+            print("\nError : Properties not present in database - You need to run Kanalyser first (https://github.com/TuxML/Kanalyser)")
+
+        cursor.close()
+        conn.close()
+
+        # .config column names
+        names = [""]*len(types_results)
+        index = 0
+        for (name, typ) in types_results:
+            names[index] = name
+            index += 1
+
+        with open("csv_kernels/kernels_compare.csv", "w") as f:
+            head = ("cid,date,time,vmlinux,GZIP-bzImage,GZIP-vmlinux,GZIP,BZIP2-bzImage,BZIP2-vmlinux,BZIP2,LZMA-bzImage,LZMA-vmlinux,LZMA,XZ-bzImage,XZ-vmlinux,XZ,LZO-bzImage,LZO-vmlinux,LZO,LZ4-bzImage,LZ4-vmlinux,LZ4,basic-cid,basic-date,basic-time,basic-vmlinux,basic-GZIP-bzImage,basic-GZIP-vmlinux,basic-GZIP,basic-BZIP2-bzImage,basic-BZIP2-vmlinux,basic-BZIP2,basic-LZMA-bzImage,basic-LZMA-vmlinux,basic-LZMA,basic-XZ-bzImage,basic-XZ-vmlinux,basic-XZ,basic-LZO-bzImage,basic-LZO-vmlinux,basic-LZO,basic-LZ4-bzImage,basic-LZ4-vmlinux,basic-LZ," + ",".join(names)).split(",")
 
             writer = csv.DictWriter(f, head)
             writer.writeheader()
+            print("csv_kernels/kernels_compare.csv created", flush=True)
 
-    with open("csv/kernels_compare.csv", 'a') as file:
+    with open("csv_kernels/kernels_compare.csv", 'a') as file:
         writer = csv.writer(file)
 
         extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
@@ -102,44 +144,48 @@ def compilations(args):
 
         for i in range(max_number, max_number + args.compare_number):
             if (not args.recompile == -1 and i == args.recompile) or (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1 and args.recompile == -1):
-                os.makedirs("./compare/" + str(i), exist_ok=True)
-
-                path = ""
-                if not args.recompile == -1:
-                    path = "--path compare/" + str(i) + "/.config"
-
-                subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + path, shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
-
-                if not args.no_kernel:
-                    # retrieves differents possible kernels according to their names
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
-                    for ext in extension:
-                        subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
-
+                # os.makedirs("./compare/" + str(i), exist_ok=True)
+                # print("Directory", i, flush=True)
+                #
+                # path = ""
+                # if not args.recompile == -1:
+                #     path = "--path compare/" + str(i) + "/.config"
+                #
+                # subprocess.run("sudo ./MLfood.py 1 1 --dev --no-clean " + path, shell=True)
+                # subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/incr-output.log" , shell=True)
+                # subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/incr-err.log" , shell=True)
+                # subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/.config compare/" + str(i) + "/.config" , shell=True)
+                #
+                # if not args.no_kernel:
+                #     # retrieves differents possible kernels according to their names
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/incr-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/incr-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/incr-bzImage", shell=True, stderr=subprocess.DEVNULL)
+                #     for ext in extension:
+                #         subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/incr-vmlinux.bin" + ext, shell=True)
+                #
                 print("Computing kernel incr", flush=True)
                 inkernel = compute_kernel(i, "incr")
 
-                execute_config(i)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
-                subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/basic-err.log" , shell=True)
+                # execute_config(i)
+                # subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/output.log compare/" + str(i) + "/basic-output.log" , shell=True)
+                # subprocess.run("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/logs/err.log compare/" + str(i) + "/basic-err.log" , shell=True)
+                #
+                # if not args.no_kernel:
+                #     # retrieves differents possible kernels according to their names
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
+                #     subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
+                #     for ext in extension:
+                #         subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
 
-                if not args.no_kernel:
-                    # retrieves differents possible kernels according to their names
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/vmlinux ./compare/" + str(i) + "/basic-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux ./compare/" + str(i) + "/basic-compressed-vmlinux", shell=True, stderr=subprocess.DEVNULL)
-                    subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/bzImage ./compare/" + str(i) + "/basic-bzImage", shell=True, stderr=subprocess.DEVNULL)
-                    for ext in extension:
-                        subprocess.call("sudo docker cp $(sudo docker ps -lq):/TuxML/linux-4.13.3/arch/x86/boot/compressed/vmlinux.bin" + ext + " ./compare/" + str(i) + "/basic-vmlinux.bin" + ext, shell=True)
-
-                print("Computing kernel basic", flush=True)
+                print("\nComputing kernel basic", flush=True)
                 basekernel = compute_kernel(i, "basic")
 
-                entry = inkernel.kernel2csv() + basekernel.kernel2csv()
+                print("\nComputing .config values", flush=True)
+                config = config_values(i)
+
+                entry = inkernel.kernel2csv() + basekernel.kernel2csv() + config
 
                 writer.writerow(entry)
 
@@ -227,3 +273,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    #config_values(92)
