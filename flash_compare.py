@@ -39,9 +39,13 @@ def diff_time(n):
 
                 if tmp_base and tmp_incr:
                     cid[id] = (tmp_base,tmp_incr)
+                    break
+
+            if tmp_base or tmp_incr:
+                continue
 
             if cid[id][0] == "" or cid[id][1] == "":
-                print("Err on " + str(id))
+                print("Err on " + str(id), flush=True)
                 exit(-1)
 
     if not len(cid) == 0:
@@ -100,7 +104,9 @@ def diff_size(n):
     for i in range(number):
 
         print("Number: " + str(i) + " ", flush=True, end='')
-        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=open("compare/" + str(i) + "/diff_size.txt",'w'), stderr=subprocess.DEVNULL)
+        diff_file = open("compare/" + str(i) + "/diff_size.txt",'w')
+        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=diff_file, stderr=subprocess.DEVNULL)
+        diff_file.close()
 
         with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
             lines = f.readlines()
