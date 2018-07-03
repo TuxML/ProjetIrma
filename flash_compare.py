@@ -26,27 +26,31 @@ def diff_time(n):
     for id in range(number):
         tmp_base = ""
         tmp_incr = ""
-        with open('compare/'+ str(id) +'/incr-output.log') as file:
-            for line in file:
-                match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
-                match2 = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
+        try:
+            with open('compare/'+ str(id) +'/incr-output.log') as file:
+                for line in file:
+                    match = re.search('DATABASE CONFIGURATION ID=(\d+)', line)
+                    match2 = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
 
-                if match:
-                    tmp_base = match.group(1)
+                    if match:
+                        tmp_base = match.group(1)
 
-                if match2:
-                    tmp_incr = match2.group(1)
+                    if match2:
+                        tmp_incr = match2.group(1)
 
-                if tmp_base and tmp_incr:
-                    cid[id] = (tmp_base,tmp_incr)
-                    break
+                    if tmp_base and tmp_incr:
+                        cid[id] = (tmp_base,tmp_incr)
+                        break
 
-            if tmp_base or tmp_incr:
-                continue
+                if tmp_base or tmp_incr:
+                    continue
 
-            if cid[id][0] == "" or cid[id][1] == "":
-                print("Err on " + str(id), flush=True)
-                exit(-1)
+                if cid[id][0] == "" or cid[id][1] == "":
+                    print("Err on " + str(id), flush=True)
+                    exit(-1)
+        except:
+            print("Err on compare/" + str(id) + "/", flush=True)
+
 
     if not len(cid) == 0:
 
@@ -110,7 +114,9 @@ def diff_size(n):
 
         with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
             lines = f.readlines()
-            tmp = lines[-1].split()[-1] if lines else "-100.00%"
+            val = lines[-1].split()[-1]
+            tmp = val if lines and not val == "delta" else "-100.00%"
+
             if not (tmp == "-100.00%" or tmp == "+100.00%"):
                 diff[str(i)] = tmp
                 print(tmp, flush=True)
