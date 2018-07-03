@@ -48,8 +48,8 @@ def diff_time(n):
                 if cid[id][0] == "" or cid[id][1] == "":
                     print("Err on " + str(id), flush=True)
                     exit(-1)
-        except:
-            print("Err on compare/" + str(id) + "/", flush=True)
+        except Exception as e:
+            print("Error: ",str(e), flush=True)
 
 
     if not len(cid) == 0:
@@ -108,21 +108,24 @@ def diff_size(n):
     for i in range(number):
 
         print("Number: " + str(i) + " ", flush=True, end='')
-        diff_file = open("compare/" + str(i) + "/diff_size.txt",'w')
-        subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=diff_file, stderr=subprocess.DEVNULL)
-        diff_file.close()
+        try:
+            with open("compare/" + str(i) + "/diff_size.txt",'w') as diff_file:
+                subprocess.run('./bloat-o-meter compare/' + str(i) + '/incr-vmlinux compare/' + str(i) + '/basic-vmlinux > compare/' + str(i) + '/diff_size.txt', shell=True, stdout=diff_file, stderr=subprocess.DEVNULL)
 
-        with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
-            lines = f.readlines()
-            val = lines[-1].split()[-1]
-            tmp = val if lines and not val == "delta" else "-100.00%"
+            with open("compare/" + str(i) + "/diff_size.txt", "r") as f:
+                lines = f.readlines()
+                val = lines[-1].split()[-1]
+                tmp = val if lines and not val == "delta" else "-100.00%"
 
-            if not (tmp == "-100.00%" or tmp == "+100.00%"):
-                diff[str(i)] = tmp
-                print(tmp, flush=True)
-            else:
-                print('---ERR---', flush=True)
-                err.append(str(i))
+                if not (tmp == "-100.00%" or tmp == "+100.00%"):
+                    diff[str(i)] = tmp
+                    print(tmp, flush=True)
+                else:
+                    print('---ERR---', flush=True)
+                    err.append(str(i))
+
+        except Exception as e:
+            print(str(e))
 
     # print("Percentage of differences between incremental and basic compiled kernels:")
     liste = list(diff.values())
@@ -151,16 +154,16 @@ if __name__ == "__main__":
 
     if args.size:
         err,average = diff_size(args.number)
-        print("Error on: ", err)
+        print("\nError on: ", err)
         print("size_average:", average)
 
     elif args.time:
         time_diff, time_average = diff_time(args.number)
-        print("time_average:", time_average)
+        print("\ntime_average:", time_average)
 
     elif args.all:
         err,average = diff_size(args.number)
-        print("Error on: ", err)
+        print("\nError on: ", err)
         print("size_average:", average)
 
         time_diff, time_average = diff_time(args.number)

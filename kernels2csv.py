@@ -271,7 +271,14 @@ def main():
 
     diff_time, time_average = flash_compare.diff_time(max)
 
-    print("Time average:", time_average , flush=True)
+    msg = ""
+    if time_average >= 0:
+        msg = "The average time \033[0;32mgained\033[0m is %s seconds"
+    else:
+        time_average = abs(time_average)
+        msg = "The average time \033[0;31mlose\033[0m is %s seconds"
+
+    print(msg, time_average, flush=True)
 
     subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u | awk '{print $1}') ./compare", shell=True)
 
