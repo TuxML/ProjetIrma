@@ -73,12 +73,11 @@ def diff_time(n):
                 diff = float(entry_base) - float(entry_incr)
 
                 time_diff.append(diff) # Size of kernel column
-
-        except Exception as e:
-            raise e
-        finally:
             cursor.close()
             socket.close()
+        except Exception as e:
+            raise e
+
 
         for t in time_diff:
             time_average += t
