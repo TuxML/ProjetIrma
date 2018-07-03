@@ -62,7 +62,6 @@ def get_kernel_size():
 def get_size_kernel():
     full_filename = tset.PATH + "/vmlinux"
     if os.path.isfile(full_filename):
-        tcom.pprint(2, "kernel found: vmlinux")
         return os.path.getsize(full_filename)
     return -1
 
