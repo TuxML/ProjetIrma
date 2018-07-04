@@ -8,9 +8,6 @@ import os
 import csv
 from core import tuxml_settings as tset
 import flash_compare
-import sys
-sys.path.insert(0, './csv_kernels')
-import genCSV
 
 # Class kernel to compare two of them
 class kernel:
@@ -79,26 +76,6 @@ def execute_config(id):
     subprocess.run("sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config", shell=True)
 
 
-def config_values(id):
-    cid = -1
-
-    with open('compare/' + str(id) + '/incr-output.log') as file:
-        for line in file:
-            match = re.search('INCREMENTAL CONFIGURATION ID #0=(\d+)', line)
-
-            if match:
-                cid = match.group(1)
-
-        if not cid == -1:
-            config = genCSV.genCSV("/dev/null", cid)
-            return config
-
-        else:
-            print("Failed to retrieves CID")
-            return ["NULL"]
-
-
-
 def compilations(args):
 
     max_number = len([name for name in os.listdir('./compare/')])
@@ -155,9 +132,8 @@ def compilations(args):
                 basekernel = compute_kernel(i, "basic")
 
                 print("\nComputing .config values", flush=True)
-                config = config_values(i)
 
-                entry = inkernel.kernel2csv() + basekernel.kernel2csv() + config
+                entry = inkernel.kernel2csv() + basekernel.kernel2csv()
 
                 writer.writerow(entry)
 
@@ -220,7 +196,7 @@ def create_header():
         index += 1
 
     with open("csv_kernels/kernels_compare.csv", "w") as f:
-        head = ("cid,date,time,vmlinux,GZIP-bzImage,GZIP-vmlinux,GZIP,BZIP2-bzImage,BZIP2-vmlinux,BZIP2,LZMA-bzImage,LZMA-vmlinux,LZMA,XZ-bzImage,XZ-vmlinux,XZ,LZO-bzImage,LZO-vmlinux,LZO,LZ4-bzImage,LZ4-vmlinux,LZ4,basic-cid,basic-date,basic-time,basic-vmlinux,basic-GZIP-bzImage,basic-GZIP-vmlinux,basic-GZIP,basic-BZIP2-bzImage,basic-BZIP2-vmlinux,basic-BZIP2,basic-LZMA-bzImage,basic-LZMA-vmlinux,basic-LZMA,basic-XZ-bzImage,basic-XZ-vmlinux,basic-XZ,basic-LZO-bzImage,basic-LZO-vmlinux,basic-LZO,basic-LZ4-bzImage,basic-LZ4-vmlinux,basic-LZ," + ",".join(names)).split(",")
+        head = ("cid,date,time,vmlinux,GZIP-bzImage,GZIP-vmlinux,GZIP,BZIP2-bzImage,BZIP2-vmlinux,BZIP2,LZMA-bzImage,LZMA-vmlinux,LZMA,XZ-bzImage,XZ-vmlinux,XZ,LZO-bzImage,LZO-vmlinux,LZO,LZ4-bzImage,LZ4-vmlinux,LZ4,basic-cid,basic-date,basic-time,basic-vmlinux,basic-GZIP-bzImage,basic-GZIP-vmlinux,basic-GZIP,basic-BZIP2-bzImage,basic-BZIP2-vmlinux,basic-BZIP2,basic-LZMA-bzImage,basic-LZMA-vmlinux,basic-LZMA,basic-XZ-bzImage,basic-XZ-vmlinux,basic-XZ,basic-LZO-bzImage,basic-LZO-vmlinux,basic-LZO,basic-LZ4-bzImage,basic-LZ4-vmlinux,basic-LZ").split(",") #," + ",".join(names)).split(",")
 
         writer = csv.DictWriter(f, head)
         writer.writeheader()
