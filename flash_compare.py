@@ -166,7 +166,15 @@ if __name__ == "__main__":
         print("size_average:", average)
 
         time_diff, time_average = diff_time(args.number)
-        print("time_average:", time_average)
+
+        msg = ""
+        if time_average >= 0:
+            msg = "The average time \033[0;32mgained\033[0m is %s seconds"
+        else:
+            time_average = abs(time_average)
+            msg = "The average time \033[0;31mlose\033[0m is %s seconds"
+
+        print(msg, time_average, flush=True)
 
     else:
         parser.print_help()
