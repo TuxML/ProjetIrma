@@ -8,7 +8,9 @@ import os
 import csv
 from core import tuxml_settings as tset
 import flash_compare
-from csv_kernels import genCSV
+import sys
+sys.path.insert(0, './csv_kernels')
+import genCSV
 
 # Class kernel to compare two of them
 class kernel:
