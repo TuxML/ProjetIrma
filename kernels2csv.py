@@ -115,7 +115,7 @@ def compilations(args):
         for i in range(max_number, max_number + args.compare_number):
             if (not args.recompile == -1 and i == args.recompile) or (not args.rewrite == -1 and i == args.rewrite) or (args.rewrite == -1 and args.recompile == -1):
                 os.makedirs("./compare/" + str(i), exist_ok=True)
-                print("Directory", i, flush=True)
+                print("\nDirectory", i, flush=True)
 
                 path = ""
                 if not args.recompile == -1:
