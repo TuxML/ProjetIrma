@@ -44,4 +44,6 @@ do
   done
 done
 
-echo "$login has spread $1 compilations on $cpt machines"
+res=$($1 * $cpt)
+
+echo "$login has spread $1 compilations on $cpt machines, that is to say $res total compilations"
