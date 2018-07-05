@@ -169,12 +169,16 @@ if __name__ == "__main__":
 
         msg = ""
         if time_average >= 0:
+            tmp = str(time_average).split(".")
+            time_average = tmp[0] + "." + tmp[1][:3]
             msg = "The average time \033[0;32mgained\033[0m is %s seconds"
         else:
             time_average = abs(time_average)
+            tmp = str(time_average).split(".")
+            time_average = tmp[0] + "." + tmp[1][:3]
             msg = "The average time \033[0;31mlose\033[0m is %s seconds"
 
-        print(msg, time_average, flush=True)
+        print(msg % time_average, flush=True)
 
     else:
         parser.print_help()

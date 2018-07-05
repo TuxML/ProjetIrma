@@ -241,7 +241,7 @@ def main():
     if not args.recompile == -1:
         args.compare_number = args.recompile + 1
 
-    print(" ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
+    # print(" ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]), flush=True)
 
     if not os.path.exists("csv_kernels/kernels_compare.csv"):
         create_header()
@@ -264,12 +264,17 @@ def main():
 
     msg = ""
     if time_average >= 0:
+        tmp = str(time_average).split(".")
+        time_average = tmp[0] + "." + tmp[1][:3]
         msg = "The average time \033[0;32mgained\033[0m is %s seconds"
+
     else:
         time_average = abs(time_average)
+        tmp = str(time_average).split(".")
+        time_average = tmp[0] + "." + tmp[1][:3]
         msg = "The average time \033[0;31mlose\033[0m is %s seconds"
 
-    print(msg, time_average, flush=True)
+    print(msg % time_average, flush=True)
 
     subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u | awk '{print $1}') ./compare", shell=True)
 
