@@ -36,11 +36,8 @@ do
   echo "Room $elem -- START"
   for m in ${machine[@]}
   do
-    if [ "$elem$m" != "d122m01" ]
-    then
-      cpt=$((cpt + 1))
-      (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log $tiny > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
-    fi
+    cpt=$((cpt + 1))
+    (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "nohup ~/ProjetIrma/MLfood.py $1 --force-compilation-limits --dev --no-logs --no-check-log $tiny > /dev/null; exit" > /dev/null;  echo $elem$m -- END)&
   done
 done
 

@@ -45,11 +45,8 @@ do
   echo "$act -- Room $elem"
   for m in ${machine[@]}
   do
-    if [ "$elem$m" != "d122m01" ]
-    then
-      cpt=$((cpt + 1))
-      echo -n "Machine $elem$m : "; (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "$action; exit") | grep -v grep
-    fi
+    cpt=$((cpt + 1))
+    echo -n "Machine $elem$m : "; (ssh -o StrictHostKeyChecking=no -tt $login@$elem$m.istic.univ-rennes1.fr "$action; exit") | grep -v grep
   done
   echo ""
 done
