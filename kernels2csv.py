@@ -13,7 +13,12 @@ import flash_compare
 class kernel:
 
     def __init__(self, entry):
-        self.entry = entry
+        if not len(entry) == 0:
+            self.entry = entry
+        else:
+            self.entry = ["-1"] * 11
+            self.entry[8] = " , ".join(["-1 : -1"] * 18)
+
 
     def get_cid(self):
         return str(self.entry[0])
@@ -24,9 +29,17 @@ class kernel:
     def kernel2csv(self):
 
         final = list([self.entry[0]] + [str(self.entry[1])] + [str(self.entry[2])] + [self.entry[7]])
+
         compressed = self.entry[8].split(" , ")
-        parse_array = [i.split(" : ") for i in compressed]
-        cprss = [fin[1] for fin in parse_array]
+        parse_array = []
+        cprss = []
+
+        if compressed:
+            parse_array = [i.split(" : ") for i in compressed]
+
+        if parse_array:
+            cprss = [fin[1] for fin in parse_array]
+
         final += cprss
 
         return final
@@ -236,7 +249,7 @@ def main():
     compilations(args)
     max = len([name for name in os.listdir('./compare/')])
 
-    err,average = flash_compare.diff_size(max)
+    err, average = flash_compare.diff_size(max)
     # Repeat to replace the compilations errors with correct values from successed compilations
     if (not args.rewrite == -1 and not args.recompile == -1) or args.fix_errors:
         while not len(err) == 0:
