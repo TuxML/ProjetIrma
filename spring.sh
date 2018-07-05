@@ -44,6 +44,6 @@ do
   done
 done
 
-res=$(bc -l <<< $1 * $cpt)
+res=$(bc -l <<< "$1 * $cpt")
 
 echo "$login has spread $1 compilations on $cpt machines, that is to say $res total compilations"
