@@ -31,6 +31,7 @@ import subprocess
 # @author ACHER Mathieu
 # @param args The list of arguments given to the script
 def mkGenerate(args):
+    print("generate pwd", os.getcwd())
     DocPre = os.listdir('.')
     if "Dockerfile" in DocPre: # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
         print("It seems that a DockerFile already exist, please move it away or it will be override by the generation, do you wish to continue ? (y/n)")
@@ -60,6 +61,7 @@ def mkGenerate(args):
 #  @author ACHER Mathieu
 # @param args The list of arguments give to the script
 def mkBuild(args):
+    print("build pwd", os.getcwd())
     if args.folder:
         DocPre = os.listdir(args.folder)
         if "Dockerfile" not in DocPre:
@@ -75,6 +77,7 @@ def mkBuild(args):
 #  @author ACHER Mathieu
 # @param args The list of arguments give to the script
 def mkPush(args):
+    print("push pwd", os.getcwd())
     docker_push(args.push, args.tag)
 
 ## docker_build
@@ -83,16 +86,16 @@ def mkPush(args):
 # @param tag The tag use to identify the image
 # @param location The location of the dockerfile
 ## TODO test if location other than '.' work properly
-def docker_build(image, tag, *location):
+def docker_build(image, tag, location=None):
     print("Update of the docker image")
     # Build the choosen docker image
-    if location in args:
+    if location is not None and not location == ".":
         strBuild = 'sudo docker build -t tuxml/tuxml{}:{} {}'.format(image, tag, location)
-        print(strBuild)
-        pass
+        print("command with location:", strBuild)
     else:
         strBuild = 'sudo docker build -t tuxml/tuxml{}:{} .'.format(image, tag)
-    subprocess.run(strBuild, shell=True)
+        print("command:", strBuild)
+    subprocess.call(strBuild, shell=True)
 
 
 ## dockerpush
@@ -104,12 +107,12 @@ def docker_push(repository, tag):
     print("Push of the image on the distant repository")
     # Push of the docker image on docker hub
     strpush = 'sudo docker push tuxml/tuxml{}:{}'.format(repository, tag)
-    rstrpush = subprocess.run(strpush, shell=True).returncode
+    rstrpush = subprocess.call(strpush, shell=True).returncode
     # If needed, login to the repository
     if rstrpush == 1:
         print("You need to login on Docker hub")
         str3 = 'sudo docker login'
-        subprocess.run(str3, shell=True)
+        subprocess.call(str3, shell=True)
         docker_push(repository, tag)
 
 
@@ -142,10 +145,10 @@ def docker_generate(originImage, tag, dependencesFile=None):
     dockerFileI.close()
 
     strBuildI = 'sudo docker build -t tuxml/{}tuxml:{} .'.format(originImage, tag)
-    subprocess.run(strBuildI, shell=True)
+    subprocess.call(strBuildI, shell=True)
 
     strPushI = 'sudo docker push tuxml/{}tuxml:{}'.format(originImage, tag)
-    subprocess.run(strPushI, shell=True)
+    subprocess.call(strPushI, shell=True)
     ########### tuxml/debiantuxml ##########
     os.chdir('..')
 
@@ -165,14 +168,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('-v', '--version', help="Use this to choose if you want an image dev or prod (will be delete)")
-    parser.add_argument('-b', '--build', help="Image that you want to build, use -f to give the folder where is the TuxML project scripts and a valid dockerfile, default is [.]")
-    parser.add_argument('-f', '--folder', help="Folder where is locate a valid docker file use to build a docker image, default is  [.] ", default=".")
     parser.add_argument('-g', '--generate', help="Image use to generate a docker file")
-    parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
+    parser.add_argument('-b', '--build', help="Image that you want to build, use -f to give the folder where is the TuxML project scripts and a valid dockerfile, default is [.]")
     parser.add_argument('-p', '--push', help="Push the image on the distant repository")
-    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push",default="prod")
     parser.add_argument('-a', '--all', help="Generate, build, push with default values")
+    parser.add_argument('-f', '--folder', help="Folder where is locate a valid docker file use to build a docker image, default is  [.] ", default=".")
+    parser.add_argument('-dep', '--dependences', help="Dependences you want to add to your docker image when you generate your dockerfile")
+    parser.add_argument('-t', '--tag', help="Tag of the image you want to generate/build/push",default="prod")
 
     args = parser.parse_args()
 
@@ -181,9 +183,10 @@ if __name__ == "__main__":
         if "linux-4.13.3" not in linux_dir:
             os.chdir('./BuildImageInter')
             wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"
-            subprocess.run(wget, shell=True)
+            subprocess.call(wget, shell=True)
             targz = "tar -xJf linux-4.13.3.tar.xz"
-            subprocess.run(targz, shell=True)
+            subprocess.call(targz, shell=True)
+            os.chdir('..')
         args.generate = args.all
         args.push = args.all
         args.build = args.all
