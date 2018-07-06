@@ -235,6 +235,9 @@ def main():
     if args.recompile < 0:
         args.recompile = -1
 
+    if args.fix_errors:
+        args.compare_number = 0
+
     if not args.rewrite == -1:
         args.compare_number = args.rewrite + 1
 
@@ -249,11 +252,14 @@ def main():
     compilations(args)
     max = len([name for name in os.listdir('./compare/')])
 
+    if args.fix_errors:
+        print("Seaching for errors ...", flush=True)
+
     err, average = flash_compare.diff_size(max)
     # Repeat to replace the compilations errors with correct values from successed compilations
     if (not args.rewrite == -1 and not args.recompile == -1) or args.fix_errors:
         while not len(err) == 0:
-            print("\nErrors to correct:", len(err), flush=True)
+            print("\nNumber of errors to correct:", len(err), flush=True)
             fix_err(err, args)
             err,average = flash_compare.diff_size(max)
 
