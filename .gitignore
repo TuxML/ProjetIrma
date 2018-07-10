@@ -26,3 +26,6 @@ prend_vie.py
 *.odt#
 test.py
 tmp.txt
+csv_kernels/config_bdd-7075.csv
+csv_kernels/config_bdd-25K.csv
+
