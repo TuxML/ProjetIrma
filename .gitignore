@@ -26,4 +26,10 @@ prend_vie.py
 *.odt#
 test.py
 tmp.txt
+<<<<<<< HEAD
 csv_kernels/config_bdd.csv
+=======
+csv_kernels/config_bdd-7075.csv
+csv_kernels/config_bdd-25K.csv
+
+>>>>>>> 04b902f481f463aff1959b35ea11ce479d79a276
