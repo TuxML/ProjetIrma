@@ -4,15 +4,6 @@ import argparse
 import sys
 import subprocess
 
-"""
-    Liste d'options indépendantes:
-        - KASAN_OUTLINE (bool)
-        - MODULES (bool)
-        - GENERIC_ALLOCATOR (bool)
-        - XFS_FS (tristate)
-
-"""
-
 
 def rewrite(option, mode, path):
 
@@ -89,24 +80,64 @@ def rewrite(option, mode, path):
     return 0
 
 
+def independant_rewrite(args):
+    import random
+
+    independant = ["XFS_FS", "SND_DICE", "SND_ISIGHT", "SPEAKUP_SYNTH_DECEXT", "CRC32", "TCP_CONG_ILLINOIS",
+                   "BCM2835_VCHIQ", "TOUCHSCREEN_HAMPSHIRE", "COMEDI_DT2817", "MII", "BT_INTEL", "VETH"]
+    random.shuffle(independant)
+
+    if args.randomize_number > len(independant):
+        args.randomize_number = len(independant)
+    elif args.randomize_number < 0:
+        args.randomize_number = 0
+
+    mode = ["y","n","m"]
+    for i in range(args.randomize_number):
+        random.shuffle(mode)
+        rewrite(independant[i], mode[0], args.path)
+
+    if args.verbose:
+        subprocess.run("cat " + args.path, shell=True)
+
+
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("option_config", type=str,
-                        help="The configuration option to change")
-    parser.add_argument(
-        "mode", type=str, help="The mode to set to the configuration option", choices=['y', 'n', 'm'])
     parser.add_argument(
         "-v", "--verbose", help="Print the .config file after the work is done and succeed", action="store_true")
     parser.add_argument(
         "--path", type=str, help="Path to the .config file", default=".config")
+
+    subparsers = parser.add_subparsers(
+        help="Change a tristate option value", dest="command")
+
+    parser1 = subparsers.add_parser(
+        "option", help="Change the value of a given option with given value in 'y','n' or 'm'")
+    parser1.add_argument("option_config", type=str,
+                         help="The configuration option to change")
+    parser1.add_argument(
+        "mode", type=str, help="The mode to set to the configuration option", choices=['y', 'n', 'm'])
+
+    parser2 = subparsers.add_parser(
+        "random", help="Change a given number of tristate with random values")
+    parser2.add_argument("randomize_number", type=int,
+                         help="The number of tristate to change with random value in 'y,'n' or 'm'")
+
     args = parser.parse_args()
 
-    rc = rewrite(args.option_config, args.mode, args.path)
+    # print(" | ".join([k + ' : ' + str(vars(args)[k])
+    #                   for k in vars(args)]), flush=True)
 
-    if args.verbose and rc == 0:
-        subprocess.run("cat " + args.path, shell=True)
+    if args.command is None:
+        parser.print_help()
+
+    if args.command == "random":
+        independant_rewrite(args)
 
 
 if __name__ == "__main__":
     main()
+
+
+#
