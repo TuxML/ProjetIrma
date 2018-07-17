@@ -139,7 +139,7 @@ def args_handler():
         tset.KCONFIG1 = args.incrementalVS[0]
         tset.KCONFIG2 = args.incrementalVS[1]
 
-        print(tset.KCONFIG1, ' ', tset.KCONFIG2)
+        print(tset.KCONFIG1, ' ', tset.KCONFIG2, flush=True)
 
     # set the number of cores
     if args.cores:
