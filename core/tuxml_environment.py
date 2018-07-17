@@ -150,7 +150,7 @@ def __get_type_of_disk():
 #  only one visible as the container is stored on one disk
 def __get_disk_docker():
     # return psutil.disk_partitions()[0][0].split("/")[2]
-    return subprocess.check_output("fdisk -l | grep Disk -m1", shell=True).decode().split()[1].split("/")[1].strip(":")
+    return subprocess.check_output("fdisk -l | grep Disk -m1", shell=True).decode().split()[1].split("/")[2].strip(":")
 
 
 ## @author LE FLEM Erwan
