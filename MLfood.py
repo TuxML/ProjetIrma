@@ -295,8 +295,6 @@ def mlfood():
             print(LIGHT_BLUE_1 + "Docker #" + str(i) + " done              ### SILENT MODE ###" + GRAY)
         print(LIGHT_BLUE_1 + "===============================================\n" + GRAY)
 
-    # Give permissions to the current users on Logs folder
-    subprocess.call("sudo chown -R $(sudo who -u | awk '{print $1}'):$(sudo who -u| awk '{print $1}') ./Logs", shell=True)
     #################### Section 12 ####################
     # The end
     print(LIGHT_BLUE_1 + "Your tamago... database Irma_DB ate " + GREEN + str(args.nbcompil * (args.incremental + 1)) + LIGHT_BLUE_1 + " compilations data, come back later to feed it!" + GRAY, flush=True)
