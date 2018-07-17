@@ -34,7 +34,7 @@ import tuxml_environment as tenv
 #
 #  @brief   This function handles the arguments of the ./tuxml.py command
 def args_handler():
-    msg  = "Welcome, this is the TuxML core program.\n\n"
+    msg = "Welcome, this is the TuxML core program.\n\n"
 
     msg += "The goal of TuxML is to  automatically  compile Linux kernel sources in order to\n"
     msg += "build a database for a machine learning algorithm.\n"
@@ -48,35 +48,43 @@ def args_handler():
     msg += "our Github at <https://github.com/TuxML> in order to report any issue.\n"
     msg += "Thanks !\n\n"
 
-    p_help  = "path to the Linux source directory"
-    v_help  = "increase or decrease output verbosity\n"
+    p_help = "path to the Linux source directory"
+    v_help = "increase or decrease output verbosity\n"
     v_help += " " * 2 + "1 : very quiet\n"
     v_help += " " * 2 + "2 : quiet\n"
     v_help += " " * 2 + "3 : chatty (default)\n"
     v_help += " " * 2 + "4 : very chatty\n"
-    V_help  = "display TuxML version and exit"
-    d_help  = "generate a new kconfig file with the KCONFIG_SEED or use\n"
-    d_help  = "the KCONFIG_FILE given.\n"
-    c_help  = "define  the  number  of CPU  cores  to  use  during  the\n"
+    V_help = "display TuxML version and exit"
+    d_help = "generate a new kconfig file with the KCONFIG_SEED or use\n"
+    d_help = "the KCONFIG_FILE given.\n"
+    c_help = "define  the  number  of CPU  cores  to  use  during  the\n"
     c_help += "compilation. By default  TuxML  use all  the  availables\n"
     c_help += "cores on the system."
-    i_help  = "incremental  mod does  not  erase  files  from  previous\n"
+    i_help = "incremental  mod does  not  erase  files  from  previous\n"
     i_help += "compilations. The I parameter  corresponds to the number\n"
     i_help += "of incremental compilation to launch."
-    j_help  = "incremental mod with two specifics KCONFIG"
-    s_help  = "choose on which database send the compilation results"
-    t_help  = "choose to use the tiny_tuxml.config pre-set file"
+    j_help = "incremental mod with two specifics KCONFIG"
+    s_help = "choose on which database send the compilation results"
+    t_help = "choose to use the tiny_tuxml.config pre-set file"
 
-    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=msg, formatter_class=argparse.RawTextHelpFormatter)
     gexcl1 = parser.add_mutually_exclusive_group()
     parser.add_argument("source_path",     help=p_help)
-    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=range(1,5))
-    parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
-    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
-    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG")
-    gexcl1.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
-    gexcl1.add_argument("--incrementalVS", help=j_help, type=str, metavar="KCONFIG", nargs=2)
-    parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
+    parser.add_argument("-v", "--verbose", help=v_help,
+                        type=int, choices=range(1, 5))
+    parser.add_argument("-V", "--version", help=V_help,
+                        action='version', version='%(prog)s pre-alpha v0.2')
+    parser.add_argument("-c", "--cores",   help=c_help,
+                        type=int, metavar="NB_CORES")
+    parser.add_argument("-d", "--debug",   help=d_help,
+                        type=str, metavar="KCONFIG")
+    gexcl1.add_argument("--incremental",   help=i_help,
+                        type=int, metavar="NINC")
+    gexcl1.add_argument("--incrementalVS", help=j_help,
+                        type=str, metavar="KCONFIG", nargs=2)
+    parser.add_argument("--database",      help=s_help,
+                        type=str, default='prod', choices=['prod', 'dev'])
     parser.add_argument("--tiny",          help=t_help, action="store_true")
     args = parser.parse_args()
 
@@ -115,7 +123,8 @@ def args_handler():
         # cleaning previous compilation
         tset.INCREMENTAL_MOD = 0
         tcom.pprint(2, "Cleaning previous compilation")
-        status = subprocess.call(["make", "-C", tset.PATH, "clean"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+        status = subprocess.call(
+            ["make", "-C", tset.PATH, "clean"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 
         if status != 0:
             tcom.pprint(1, "Unable to clean previous compilation")
