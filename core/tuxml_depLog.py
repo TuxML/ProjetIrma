@@ -109,12 +109,14 @@ def export_as_csv():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.LOG_DIR + '/tuxml_depLog.csv', 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, ("Missing files encountered", "Missing packages installed","Resolution successfull"))
+        writer = csv.DictWriter(csvfile, ("Missing files encountered",
+                                          "Missing packages installed", "Resolution successfull"))
         writer.writeheader()
         for k in log.keys():
             if status.get(k) is None:
                 status[k] = True
-            writer.writerow({"Missing files encountered" : k, "Missing packages installed" : log[k], "Resolution successfull":status[k]})
+            writer.writerow({"Missing files encountered": k,
+                             "Missing packages installed": log[k], "Resolution successfull": status[k]})
 
 
 # ============================================================================ #

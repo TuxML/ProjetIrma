@@ -43,14 +43,16 @@ def boot_try():
 	tcom.pprint(2, "Launching boot test on kernel")
 
 	try:
-		sbStatus = subprocess.call(["mkinitramfs","-o", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
+		sbStatus = subprocess.call(["mkinitramfs", "-o", tset.PATH +
+                              "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
 	except Exception:
-		sbStatus = -1;
+		sbStatus = -1
 
 	cmd = "qemu-system-x86_64"
 	if sbStatus == 0:
 		# procId = subprocess.Popen([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
-		procId = subprocess.run([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3", "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT)
+		procId = subprocess.run([cmd, "-kernel", tset.PATH + "/arch/x86_64/boot/bzImage", "-initrd", tset.PATH + "/arch/x86_64/boot/initrd.img-4.13.3",
+                           "-m", "1G", "-append", "console=ttyS0,38400", "-serial", "file:serial.out"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT)
 
 		rndCounter = 1
 		status = 1
@@ -58,9 +60,10 @@ def boot_try():
 		time.sleep(5)
 
 		try:
-			outFile = open("serial.out",mode='r')
+			outFile = open("serial.out", mode='r')
 		except OSError:
-			tcom.pprint(1, "Unable to open output file, assuming subprocess call failed !")
+			tcom.pprint(
+				1, "Unable to open output file, assuming subprocess call failed !")
 			return -3
 
 		while status == 1:
@@ -76,8 +79,9 @@ def boot_try():
 				tcom.pprint(1, "Kernel panic detected, kernel probably failed to boot")
 				status = -1
 
-			if rndCounter == 11: # default 51
-				tcom.pprint(1, "More than 60 attempts at reading, possible infinite loop in boot process, interrupting")
+			if rndCounter == 11:  # default 51
+				tcom.pprint(
+					1, "More than 60 attempts at reading, possible infinite loop in boot process, interrupting")
 				status = -2
 
 			rndCounter = rndCounter + 1

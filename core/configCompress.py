@@ -48,20 +48,24 @@ def rewrite(old, new, path_to_config):
 
 # enable a compression and disable the others
 # @return 0 if it succeeds, -1 otherwise
+
+
 def enable(compress, path_to_config):
 
-    compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
+    compression = ["GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"]
     if compress not in compression:
-        print(compress,"not in compression list", flush=True)
+        print(compress, "not in compression list", flush=True)
         return -1
 
     # enable
-    rewrite("# CONFIG_KERNEL_" + compress+ " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
+    rewrite("# CONFIG_KERNEL_" + compress + " is not set",
+            "CONFIG_KERNEL_" + compress + "=y", path_to_config)
 
     # disable
     for c in compression:
             if not c == compress:
-                rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
+                rewrite("CONFIG_KERNEL_" + c + "=y",
+                        "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
 
     return 0
 
@@ -70,8 +74,10 @@ def enable(compress, path_to_config):
 # main
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("compression", type=str, choices= ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"], help="Precise the compression you wish to use in the .config file")
-    parser.add_argument("path", type=str, help="Path to the .config file to change")
+    parser.add_argument("compression", type=str, choices=[
+                        "GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"], help="Precise the compression you wish to use in the .config file")
+    parser.add_argument(
+        "path", type=str, help="Path to the .config file to change")
     args = parser.parse_args()
 
     enable(args.compression, args.path)

@@ -104,7 +104,8 @@ def launch_compilations():
         if status == 0:
             tcom.pprint(0, "Successfully compiled")
         else:
-            tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+            tcom.pprint(
+                1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
 
 ## @author LE FLEM Erwan
@@ -113,7 +114,8 @@ def launch_compilations():
 #  @brief Send to the database the result of the compilation.
 def sendToDB():
     try:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
+        socket = MySQLdb.connect(
+            tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
         cursor = socket.cursor()
 
         # Values for request
@@ -122,23 +124,24 @@ def sendToDB():
             "environnement": tset.TUXML_ENV,
         }
 
-        keys   = ",".join(args_env.keys())
+        keys = ",".join(args_env.keys())
         values = ','.join(['%s'] * len(args_env.values()))
 
-        query  = "INSERT INTO depML_environnement({}) VALUES({})".format(keys, values)
+        query = "INSERT INTO depML_environnement({}) VALUES({})".format(
+            keys, values)
         cursor.execute(query, list(args_env.values()))
         socket.commit()
         for missing_file in tdep.tdepLogger.log.keys():
             args_pkg = {
-                "cid":cursor.lastrowid,
+                "cid": cursor.lastrowid,
                 "missing_files": str(missing_file),
                 "missing_packages": tdep.tdepLogger.log.get(missing_file),
                 "candidate_missing_packages": tdep.tdepLogger.candidates.get(missing_file).split(':')[0],
-                "resolution_successful":tdep.tdepLogger.status.get(missing_file)
+                "resolution_successful": tdep.tdepLogger.status.get(missing_file)
                 }
             keys = ",".join(args_pkg.keys())
             values = ','.join(['%s'] * len(args_pkg.values()))
-            query  = "INSERT INTO packages({}) VALUES({})".format(keys, values)
+            query = "INSERT INTO packages({}) VALUES({})".format(keys, values)
             print("QUERY IS: "+query)
             cursor.execute(query, list(args_pkg.values()))
 
@@ -160,7 +163,7 @@ def sendToDB():
 #  @brief Change a string in to a dictionary
 #
 #  @returns A dictionary
-def string_to_dict(env_details:str)->dict:
+def string_to_dict(env_details: str)->dict:
     return eval(env_details)
 
 
@@ -171,21 +174,24 @@ def string_to_dict(env_details:str)->dict:
 #  @details The CSV file is named "compilations_details.csv" and is located on the
 #  current directory.
 def write_bdd_to_csv():
-        csv_writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        csv_writer = csv.writer(csvfile, delimiter=';',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
         try:
-            socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
-            query  = "SELECT DISTINCT depML_environnement.config_file,depML_environnement.environnement,packages.missing_files,packages.missing_packages,packages.candidate_missing_packages,packages.resolution_successful FROM packages , depML_environnement WHERE packages.cid=depML_environnement.cid"
+            socket = MySQLdb.connect(
+                tset.HOST, tset.DB_USER, tset.DB_PASSWD, "depML_DB")
+            query = "SELECT DISTINCT depML_environnement.config_file,depML_environnement.environnement,packages.missing_files,packages.missing_packages,packages.candidate_missing_packages,packages.resolution_successful FROM packages , depML_environnement WHERE packages.cid=depML_environnement.cid"
             socket.query(query)
             res = socket.store_result()
             tuples = res.fetch_row(maxrows=0)
 
             first_row = True
             for t in tuples:
-                optionName = list() #Column names for compilation options.
+                optionName = list()  # Column names for compilation options.
                 optionValue = list()
                 envDict = ast.literal_eval(tuples[0][1])
                 #Column names for environment details
-                csv_env_col_names = list(chain(*[ list(envDict.keys()) for d in list(envDict.values())]))
+                csv_env_col_names = list(
+                    chain(*[list(envDict.keys()) for d in list(envDict.values())]))
 
                 for option in t[0].split('\n'):
                     if '#' in option or len(option.split('=')) < 2:
@@ -212,7 +218,9 @@ def write_bdd_to_csv():
                     first_row = False
 
                 #For each column, we write the values.
-                csv_col_values = optionValue + list(chain(*[ list(envDict.values()) for d in list(envDict.values())]))
+                csv_col_values = optionValue + \
+                    list(chain(*[list(envDict.values())
+                                 for d in list(envDict.values())]))
                 csv_col_values.append(t[2])
                 csv_col_values.append(t[3])
                 csv_col_values.append(t[4])
