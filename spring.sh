@@ -25,7 +25,7 @@ VM_NAME=TuxML_${OAR_JOBID}
 
 veertuosa_launch --name ${VM_NAME} --image /temp_dd/igrida-fs1/alemasle/images/TuxMLDebian.qcow2
 
-VM_CMD="ls -l /"
+VM_CMD="/TuxML/runandlog.py"
 
 echo $nb
 ssh-vm $VM_NAME "$VM_CMD"
