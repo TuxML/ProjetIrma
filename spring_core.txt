@@ -1,6 +1,3 @@
-#!/bin/bash
-#OAR -l core=2,walltime=1:00:00
-#OAR -p virt='YES'
 
 nb=0
 
