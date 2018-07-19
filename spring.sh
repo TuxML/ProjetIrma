@@ -10,7 +10,6 @@ else
 	nb=$1
 fi
 
-
 #OAR --array-param-file ./params.txt
 #OAR -O /temp_dd/igrida-fs1/alemasle/oar_output/job.%jobid%.output
 #OAR -E /temp_dd/igrida-fs1/alemasle/oar_output/job.%jobid%.error

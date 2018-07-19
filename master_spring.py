@@ -71,7 +71,7 @@ def main():
 
     generate(args)
 
-    # run()
+    run()
 
 
 if __name__ == '__main__':

@@ -7,7 +7,6 @@ else
 	nb=$1
 fi
 
-
 #OAR --array-param-file ./params.txt
 #OAR -O /temp_dd/igrida-fs1/alemasle/oar_output/job.%jobid%.output
 #OAR -E /temp_dd/igrida-fs1/alemasle/oar_output/job.%jobid%.error
@@ -22,7 +21,7 @@ VM_NAME=TuxML_${OAR_JOBID}
 
 veertuosa_launch --name ${VM_NAME} --image /temp_dd/igrida-fs1/alemasle/images/TuxMLDebian.qcow2
 
-VM_CMD="/TuxML/runandlog.py"
+VM_CMD="/TuxML/runandlog.py $1"
 
 echo $nb
 ssh-vm $VM_NAME "$VM_CMD"
