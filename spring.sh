@@ -1,5 +1,5 @@
 #!/bin/bash
-#OAR -l core=2,walltime=1:00:00
+#OAR -l core=4,walltime=1:00:00
 #OAR -p virt='YES'
 
 nb=0
@@ -24,7 +24,10 @@ VM_NAME=TuxML_${OAR_JOBID}
 
 veertuosa_launch --name ${VM_NAME} --image /temp_dd/igrida-fs1/alemasle/images/TuxMLDebian.qcow2
 
-VM_CMD="/TuxML/runandlog.py"
+VM_CMD=""
 
-echo $nb
+for i in $(seq $1); do
+	VM_CMD+="/TuxML/runandlog.py; "
+done
+
 ssh-vm $VM_NAME "$VM_CMD"
