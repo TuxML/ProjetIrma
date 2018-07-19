@@ -41,10 +41,13 @@ def generate(args):
     with open("spring.sh", "w") as spring:
         spring.write("#!/bin/bash\n")
         with open("spring_core.txt", "r") as core:
-            lines = core.read()
-            spring.write("#OAR -l core=%s,walltime=%s\n" % (nb_core, walltime))
+
+            OAR_cores = "#OAR -l /cpu=1/core=%s,walltime=%s\n" % (
+                nb_core, walltime)
+
+            spring.write(OAR_cores)
             spring.write("#OAR -p virt='YES'\n")
-            spring.write(lines)
+            spring.write(core.read())
 
 
 def setting(args):

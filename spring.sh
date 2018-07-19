@@ -1,5 +1,5 @@
 #!/bin/bash
-#OAR -l core=4,walltime=1:00:00
+#OAR -l /cpu=1/core=4,walltime=1:00:00
 #OAR -p virt='YES'
 
 nb=0
