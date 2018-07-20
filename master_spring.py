@@ -2,9 +2,13 @@
 
 import argparse
 import subprocess
+import os
 
 
 def run():
+
+    assert os.path.isfile("./spring.sh"), "'spring.sh' does not exist"
+
     null = subprocess.call("oarsub -S ./spring.sh", shell=True)
     if null == -1:
         print("Error during the call of 'spring.sh'")
@@ -38,16 +42,22 @@ def generate(args):
               "\" --> default value restored: walltime=1:00:00")
         walltime = "1:00:00"
 
+    assert os.path.isfile(
+        "spring_core.txt"), "The core program of 'spring.sh' from 'spring_core.txt' does not exist"
+
     with open("spring.sh", "w") as spring:
-        spring.write("#!/bin/bash\n")
         with open("spring_core.txt", "r") as core:
 
             OAR_cores = "#OAR -l /cpu=1/core=%s,walltime=%s\n" % (
                 nb_core, walltime)
 
+            lines = core.read()
+            assert lines, "'spring_core.txt should not be empty'"
+
+            spring.write("#!/bin/bash\n")
             spring.write(OAR_cores)
             spring.write("#OAR -p virt='YES'\n")
-            spring.write(core.read())
+            spring.write(lines)
 
 
 def setting(args):
