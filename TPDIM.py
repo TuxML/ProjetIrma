@@ -33,7 +33,6 @@ import subprocess
 
 
 def mkGenerate(args):
-    print("generate pwd", os.getcwd())
     DocPre = os.listdir('.')
     # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
     if "Dockerfile" in DocPre:
@@ -64,7 +63,6 @@ def mkGenerate(args):
 #  @author ACHER Mathieu
 # @param args The list of arguments give to the script
 def mkBuild(args):
-    print("build pwd", os.getcwd())
     if args.folder:
         DocPre = os.listdir(args.folder)
         if "Dockerfile" not in DocPre:
@@ -80,7 +78,6 @@ def mkBuild(args):
 #  @author ACHER Mathieu
 # @param args The list of arguments give to the script
 def mkPush(args):
-    print("push pwd", os.getcwd())
     docker_push(args.push, args.tag)
 
 ## docker_build
