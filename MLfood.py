@@ -229,7 +229,9 @@ def mlfood():
                     str(args.incremental) + " " + path + tiny
             print(LIGHT_BLUE_1 + "\n=============== Docker number " +
                   str(i + 1) + " ===============" + GRAY)
+
         # subprocess.run(chaine, shell=True)
+        assert chaine is not "", "The Docker command is empty"
         subprocess.call(chaine, shell=True)
 
         if not args.no_logs:
@@ -262,6 +264,11 @@ def mlfood():
                 # subprocess.run(errlogs, shell=True)
                 # subprocess.run(configFile, shell=True)
 
+                assert outputlog is not "", "The command to fetch the output file is empty"
+                assert stdlogs is not "", "The command to fetch the std log is empty"
+                assert errlogs is not "", "The command to fetch the err log is empty"
+                assert configFile is not "", "The command to fetch the config file is empty"
+
                 subprocess.call(outputlog, shell=True)
                 subprocess.call(stdlogs, shell=True)
                 subprocess.call(errlogs, shell=True)
@@ -286,6 +293,11 @@ def mlfood():
                 # subprocess.run(stdlogs, shell=True, stderr=subprocess.DEVNULL)
                 # subprocess.run(errlogs, shell=True, stderr=subprocess.DEVNULL)
                 # subprocess.run(configFile, shell=True, stderr=subprocess.DEVNULL)
+
+                assert outputlog is not "", "The command to fetch the output file is empty"
+                assert stdlogs is not "", "The command to fetch the std log is empty"
+                assert errlogs is not "", "The command to fetch the err log is empty"
+                assert configFile is not "", "The command to fetch the config file is empty"
 
                 subprocess.call(outputlog, shell=True,
                                 stderr=subprocess.DEVNULL)
