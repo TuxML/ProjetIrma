@@ -18,11 +18,15 @@ def generate(args):
 
     nb_core = args.nb_core
     walltime = args.walltime
+    nb_cpu = 1
 
     if nb_core <= 0:
         print("nb_core set at " + str(nb_core) +
               " --> default value restored: core=4")
         nb_core = 4
+
+    if nb_core > 4:
+        nb_cpu = nb_core / 4
 
     tmp = walltime.split(":")
 
@@ -32,8 +36,9 @@ def generate(args):
     if len(tmp[2]) == 1:
         tmp[2] = "0" + tmp[2]
 
-    if tmp[0][0] == '0':
-        tmp[0] = tmp[0][1:]
+    if len(tmp[0]) == 2:
+        if tmp[0][0] == '0':
+            tmp[0] = tmp[0][1:]
 
     walltime = ":".join(tmp)
 
@@ -48,8 +53,8 @@ def generate(args):
     with open("spring.sh", "w") as spring:
         with open("spring_core.txt", "r") as core:
 
-            OAR_cores = "#OAR -l /cpu=1/core=%s,walltime=%s\n" % (
-                nb_core, walltime)
+            OAR_cores = "#OAR -l /cpu=%s/core=%s,walltime=%s\n" % (
+                nb_cpu, nb_core, walltime)
 
             lines = core.read()
             assert lines, "'spring_core.txt should not be empty'"
