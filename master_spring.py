@@ -53,7 +53,7 @@ def generate(args):
     with open("spring.sh", "w") as spring:
         with open("spring_core.txt", "r") as core:
 
-            OAR_cores = "#OAR -l /cpu=1/core=%s,walltime=%s\n" % (
+            OAR_cores = "#OAR -l /nodes=1/core=%s,walltime=%s\n" % (
                 nb_core, walltime)
 
             lines = core.read()
