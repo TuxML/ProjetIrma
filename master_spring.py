@@ -55,13 +55,17 @@ def generate(args):
 
             OAR_cores = "#OAR -l /nodes=1/core=%s,walltime=%s\n" % (
                 nb_core, walltime)
+            OAR_besteffort = "#OAR -t besteffort\n" if args.besteffort else ""
+            OAR_idempotent = "#OAR -t idempotent\n" if args.idempotent else ""
 
             lines = core.read()
             assert lines, "'spring_core.txt should not be empty'"
 
             spring.write("#!/bin/bash\n")
             spring.write(OAR_cores)
-            spring.write("#OAR -p virt='YES'\n")
+            spring.write("#OAR -p virt='YES'\n\n")
+            spring.write(OAR_besteffort)
+            spring.write(OAR_idempotent)
             spring.write(lines)
 
 
@@ -81,6 +85,10 @@ def main():
                         help="Number of cores to use", default=4)
     parser.add_argument("--walltime", type=str,
                         help="Maximum time of life. (hh:mm:ss) ", default="1:00:00")
+    parser.add_argument(
+        "--besteffort", help="Set the nodes in besteffort mode", action="store_true")
+    parser.add_argument(
+        "--idempotent", help="Set the nodes in idempotent mode", action="store_true")
     args = parser.parse_args()
 
     print(" | ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]))
@@ -89,7 +97,7 @@ def main():
 
     generate(args)
 
-    run()
+    # run()
 
 
 if __name__ == '__main__':
