@@ -18,15 +18,11 @@ def generate(args):
 
     nb_core = args.nb_core
     walltime = args.walltime
-    nb_cpu = 1
 
     if nb_core <= 0:
         print("nb_core set at " + str(nb_core) +
               " --> default value restored: core=4")
         nb_core = 4
-
-    if nb_core > 4:
-        nb_cpu = nb_core / 4
 
     tmp = walltime.split(":")
 
