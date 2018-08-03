@@ -5,8 +5,7 @@ The Linux Kernel provides near 15000 configuration options: there is an infinity
 As we cannot compile, measure, and observe all combinations of options (aka configurations), we're trying to learn Linux kernel properties out of a sample of configurations. 
 You can easily loan your machine and contribute if you want, just copy and paste the line below!
 
-The TuxML* project is developping tools, mainly based on Docker and Python, to massively compile and gather data about thousand of configuration kernels. *([Tux](https://en.wikipedia.org/wiki/Tux_(mascot)) is the mascotte of the Linux Kernel while ML stands for statistical machine learning)
-
+The TuxML* project is developping tools, mainly based on Docker and Python, to massively compile and gather data about thousand of configuration kernels. *([Tux](https://en.wikipedia.org/wiki/Tux_(mascot)) is the mascotte of the Linux Kernel while ML stands for statistical machine learning) ![](https://raw.githubusercontent.com/TuxML/ProjetIrma/master/informations/tuxml_logo_small.png)
 
 ### I want to compile some Linux kernels! 
 
