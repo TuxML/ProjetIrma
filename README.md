@@ -10,7 +10,7 @@ Requirement:
 Do not forget to start the docker service. (Exemple: `sudo service docker start`)
 
 ```
-mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v0.8/MLfood.py ; sudo chmod u+x MLfood.py ; ./MLfood.py 100 --dev
+mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v0.8/MLfood.py ; python3 MLfood.py 100 --dev
 ```
 I will create a folder "TuxML" in your home.
 Copy this command and run it in a terminal, you can modify the 100 to an other number.
