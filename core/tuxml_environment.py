@@ -48,7 +48,6 @@ import platform
 import csv
 import tuxml_settings as tset
 import tuxml_common as tcom
-import psutil
 
 
 ## @author LE FLEM Erwan
@@ -85,8 +84,9 @@ def get_os_details():
 #  @return The mount point from where this file (hence tuxml), is located, e.g /,
 #  /mnt/myMountPoint, etc.
 def __get_mount_point():
-        path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.check_output(["stat", "--format=%m", path], universal_newlines=True)
+        path = os.path.dirname(os.path.abspath(__file__))
+        result = subprocess.check_output(
+            ["stat", "--format=%m", path], universal_newlines=True)
         return result.split('\n')[0].strip()
 
 
@@ -102,7 +102,7 @@ def __get_mount_point():
 def __get_partition():
         #spaces near {} are here to handle the case where the partition where tuxml is used is \
         result = subprocess.check_output(["cat /proc/mounts | grep \" {} \" ".format(__get_mount_point())],
-        shell=True, universal_newlines=True)
+                                         shell=True, universal_newlines=True)
         return result.split(' ')[0].strip()
 
 
@@ -119,7 +119,8 @@ def __get_partition():
 #  /sys/block/{}/queue/rotational need the disk in the path.
 #  (e.g sda2 will become sda)
 def __get_type_of_disk():
-    disk = __get_partition().translate({ord(k): None for k in ("0","1","2","3","4","5","6","7","8","9")})
+    disk = __get_partition().translate(
+        {ord(k): None for k in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")})
     if disk.strip() == "overlay" or disk == "overlay2":
         disk = overlay_to_partition()
     elif len(disk.split("/")) < 2 or "mapper" in disk:
@@ -130,12 +131,14 @@ def __get_type_of_disk():
 
     try:
         #result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
-        result = subprocess.check_output(["cat", "/sys/block/sda/queue/rotational".format(disk)], universal_newlines=True)
+        result = subprocess.check_output(
+            ["cat", "/sys/block/sda/queue/rotational"], universal_newlines=True)
         return result.split('\n')[0].strip()
     except subprocess.CalledProcessError:
         disk = __get_disk_docker()
         disk = ''.join(i for i in disk if not i.isdigit())
-        result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
+        result = subprocess.check_output(
+            ["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
         return result.split('\n')[0].strip()
 
 
@@ -145,7 +148,8 @@ def __get_type_of_disk():
 #  @brief Return the first physical disk (e.g. sda) found, we assume it is the
 #  only one visible as the container is stored on one disk
 def __get_disk_docker():
-    return psutil.disk_partitions()[0][0].split("/")[2]
+    # return psutil.disk_partitions()[0][0].split("/")[2]
+    return subprocess.check_output("fdisk -l | grep Disk -m1", shell=True).decode().split()[1].split("/")[2].strip(":")
 
 
 ## @author LE FLEM Erwan
@@ -187,7 +191,8 @@ def get_hardware_details():
                 if line.strip():
                     if line.rstrip('\n').startswith('MemTotal'):
                         # Le deuxième strip élimite l'unité 'kB' de la chaîne
-                        memory = line.rstrip('\n').split(':')[1].strip().split(' ')[0]
+                        memory = line.rstrip('\n').split(
+                            ':')[1].strip().split(' ')[0]
 
     hw = {
         "cpu": cpu_name,
@@ -208,7 +213,8 @@ def get_hardware_details():
 #
 #  @retuns The libc version e.g 2.27
 def __get_libc_version():
-        result = subprocess.check_output(["ldd", "--version"], universal_newlines=True)
+        result = subprocess.check_output(
+            ["ldd", "--version"], universal_newlines=True)
         return result.strip().split(' ')[3].split('\n')[0].split(')')[0]
 
 
@@ -218,7 +224,8 @@ def __get_libc_version():
 #
 #  @returns The gcc version, e.g 7.3.1
 def __get_gcc_version():
-        result = subprocess.check_output(["gcc", "--version"], universal_newlines=True)
+        result = subprocess.check_output(
+            ["gcc", "--version"], universal_newlines=True)
         return result.strip().split(' ')[2].split('\n')[0].split(')')[0]
 
 
@@ -228,8 +235,9 @@ def __get_gcc_version():
 #
 #  @returns The TuxML version, e.g pre-alpha v0.2
 def __get_tuxml_version():
-        path = os.path.dirname(os.path.abspath( __file__ ))
-        result = subprocess.check_output([path + "/tuxml.py", "-V"], universal_newlines=True)
+        path = os.path.dirname(os.path.abspath(__file__))
+        result = subprocess.check_output(
+            [path + "/tuxml.py", "-V"], universal_newlines=True)
         return result.split('.py')[1].split('\n')[0].strip()
 
 
@@ -254,7 +262,7 @@ def get_compilation_details():
         with open(tset.CONF_FILE, "r") as conf_file:
             i = 0
             for line in conf_file:
-                brim[i] = line.split("=")[1][1:-1] #format : OPTION=value
+                brim[i] = line.split("=")[1][1:-1]  # format : OPTION=value
                 i += 1
     except EnvironmentError:
         tcom.pprint(4, "Unable to find {}".format(tset.CONF_FILE))
@@ -301,9 +309,10 @@ def export_as_csv(os_details, hw_details, comp_details):
 #  between os, hardware and compilation dictionnaries
 def environment_pprinter(env_details):
     for dico in env_details:
-        print(" " * 4 + "==> "+ dico, flush=True)
+        print(" " * 4 + "==> " + dico, flush=True)
         for key in env_details[dico]:
-            print(" " * 6 + "--> " + key + ": " + env_details[dico][key], flush=True)
+            print(" " * 6 + "--> " + key + ": " +
+                  env_details[dico][key], flush=True)
 
 
 ## @author LEBRETON Mickaël
@@ -341,8 +350,10 @@ def get_environment_details():
 #  physical disk in the path, e.g /sys/block/sda/queue/rotational.
 #  This method try to find the actual partition where tuxml is instead of overlay.
 def overlay_to_partition():
-    inode = subprocess.check_output(["df -i | grep overlay | awk '{print $3}' "], shell=True, universal_newlines=True).strip()
-    result = subprocess.check_output(["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
+    inode = subprocess.check_output(
+        ["df -i | grep overlay | awk '{print $3}' "], shell=True, universal_newlines=True).strip()
+    result = subprocess.check_output(
+        ["df -i | grep {} |grep  -v overlay | awk '{{print $1}}'".format(inode)], shell=True, universal_newlines=True)
     return result.split('\n')[0].strip()
 
 

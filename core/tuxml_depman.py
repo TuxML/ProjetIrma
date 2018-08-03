@@ -60,10 +60,10 @@ tdepLogger = tdepl
 #  the package from the command above were installed.
 def build_dependencies(missing_files, missing_packages):
     cmds = {
-        "apt-get" : ["apt-file search {}", "dpkg-query -l | grep {}"],
-        "pacman"  : ["pkgfile -d {}", "pacman -Fs {}"],
-        "dnf"     : ["dnf whatprovides *{}", "rpm -qa | grep {}"],
-        "yum"     : ["yum whatprovides *{}", "rpm -qa | grep {}"]
+        "apt-get": ["apt-file search {}", "dpkg-query -l | grep {}"],
+        "pacman": ["pkgfile -d {}", "pacman -Fs {}"],
+        "dnf": ["dnf whatprovides *{}", "rpm -qa | grep {}"],
+        "yum": ["yum whatprovides *{}", "rpm -qa | grep {}"]
     }
 
     if tset.VERBOSE > 0 and len(missing_files) > 0:
@@ -77,7 +77,8 @@ def build_dependencies(missing_files, missing_packages):
             mf = mf.replace("/", " ")
 
         try:
-            output = subprocess.check_output([cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
+            output = subprocess.check_output(
+                [cmds[tset.PKG_MANAGER][0].format(mf)], shell=True, universal_newlines=True)
             tdepLogger.log_candidates_packages(mf, output)
         except subprocess.CalledProcessError:
             tdepl.log_status(mf, False)
@@ -95,7 +96,8 @@ def build_dependencies(missing_files, missing_packages):
             package = lines[i].split(":")[0]
             # 0: package already installed
             # 1: package not installed
-            status = subprocess.call([cmds[tset.PKG_MANAGER][1].format(package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            status = subprocess.call([cmds[tset.PKG_MANAGER][1].format(
+                package)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
             if status == 1:
                 tdepl.log_install(mf, package)
                 missing_packages.append(package)
@@ -130,17 +132,18 @@ def get_installed_packages(dependencies):
     installed_packages = list()
 
     cmds = {
-        "apt-get" : "dpkg -s  {}",
-        "pacman"  : "pacman -Qs {} | grep \"/{} \"",
-        "dnf"     : "rpm -qa | grep {}",
-        "yum"     : [""]
+        "apt-get": "dpkg -s  {}",
+        "pacman": "pacman -Qs {} | grep \"/{} \"",
+        "dnf": "rpm -qa | grep {}",
+        "yum": [""]
         # "emerge": [],
         # "zypper": []
     }
 
     for dep in dependencies:
         try:
-            status = subprocess.call([cmds[tset.PKG_MANAGER][0].format(dep,dep)], shell=True, universal_newlines=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            status = subprocess.call([cmds[tset.PKG_MANAGER][0].format(
+                dep, dep)], shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             #status = subprocess.call([cmds.get("apt-get").format(dep, dep)], shell=True, universal_newlines=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             if (status == 0):
                 installed_packages.append(dep)
@@ -190,22 +193,27 @@ def install_default_dependencies():
     # Install packages common to all distro
     tcom.pprint(2, "Installing default dependencies")
 
-    common_pkgs = ["kmod", "jfsutils", "xfsprogs", "btrfs-progs", "pcmciautils", "ppp", "grub","iptables","openssl"]
+    common_pkgs = ["kmod", "jfsutils", "xfsprogs", "btrfs-progs",
+                   "pcmciautils", "ppp", "grub", "iptables", "openssl"]
 
     # Now installation of packages with name that vary amongs distributions
-    debian_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-kernel-server", "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
-    arch_specific   = ["reiserfsprogs" , "squashfs-tools", "quota-tools", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
-    redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool", "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
-    gentoo_specific = ["reiserfsprogs" , "squashfs-tools", "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
-    suse_specific   = ["reiserfs", "quota", "nfs-client" , "procps"]
+    debian_specific = ["reiserfsprogs", "squashfs-tools", "quotatool", "nfs-kernel-server",
+                       "procps", "mcelog", "libcrypto++6", "apt-utils", "gcc-6-plugin-dev", "libssl-dev"]
+    arch_specific = ["reiserfsprogs", "squashfs-tools", "quota-tools",
+                     "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile"]
+    redHat_specific = ["reiserfs-utils", "squashfs-tools", "quotatool",
+                       "isdn4k-utils", "nfs-utils", "procps-ng", "oprofile", "mcelog"]
+    gentoo_specific = ["reiserfsprogs", "squashfs-tools",
+                       "quotatool", "nfs-utils", "procps", "mcelog", "oprofile"]
+    suse_specific = ["reiserfs", "quota", "nfs-client", "procps"]
 
     specific_pkgs = {
-        "apt-get" : debian_specific,
-        "pacman" : arch_specific,
-        "dnf":redHat_specific,
-        "yum":redHat_specific,
-        "emerge":gentoo_specific,
-        "zypper":suse_specific
+        "apt-get": debian_specific,
+        "pacman": arch_specific,
+        "dnf": redHat_specific,
+        "yum": redHat_specific,
+        "emerge": gentoo_specific,
+        "zypper": suse_specific
     }
 
     if tcom.install_packages(common_pkgs + specific_pkgs[tset.PKG_MANAGER]) != 0:

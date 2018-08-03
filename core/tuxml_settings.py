@@ -19,13 +19,7 @@
 #  @copyright Apache License 2.0
 #  @brief File containing all the tuxml's global variables
 
-
-import sys
 import subprocess
-import time
-import math
-import os
-
 
 ## Path to the linux sources
 PATH = ""
@@ -42,35 +36,37 @@ ERR_LOG_FILE = LOG_DIR + "/err.log"
 ## Path to the tuxml config file
 CONF_FILE = PATH + "tuxml.conf"
 
+TUXCONFIG = "tuxml.config"
+
 ## Verbose level : 1 = very quiet, 2 = quiet, 3 = chatty, 4 = very chatty
 VERBOSE = 3
 
 ## Default output is subprocess DEVNULL
-OUTPUT          = subprocess.DEVNULL
+OUTPUT = subprocess.DEVNULL
 
 ## Number of cores used by TuxML. By default it uses all the CPU cores
-NB_CORES        = 0
+NB_CORES = 0
 
 ## Package manager of the system
-PKG_MANAGER     = ""
+PKG_MANAGER = ""
 
 ## Environment details (dictionnary)
-TUXML_ENV       = None
+TUXML_ENV = None
 
 ## By default we erase the files from the previous compilations
 INCREMENTAL_MOD = 0
 
 ## Number of incremantal compilations to run
-INCITERS        = 0
+INCITERS = 0
 
 ## Compilation ID of the config on which the incremental compilations are based
-BASE_CONFIG_ID  = 0
+BASE_CONFIG_ID = 0
 
 ## Path to the kernel config, used in debug mode and in incrementalVS mod
-KCONFIG1        = ""
+KCONFIG1 = ""
 
 ## Path to the kernel config, used in incrementalVS mod
-KCONFIG2        = ""
+KCONFIG2 = ""
 
 ## Colors
 COLORS = {
@@ -92,28 +88,28 @@ COLORS = {
 }
 
 ## Virtual machine IP adress
-HOST            = "148.60.11.195"
+HOST = "148.60.11.195"
 
 ## MySQL user
-DB_USER         = "script2"
+DB_USER = "script2"
 
 ## MySQL password
-DB_PASSWD       = "ud6cw3xNRKnrOz6H"
+DB_PASSWD = "ud6cw3xNRKnrOz6H"
 
 ## MySQL database name (default is IrmaDB_prod)
-DB_NAME         = "IrmaDB_"
+DB_NAME = "IrmaDB_"
 
 ## SFTP user
-SFTP_USER       = "tuxml"
+SFTP_USER = "tuxml"
 
 ## SFTP password
-SFTP_PASSWD     = ""
+SFTP_PASSWD = ""
 
 ## SFTP port
-SFTP_PORT       = 22
+SFTP_PORT = 22
 
 ## SFTP remote directory
-SFTP_DIR        = "/var/www/html/files/"
+SFTP_DIR = "/var/www/html/files/"
 
 ## SFTP local log file
-SFTP_LOGS       = "/tmp/tuxml_sftp.log"
+SFTP_LOGS = "/tmp/tuxml_sftp.log"

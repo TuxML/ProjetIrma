@@ -21,3 +21,13 @@ test/
 test-incremental/
 nohup.out
 To_Compare/
+prend_vie.py
+.ipynb_checkpoints/
+*.odt#
+test.py
+tmp.txt
+csv_kernels/config_bdd.csv
+kconfiglib.html
+.idea
+params.txt
+decoded

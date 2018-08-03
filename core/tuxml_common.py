@@ -50,9 +50,10 @@ def pprint(s, message):
 
     NC = tset.COLORS["white"]
 
-    date    = tset.COLORS["light_blue_1"] + time.strftime("[%Y-%m-%d %H:%M:%S %Z] ", time.localtime(time.time()))
-    func    = tset.COLORS["gray"] + "[" + sys._getframe(1).f_code.co_name + "] "
-    msg     = code[s] + message + NC
+    date = tset.COLORS["light_blue_1"] + \
+        time.strftime("[%Y-%m-%d %H:%M:%S %Z] ", time.localtime(time.time()))
+    func = tset.COLORS["gray"] + "[" + sys._getframe(1).f_code.co_name + "] "
+    msg = code[s] + message + NC
 
     if tset.VERBOSE == 1:
         print(msg)
@@ -61,7 +62,7 @@ def pprint(s, message):
     else:
         print(date + func + msg)
 
-    sys.stdout.flush() # Make sur to print at the right time
+    sys.stdout.flush()  # Make sur to print at the right time
 
 
 ## @author  LE FLEM Erwan
@@ -77,7 +78,7 @@ def get_package_manager():
 
     pkg_managers = ["apt-get", "pacman", "dnf", "yum", "emerge", "zypper"]
     for manager in pkg_managers:
-        if shutil.which(manager): # remplacer par shutil.which(manager) ???
+        if shutil.which(manager):  # remplacer par shutil.which(manager) ???
             pprint(0, "Package manager is " + manager)
             return manager
 
@@ -103,12 +104,13 @@ def install_packages(packages):
         "pacman": " -S --noconfirm ",
         "dnf": " -q install ",
         "yum": " -y install ",
-        "emerge" : " --quiet-build=y -a ",
+        "emerge": " --quiet-build=y -a ",
         "zypper": " --non-interactive install "
     }
 
     # status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
-    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] + " ".join(packages)], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER] +
+                              " ".join(packages)], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Some packages were not found, installation stoped")
@@ -137,12 +139,13 @@ def update_system():
         "pacman": " -Sy",
         "dnf": " -y update",
         "yum": " -y update",
-        "emerge" : " --sync",
+        "emerge": " --sync",
         "zypper": " refresh"
     }
 
     # status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
-    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
+    status = subprocess.call([tset.PKG_MANAGER + manager_to_cmd[tset.PKG_MANAGER]],
+                             stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     if status != 0:
         pprint(1, "Error while updating packages repositories")

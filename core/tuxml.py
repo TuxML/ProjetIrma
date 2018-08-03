@@ -28,7 +28,6 @@ import subprocess
 import re
 import shutil
 import time
-import curses
 import tuxml_sendDB as tsen
 import tuxml_common as tcom
 import tuxml_settings as tset
@@ -109,8 +108,10 @@ def log_analysis(missing_files, missing_packages):
 #
 #  @param   p The current progression (between 0 and 100)
 def progress_bar(p):
-    if p > 100: p = 100
-    if p < 0: p = 0
+    if p > 100:
+        p = 100
+    if p < 0:
+        p = 0
     progress = p/5
     print("\rProgression: [", end="", flush=True)
     for i in range(int(progress)):
@@ -137,7 +138,8 @@ def compilation():
         os.makedirs(tset.PATH + tset.LOG_DIR)
 
     with open(tset.PATH + tset.STD_LOG_FILE, "w") as std_logs, open(tset.PATH + tset.ERR_LOG_FILE, "w") as err_logs:
-        status = subprocess.call("make -C "+ tset.PATH + " -j" + str(tset.NB_CORES) + " | ts -s", shell=True, stdout=std_logs, stderr=err_logs)
+        status = subprocess.call("make -C " + tset.PATH + " -j" + str(
+            tset.NB_CORES) + " | ts -s", shell=True, stdout=std_logs, stderr=err_logs)
 
     if status == 0:
         tcom.pprint(0, "Compilation done")
@@ -193,8 +195,10 @@ def gen_config(Kconfig=None):
         try:
             # debug config with given KCONFIG_SEED
             int(Kconfig, 16)
-            tcom.pprint(2, "Generating config file with KCONFIG_SEED=" + Kconfig)
-            status = subprocess.call(["KCONFIG_SEED=" + Kconfig + " make -C " + tset.PATH + " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
+            tcom.pprint(
+                2, "Generating config file with KCONFIG_SEED=" + Kconfig)
+            status = subprocess.call(["KCONFIG_SEED=" + Kconfig + " make -C " + tset.PATH +
+                                      " randconfig"], stdout=tset.OUTPUT, stderr=tset.OUTPUT, shell=True)
         except ValueError:
             # debug config with given KCONFIG_FILE
             if os.path.exists(Kconfig):
@@ -207,7 +211,12 @@ def gen_config(Kconfig=None):
     else:
         # generating new KConfig file
         tcom.pprint(2, "Randomising new KCONFIG_FILE")
-        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/tuxml.config make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
+        if not tset.TUXCONFIG == "tuxml.config":
+            tcom.pprint(2, "\"" + tset.TUXCONFIG + "\" used")
+        tcom.pprint(2, "KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
+                    " make -C " + tset.PATH + " randconfig")
+        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
+                                  " make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     # testing status after subprocess call to make randconfig
     if status != 0:
@@ -236,7 +245,7 @@ def launcher():
     status = -1
     while status == -1:
         missing_packages = []
-        missing_files    = []
+        missing_files = []
 
         if compilation() == -1:
             start_install_time = time.time()
@@ -253,7 +262,8 @@ def launcher():
             stop_install_time = time.time()
             install_time += stop_install_time - start_install_time
             if (tset.VERBOSE > 1):
-                tcom.pprint(2, "TuxML has spent {} to install missing packages".format(time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
+                tcom.pprint(2, "TuxML has spent {} to install missing packages".format(
+                    time.strftime("%H:%M:%S", time.gmtime(stop_install_time - start_install_time))))
         else:
             status = 0
     end_compil_time = time.time()
@@ -275,7 +285,8 @@ def launcher():
     else:
         compile_time = status
         boot_time = -1
-        tcom.pprint(1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
+        tcom.pprint(
+            1, "Unable to compile using this KCONFIG_FILE, status={}".format(status))
 
     # sending data to IrmaDB
     cid = tsen.send_data(compile_time, boot_time)
@@ -328,7 +339,8 @@ def main():
     tcom.pprint(0, "DATABASE CONFIGURATION ID={}".format(tset.BASE_CONFIG_ID))
 
     for c in range(len(cid_array)):
-        tcom.pprint(0, "INCREMENTAL CONFIGURATION ID #{}={}".format(c, cid_array[c]))
+        tcom.pprint(
+            0, "INCREMENTAL CONFIGURATION ID #{}={}".format(c, cid_array[c]))
 
     sys.exit(0)
 

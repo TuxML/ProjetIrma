@@ -1,0 +1,17 @@
+informations
+Logs
+special-config
+csv_kernels
+BuildImageInter
+compare
+.gitignore
+.git
+__pycache__
+.github
+bloat-o-meter
+clean.py
+flash_compare.py
+kernels2csv.py
+README.md
+alive.sh
+spring.sh

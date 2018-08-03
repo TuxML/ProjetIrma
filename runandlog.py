@@ -35,7 +35,6 @@ sys.path.insert(0, 'core')
 import tuxml_common as tcom
 import tuxml_settings as tset
 import bz2
-import os
 import subprocess
 import argparse
 import re
@@ -44,34 +43,47 @@ import re
 
 # Creation of help and argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument("incremental", help = "The incremental factor (0 by default)", type=int, nargs='?', default=0)
-parser.add_argument("--silent", help="No output on standrd output", action="store_true")
-parser.add_argument("--path", help="Give path into docker container to the .config file to use", type=str, default='')
+parser.add_argument(
+    "incremental", help="The incremental factor (0 by default)", type=int, nargs='?', default=0)
+parser.add_argument(
+    "--silent", help="No output on standrd output", action="store_true")
+parser.add_argument(
+    "--path", help="Give path into docker container to the .config file to use", type=str, default='')
+parser.add_argument(
+    "--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
 args = parser.parse_args()
 
 #### Send output.log to database with configuration ID (cid)
 # eg # send_outputlog(457, "fakeoutput.log", "IrmaDB_prod")
 # Function to send the outputfile to the database at a certain "cid"
+
+
 def send_outputlog(cid, outputfilename, databasename):
     try:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, databasename)
+        socket = MySQLdb.connect(
+            tset.HOST, tset.DB_USER, tset.DB_PASSWD, databasename)
         cursor = socket.cursor()
 
         bzoutput = bz2.compress(open(outputfilename, "rb").read())
 
         query = "UPDATE Compilations SET output_file = %s WHERE cid = %s"
 
+        assert type(cid) is list, "Cid parameter must be a list of 'cid'"
+        assert cid, "The list of cid must be non empty"
+
         for c in cid:
             data = (bzoutput, c)
             cursor.execute(query, data)
             socket.commit()
 
+        cursor.close()
         socket.close()
         return cid
 
     except MySQLdb.Error as err:
         tcom.pprint(1, "Can't send info to db : {}".format(err))
         return -1
+
 
 # Run tuxLogs.py and retrieves the output converted in a log file.
 if not args.silent:
@@ -83,13 +95,21 @@ if args.path:
 else:
     path = ""
 
+tiny = ""
+if args.tiny:
+    tiny = " --tiny"
+
 chaine = ""
 # Use to compute only, no standard output, all in the log file
 if args.silent:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + "| ts -s > /TuxML/out.log"
+    chaine = '/TuxML/tuxLogs.py ' + \
+        str(args.incremental) + " " + path + tiny + "| ts -s > /TuxML/out.log"
 else:
-    chaine = '/TuxML/tuxLogs.py ' + str(args.incremental) + " " + path + '| ts -s | tee /TuxML/out.log'
+    chaine = '/TuxML/tuxLogs.py ' + \
+        str(args.incremental) + " " + path + \
+        tiny + '| ts -s | tee /TuxML/out.log'
 
+assert chaine is not "", "The compilation command must not be empty"
 subprocess.run(chaine, shell=True)
 
 print("", flush=True)

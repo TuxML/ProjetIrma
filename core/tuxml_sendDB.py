@@ -28,11 +28,9 @@
 import time
 import os
 import MySQLdb
-import argparse
 import bz2
 import tuxml_common as tcom
 import tuxml_settings as tset
-import tuxml_environment as tenv
 import configCompress as compress
 import subprocess
 
@@ -43,8 +41,11 @@ import subprocess
 #  @returns  0 can't find kernel image
 #  @returns >0 size of kernel in bytes
 #  @deprecated
+
+
 def get_kernel_size():
-    possible_filenames = ["vmlinux", "vmlinux.bin", "vmlinuz", "zImage", "bzImage"]
+    possible_filenames = ["vmlinux", "vmlinux.bin",
+                          "vmlinuz", "zImage", "bzImage"]
     for filename in possible_filenames:
         full_filename = tset.PATH + "/" + filename
         if os.path.isfile(full_filename):
@@ -61,14 +62,13 @@ def get_kernel_size():
 #
 # @returns -1 can not find the vmlinux file
 # @returns >0 size of kernel "vmlinux" in bytes
+
+
 def get_size_kernel():
     full_filename = tset.PATH + "/vmlinux"
     if os.path.isfile(full_filename):
-        tcom.pprint(2, "kernel found: vmlinux")
         return os.path.getsize(full_filename)
     return -1
-
-
 
 
 ## @author LE MASLE Alexis
@@ -78,8 +78,8 @@ def get_size_kernel():
 # @returns The string formated as "compressed_name_1 : size1 , compressed_name_2 : size2 ..."
 # @returns "compressed_name_1 : 0 , compressed_name_2 : 0 ..." when no compressed_sizes could be found
 def get_compressed_sizes():
-    tcom.pprint(2, "Getting compressed kernels")
-    compression = ["GZIP","BZIP2","LZMA","XZ","LZO","LZ4"]
+    tcom.pprint(2, "Computing compressed kernels")
+    compression = ["GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"]
     extension = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]
     res = ""
 
@@ -90,26 +90,29 @@ def get_compressed_sizes():
             else:
                 res = res + " , " + c + " : -1"
         else:
-            subprocess.run("make -C " + tset.PATH + " -j " + str(tset.NB_CORES), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run("make -C " + tset.PATH + " -j" + str(tset.NB_CORES),
+                           shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             size = ""
             vm = ""
             bzImage = ""
 
             try:
-                size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+                size = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/*" + extension[compression.index(
+                    c)], shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except:
                 size = ""
 
             try:
-                vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+                vm = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/compressed/vmlinux",
+                                             shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except:
                 vm = ""
 
             try:
-                bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage", shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
-            except Exception as e:
+                bzImage = subprocess.check_output("wc -c " + tset.PATH + "/arch/x86/boot/bzImage",
+                                                  shell=True, stderr=subprocess.DEVNULL).decode().replace("\n", "").split()[0]
+            except:
                 bzImage = ""
-
 
             if size == "":
                 size = "-1"
@@ -119,13 +122,13 @@ def get_compressed_sizes():
                 bzImage = "-1"
 
             if res == "":
-                res = res + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
+                res = res + c + "-bzImage : " + bzImage + " , " + \
+                    c + "-vmlinux : " + vm + " , " + c + " : " + size
             else:
-                res = res + " , " + c + "-bzImage : " + bzImage + " , " + c + "-vmlinux : " + vm + " , " + c + " : " + size
+                res = res + " , " + c + "-bzImage : " + bzImage + " , " + \
+                    c + "-vmlinux : " + vm + " , " + c + " : " + size
 
     return res
-
-
 
 
 ## @author  LE LURON Pierre
@@ -153,7 +156,8 @@ def send_data(compile_time, boot_time):
             return -1
 
     try:
-        socket = MySQLdb.connect(tset.HOST, tset.DB_USER, tset.DB_PASSWD, tset.DB_NAME)
+        socket = MySQLdb.connect(
+            tset.HOST, tset.DB_USER, tset.DB_PASSWD, tset.DB_NAME)
         cursor = socket.cursor()
 
         # Values for request
@@ -174,10 +178,10 @@ def send_data(compile_time, boot_time):
         for dico in tset.TUXML_ENV:
             args.update(tset.TUXML_ENV[dico])
 
-        keys   = ",".join(args.keys())
+        keys = ",".join(args.keys())
         values = ','.join(['%s'] * len(args.values()))
 
-        query  = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
+        query = "INSERT INTO Compilations({}) VALUES({})".format(keys, values)
         cursor.execute(query, list(args.values()))
 
         query = "SELECT cid FROM Compilations ORDER BY cid DESC LIMIT 1"
@@ -185,11 +189,12 @@ def send_data(compile_time, boot_time):
         cid = cursor.fetchone()[0]
 
         if tset.INCREMENTAL_MOD and tset.BASE_CONFIG_ID != 0:
-            query  = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin) VALUES (%s, %s)"
+            query = "INSERT INTO Incremental_compilations(cid_incmod, cid_origin) VALUES (%s, %s)"
             cursor.execute(query, [cid, tset.BASE_CONFIG_ID])
 
-        query  = "INSERT INTO Tests(cid, test_date, boot_time) VALUES (%s, %s, %s)"
-        cursor.execute(query, [cid, time.strftime("%Y-%m-%d %H:%M:%S", date), boot_time])
+        query = "INSERT INTO Tests(cid, test_date, boot_time) VALUES (%s, %s, %s)"
+        cursor.execute(query, [cid, time.strftime(
+            "%Y-%m-%d %H:%M:%S", date), boot_time])
 
         socket.commit()
         socket.close()
@@ -204,29 +209,3 @@ def send_data(compile_time, boot_time):
 
 
 # ============================================================================ #
-
-
-#if __name__ == "__main__":
-    # msg = "TuxML send script - Use only for testss"
-    #
-    # p_help  = "path to the Linux source directory"
-    #
-    # parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
-    # parser.add_argument("source_path", help=p_help)
-    #
-    # args = parser.parse_args()
-    #
-    # # store the linux source path in a global var
-    # if not os.path.exists(args.source_path):
-    #     tcom.pprint(1, "This path doesn't exist")
-    #     sys.exit(-1)
-    # else:
-    #     tset.PATH = args.source_path
-    #
-    # tset.VERBOSE = 3
-    # tset.DB_NAME = "IrmaDB_dev"
-    # tset.INCREMENTAL_MOD = 0
-    # tset.CONFIG_ID = 7
-    #
-    # tset.TUXML_ENV = tenv.get_environment_details()
-    # send_data(123, 456)
