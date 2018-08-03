@@ -7,10 +7,12 @@ TuxML stands for Tux and Machine Learning (ML), Machine Learning applied to the 
 
 Requirement:
 `Python3` and `Docker` are needed to run `MLfood.py` and the TuxML project which is on the Docker Image.
+Do not forget to start the docker service. (Exemple: `sudo service docker start`)
 
 ```
 mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v0.8/MLfood.py ; sudo chmod u+x MLfood.py ; ./MLfood.py 100 --dev
 ```
+I will create a folder "TuxML" in your home.
 Copy this command and run it in a terminal, you can modify the 100 to an other number.
 
 Once you ran this command once, you can run `MLfood.py` again with the normal way.
