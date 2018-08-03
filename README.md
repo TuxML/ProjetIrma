@@ -5,7 +5,7 @@ The Linux Kernel provides near 15000 configuration options: there is an infinity
 As we cannot compile, measure, and observe all combinations of options (aka configurations), we're trying to learn Linux kernel properties out of a sample of configurations. 
 You can easily loan your machine and contribute if you want, just copy and paste the line below!
 
-The TuxML ([Tux](https://en.wikipedia.org/wiki/Tux_(mascot)) is the mascotte of the Linux Kernel while ML stands for statistical machine learning) project is developping tools, mainly based on Docker and Python, to massively compile and gather data about thousand of configuration kernels. 
+The TuxML* project is developping tools, mainly based on Docker and Python, to massively compile and gather data about thousand of configuration kernels. *([Tux](https://en.wikipedia.org/wiki/Tux_(mascot)) is the mascotte of the Linux Kernel while ML stands for statistical machine learning)
 
 
 ### I want to compile some Linux kernels! 
@@ -13,7 +13,7 @@ The TuxML ([Tux](https://en.wikipedia.org/wiki/Tux_(mascot)) is the mascotte of 
 Requirement: `Python3` and `Docker` are needed (do not forget to start the docker service usually with `sudo service docker start`)
 
 ```
-mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v0.8/MLfood.py ; sudo chmod u+x MLfood.py ; ./MLfood.py 10 --dev
+mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v1.0/MLfood.py ; sudo chmod u+x MLfood.py ; ./MLfood.py 10 --dev
 ```
 
 Copy this command and run it in a terminal. It will create a folder "TuxML" in your home and sent compilation results to our database.
