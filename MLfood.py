@@ -29,12 +29,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+import argparse
 import os
 import subprocess
-import time
-import argparse
 import sys
-
+import time
 
 ## COLORS
 WHITE = "\033[0m"                # Default color
@@ -57,31 +56,30 @@ LIGHT_PURPLE = "\033[38;5;13m"          # Informations
 #################### Section 1 ####################
 # Creation of help and arguments parser
 print("")
+
 parser = argparse.ArgumentParser()
 parser.add_argument("nbcompil", type=int,
                     help="Run MLfood into the given number of containers")
 parser.add_argument("incremental", type=int,
-                    help="Used in a case of incremental compilation with <Integer> compilation in a container", nargs='?', default=0)
-parser.add_argument(
-    "--no-clean", help="[dev] Do not delete past containers", action="store_true")
-parser.add_argument(
-    "--reset-logs", help="Delete all the saved logs and exit", action="store_true")
-parser.add_argument(
-    "--dev", help="[dev] Use the image in current development", action="store_true")
+                    help="Used in a case of incremental compilation with <Integer> compilation in a container",
+                    nargs='?', default=0)
+parser.add_argument("--no-clean", help="[dev] Do not delete past containers", action="store_true")
+parser.add_argument("--reset-logs", help="Delete all the saved logs and exit", action="store_true")
+parser.add_argument("--dev", help="[dev] Use the image in current development", action="store_true")
 parser.add_argument("--force-compilation-limits",
-                    help="Use this option to pass the user check if the requested number of compilations exceeds 50", action="store_true")
-parser.add_argument(
-    "--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation", action="store_true")
-parser.add_argument(
-    "--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
-parser.add_argument(
-    "--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
-parser.add_argument(
-    "--no-logs", help="Do not create local logs", action="store_true")
-parser.add_argument(
-    "--path", help="[dev] Give a .config file to compile, only this one and no more")
-parser.add_argument(
-    "--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
+                    help="Use this option to pass the user check if the requested number of compilations exceeds 50",
+                    action="store_true")
+parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation",
+                    action="store_true")
+parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing",
+                    action="store_true")
+parser.add_argument("--fetch-kernel",
+                    help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )",
+                    action="store_true")
+parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
+parser.add_argument("--path", help="[dev] Give a .config file to compile, only this one and no more")
+parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
+
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -102,7 +100,7 @@ def mlfood():
             reset = input("Please choose between 'y' and 'n'")
 
         reset.lower()
-        if reset == "y":
+        if reset == 'y':
             print("Deleting all the logs in Logs/...")
             # subprocess.run("rm -rf Logs/*", shell=True)
             subprocess.call("rm -rf Logs/*", shell=True)
@@ -185,7 +183,7 @@ def mlfood():
             print(LIGHT_BLUE_1 + "Recovering the last docker image " +
                   images[i % len(images)] + "\n" + GRAY)
             # subprocess.run(str2, shell=True)
-            subprocess.call(str2, shell=True)
+            #subprocess.call(str2, shell=True)
         else:
             # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             subprocess.call(

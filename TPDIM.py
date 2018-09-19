@@ -35,28 +35,28 @@ import subprocess
 def mkGenerate(args):
     DocPre = os.listdir('.')
     # We check if the dockerfile already exist and let the choice to the user to keep it or te generate a new one.
-    if "Dockerfile" in DocPre:
-        print("It seems that a DockerFile already exist, please move it away or it will be override by the generation, do you wish to continue ? (y/n)")
-        rep = input()
-        rep.lower()
-        if rep == "y":
-            if args.dependences:  # If the user give to the script a different dependences file than the default one, we use it instead
-                depText = args.dependences
+    #if "Dockerfile" in DocPre:
+    print("It seems that a DockerFile already exist, please move it away or it will be override by the generation, do you wish to continue ? (y/n)")
+    rep = input()
+    rep.lower()
+    if rep == "y":
+        if args.dependences:  # If the user give to the script a different dependences file than the default one, we use it instead
+            depText = args.dependences
 
-                with open(depText) as openDep:
-                    strDep = ''
+            with open(depText) as openDep:
+                strDep = ''
+                tmp = openDep.readline()
+                while(tmp != ''):
+                    strDep = strDep + tmp + " "
                     tmp = openDep.readline()
-                    while(tmp != ''):
-                        strDep = strDep + tmp + " "
-                        tmp = openDep.readline()
-                    strDep = strDep[:-1].replace("\n", "")
+                strDep = strDep[:-1].replace("\n", "")
 
-                docker_generate(args.generate, args.tag, strDep)
-            else:
-                docker_generate(args.generate, args.tag)
+            docker_generate(args.generate, args.tag, strDep)
         else:
-            print("Canceled")
-            exit(0)
+            docker_generate(args.generate, args.tag)
+    else:
+        print("Canceled")
+        exit(0)
 
 
 ## mkBuild
@@ -142,9 +142,8 @@ def docker_generate(originImage, tag, dependencesFile=None):
     ########### tuxml/debiantuxml ##########
     dockerFileI.write("ADD linux-4.13.3 /TuxML/linux-4.13.3\n")
     dockerFileI.write("ENV TZ=Europe/Paris\n")
-    dockerFileI.write(
-        "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone\n")
-    dockerFileI.write('RUN apt-get update && apt-get full-upgrade -y && apt-get -qq -y install ' + text_dep + ' ' + otherDep +
+    dockerFileI.write("RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone\n")
+    dockerFileI.write('RUN apt-get update && apt-get -qq -y install ' + text_dep + ' ' + otherDep +
                       ' \nRUN wget https://bootstrap.pypa.io/get-pip.py\nRUN python3 get-pip.py\nRUN pip3 install mysqlclient\nRUN pip3 install psutil\nRUN apt-get clean && rm -rf /var/lib/apt/lists/*\nEXPOSE 80\nENV NAME World\n')
     dockerFileI.close()
 
@@ -163,8 +162,6 @@ def docker_generate(originImage, tag, dependencesFile=None):
     dockerFile.write("ENV TZ=Europe/Paris\n")
     dockerFile.write(
         "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone\n")
-    dockerFile.write(
-        "RUN apt-get update && apt-get upgrade -y && apt-get full-upgrade -y\n")
     dockerFile.write("ADD core /TuxML\nADD dependences.txt /TuxML\nADD core-correlation /TuxML/core-correlation/ \nADD tuxLogs.py /TuxML\nADD runandlog.py /TuxML\nEXPOSE 80\nENV NAME World\nLABEL Description \"Image TuxML\"\n")
     dockerFile.close()
     ########### tuxml/tuxmldebian ##########
@@ -195,7 +192,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.all:
-        linux_dir = os.listdir('./BuildImageInter')
+
+        try:
+            linux_dir = os.listdir('./BuildImageInter')
+        except FileNotFoundError:
+            os.mkdir('./BuildImageInter')
+            linux_dir = os.listdir('./BuildImageInter')
         if "linux-4.13.3" not in linux_dir:
             os.chdir('./BuildImageInter')
             wget = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.13.3.tar.xz"

@@ -119,27 +119,15 @@ def __get_partition():
 #  /sys/block/{}/queue/rotational need the disk in the path.
 #  (e.g sda2 will become sda)
 def __get_type_of_disk():
-    disk = __get_partition().translate(
-        {ord(k): None for k in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")})
-    if disk.strip() == "overlay" or disk == "overlay2":
-        disk = overlay_to_partition()
-    elif len(disk.split("/")) < 2 or "mapper" in disk:
-        disk = __get_disk_docker()
-    else:
-        disk = disk.split("/")[2]
-    disk = ''.join(i for i in disk if not i.isdigit())
 
+    disk = psutil.disk_partitions()[0][0].split("/")[2]
+    disk = ''.join(i for i in disk if not i.isdigit())
     try:
-        #result = subprocess.check_output(["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
-        result = subprocess.check_output(
-            ["cat", "/sys/block/sda/queue/rotational"], universal_newlines=True)
-        return result.split('\n')[0].strip()
-    except subprocess.CalledProcessError:
-        disk = __get_disk_docker()
-        disk = ''.join(i for i in disk if not i.isdigit())
         result = subprocess.check_output(
             ["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
-        return result.split('\n')[0].strip()
+    except subprocess.CalledProcessError:
+        return -1
+    return result.split('\n')[0].strip()
 
 
 ## @author LE FLEM Erwan
@@ -148,8 +136,8 @@ def __get_type_of_disk():
 #  @brief Return the first physical disk (e.g. sda) found, we assume it is the
 #  only one visible as the container is stored on one disk
 def __get_disk_docker():
-    # return psutil.disk_partitions()[0][0].split("/")[2]
-    return subprocess.check_output("fdisk -l | grep Disk -m1", shell=True).decode().split()[1].split("/")[2].strip(":")
+    return psutil.disk_partitions()[0][0].split("/")[2]
+    #return subprocess.check_output("fdisk -l | grep Disk -m1", shell=True).decode().split()[1].split("/")[2].strip(":")
 
 
 ## @author LE FLEM Erwan
