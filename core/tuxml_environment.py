@@ -46,6 +46,7 @@ import subprocess
 import multiprocessing
 import platform
 import csv
+import psutil
 import tuxml_settings as tset
 import tuxml_common as tcom
 import psutil
