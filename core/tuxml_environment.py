@@ -127,7 +127,7 @@ def __get_type_of_disk():
         result = subprocess.check_output(
             ["cat", "/sys/block/{}/queue/rotational".format(disk)], universal_newlines=True)
     except subprocess.CalledProcessError:
-        return -1
+        return '-1'
     return result.split('\n')[0].strip()
 
 
