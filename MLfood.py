@@ -183,7 +183,7 @@ def mlfood():
             print(LIGHT_BLUE_1 + "Recovering the last docker image " +
                   images[i % len(images)] + "\n" + GRAY)
             # subprocess.run(str2, shell=True)
-            #subprocess.call(str2, shell=True)
+            subprocess.call(str2, shell=True)
         else:
             # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             subprocess.call(
