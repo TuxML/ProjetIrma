@@ -49,6 +49,7 @@ import csv
 import psutil
 import tuxml_settings as tset
 import tuxml_common as tcom
+import psutil
 
 
 ## @author LE FLEM Erwan
