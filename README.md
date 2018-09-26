@@ -34,3 +34,19 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
  * Alexis Lemasle (University of Rennes 1), main developer 
  * [DiverSE team (Inria/IRISA research team)](http://www.diverse-team.fr/)
  * [ANR VaryVary project](https://varyvary.github.io/) 
+
+    Master 2017 - 2018
+
+ * Corentin Chédotal
+ * Gwendal Didot 
+ * Dorian Dumanget 
+ * Antonin Garret
+ * Erwan Le Flem
+ * Pierre Le Luron 
+ * Alexis Le Masle 
+ * Mickaël Lebreton
+ * Fahim Merzouk
+
+    Master 2018 - 2019  
+
+ * Valentin Petit
