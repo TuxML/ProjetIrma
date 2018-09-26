@@ -54,6 +54,7 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
  * Cyril HAMON
  * Paul SAFFRAY
  * Michaël PICARD
- * Malo Poles
- * Luis Thomas
+ * Malo POLES
+ * Luis THOMAS
+ * Alexis BONNET
 
