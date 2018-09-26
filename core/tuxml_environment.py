@@ -159,7 +159,6 @@ def __get_disk_docker():
 #    0 for a non mecanical drive (e.g SSD)
 #    1 for a classical mecanical hard disk.
 #
-#
 # @return A dictionary with the keys listed above
 #
 # @bug disk_type is currently not reliable on RAID disk.
