@@ -50,4 +50,5 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
     Master 2018 - 2019  
 
  * Valentin Petit
+ * Julien ROYON CHALENDARD
 
