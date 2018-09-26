@@ -49,8 +49,9 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
 
     Master 2018 - 2019  
 
- * Valentin Petit
+ * Valentin PETIT
  * Julien ROYON CHALENDARD
  * Cyril HAMON
- * Paul Saffray 
+ * Paul SAFFRAY
+ * Michaël PICARD
 
