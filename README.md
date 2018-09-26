@@ -52,3 +52,5 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
  * Valentin Petit
  * Julien ROYON CHALENDARD
  * Cyril HAMON
+ * Paul Saffray 
+
