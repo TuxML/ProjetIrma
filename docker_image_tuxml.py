@@ -193,7 +193,7 @@ def check_y_or_n():
         return True
     return False
 
-
+#TODO check for relative path in settings_tuxml Tuxml directory doesn't longer exist so it might bug
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-k",
         "--kernel",
-        help="Specify the kernel version, default is linux-4.14.3",
+        help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
         default="linux-4.14.3"
     )
 
