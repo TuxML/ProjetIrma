@@ -7,8 +7,12 @@
 # @details This script was design to help members of the TuxML project to easily use Docker, without any knowledge require
 #  other than what a Docker image is (check https://docs.docker.com/get-started/ for more information).
 
+import argparse
 import subprocess
 import os
+
+from .settings_image_tuxml import *
+
 
 ## docker_build
 # @author DIDOT Gwendal, PICARD Michaël
@@ -41,10 +45,25 @@ def docker_build(image=None, tag=None, path=None):
 def create_dockerfile(content=None, path=None):
     if path is not None:
         os.chdir(path)
-
     with open("Dockerfile", "w") as file:
         file.write(content)
 
 
+## create_sub_image_tuxml_compressed
+# @author PICARD Michaël
+# @version 1
+# @brief Create a base image to speed our usual build
+# @details It create an image on which we will build the image to upload. Its
+# goal is to speed up the creation context when we just update project's files,
+# and not the whole dependencies for our project.
+def create_sub_image_tuxml_compressed(tmp_location):
+    pass
 
+
+## create_sub_image_tuxml_compressed
+# @author PICARD Michaël
+# @version 1
+# @brief Create the compressed image to work with.
+def create_image_tuxml_compressed(tmp_location):
+    pass
 
