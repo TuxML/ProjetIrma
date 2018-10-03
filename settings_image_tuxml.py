@@ -29,8 +29,8 @@ CONTENT_IMAGE = {
     'PREVIMG_VERSION': "FROM " + NAME_BASE_IMAGE + ":latest",
     'ENV_VARS': ["ENV TZ=Europe/Paris", "ENV DEBIAN_FRONTEND noninteractive"],
     'ZONEINFO': "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone",
-    'LINUX_UNTAR': "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz",
-    'TUXML_UNTAR': "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz",
+    'LINUX_UNTAR': "RUN tar xf inux-4.13.3.tar.xz -C /TuxML && rm linux-4.13.3.tar.xz",
+    'TUXML_UNTAR': "RUN tar xf TuxML.tar.xz -C /TuxML && rm TuxML.tar.xz",
     'RUN_DEP_INSTALL': """RUN apt-get install -qq -y --no-install-recommends gcc g++ make binutils util-linux kmod e2fsprogs
                     jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool 
                     nfs-kernel-server procps mcelog libcrypto++6 git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool 
