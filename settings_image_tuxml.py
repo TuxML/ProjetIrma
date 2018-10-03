@@ -20,9 +20,6 @@ CONTENT_BASE_IMAGE = {
     'ENV_NAME': "ENV NAME World",
 }
 
-# Constants for the Docker of the "uncompressed" image
-PREVIMG_VERSION = "FROM " + NAME_BASE_IMAGE + ":latest"
-
 ## Information about the built image
 NAME_IMAGE = "tuxml/tuxmldebian"
 
@@ -41,4 +38,3 @@ CONTENT_IMAGE = {
     'EXPOSE': "EXPOSE 80",
     'ENV_NAME': "ENV NAME World",
 }
-
