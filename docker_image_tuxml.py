@@ -184,6 +184,16 @@ def get_linux_kernel(name, path=None):
     return 0
 
 
+def check_y_or_n():
+    answer = input().lower()
+    while answer != 'n' or answer != 'y':
+        print("y/n")
+        answer = input().lower()
+    if answer == 'y':
+        return True
+    return False
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
@@ -237,9 +247,7 @@ if __name__ == "__main__":
         if args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
                   "project (Y/n)? ")
-            answer = input()
-            answer.lower()
-            if answer == "Y" or answer == "y":
+            if check_y_or_n():
                 create_sub_image_tuxml_compressed(tmp_location)
             else:
                 print("Whole rebuild canceled.\n")
