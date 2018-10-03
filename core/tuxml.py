@@ -145,7 +145,7 @@ def compilation():
         tcom.pprint(0, "Compilation done")
         return 0
     else:
-        tcom.pprint(2, "Compilation failed, exit status : {}".format(status))
+        tcom.pprint(2, "Compilation failed, exit status : {}".format(s.tatus))
         return -1
 
 

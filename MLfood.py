@@ -88,26 +88,38 @@ args = parser.parse_args()
 # All sections annoted in the code are explained in the documentation
 
 
+
+## @author  POLES Malo
+#
+#
+#  @brief   ask and check for confirmation (y/n)
+#
+#  @returns False for "n"
+#  @returns True for "y"
+def ask_for_confirmation():
+    res = input().lower()
+    while res != 'n' and res != 'y':
+        res = input("y/n").lower()
+    if res == 'n':
+        return False
+    return True
+
+
 def mlfood():
 
     #################### Section 2 ####################
     # Check if there is the --reset-logs option to erase all the logs.
     if args.reset_logs:
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
-        reset = input()
-
-        while reset != 'n' and reset != 'y':
-            reset = input("Please choose between 'y' and 'n'")
-
-        reset.lower()
-        if reset == 'y':
+        reset = ask_for_confirmation()
+        if reset:
             print("Deleting all the logs in Logs/...")
             # subprocess.run("rm -rf Logs/*", shell=True)
             subprocess.call("rm -rf Logs/*", shell=True)
             print("Delete done.")
             print("" + GRAY)
             exit(0)
-        elif reset == 'n':
+        else:
             print("")
             print("Logs are not deleted.")
             print(GRAY)
@@ -134,19 +146,13 @@ def mlfood():
     # If the number is above 50 and the option "-y" is not enable, the script will ask for a confirmation
     if args.nbcompil >= 50 and not args.force_compilation_limits:
         print(ORANGE + "Are-you sure you want to start " +
-              str(args.nbcompil) + " compilation?")
+              str(args.nbcompil) + " compilation? (y/n)")
         print('Canceling it would take as much Ctrl+C as the remaining number of compilations.' + GRAY)
-        ok = input("(y/n)")
-
-        while ok != 'n' and ok != 'y':
-            ok = input("Please choose between 'y' and 'n'")
-
-        ok.lower()
-        if ok == "n":
+        ok = ask_for_confirmation()
+        if not ok:
             print("Canceled" + GRAY)
             exit(0)
-
-        elif ok == 'y':
+        else:
             print(LIGHT_BLUE_1 + "Take a coffee and admire your " +
                   str(args.nbcompil) + " compilations!" + GRAY)
 
