@@ -183,7 +183,7 @@ def get_linux_kernel(name, path=None):
             return -1
     return 0
 
-# TODO linux kernel is download to docker directory but need to be add to Dockerfile
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter

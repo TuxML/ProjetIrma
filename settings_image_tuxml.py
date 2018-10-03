@@ -5,8 +5,8 @@ NAME_BASE_IMAGE = "tuxml/minituxml"
 CONTENT_BASE_IMAGE = {
     # Constants for the Dockerfile of the "compressed" image
     'DEBIAN_VERSION': 'FROM debian:stretch',
-    'LINUX_TAR': "COPY linux-4.13.3.tar.xz /TuxML/linux-4.13.3.tar.xz",
-    'TUXML_TAR': "COPY TuxML.tar.xz /TuxML/TuxML.tar.xz", # Not in the base image, prone to change
+    'LINUX_TAR': "COPY linux-4.13.3.tar.xz linux-4.13.3.tar.xz",
+    'TUXML_TAR': "COPY TuxML.tar.xz TuxML.tar.xz", # Not in the base image, prone to change
     'ENV_VARS': ["ENV TZ=Europe/Paris", "ENV DEBIAN_FRONTEND noninteractive"],
     'ZONEINFO': "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone",
     'RUN_DEP': """RUN apt-get update && apt-get -qq -y install python3 python3-dev python3-pip python3-setuptools 
