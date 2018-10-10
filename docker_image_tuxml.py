@@ -75,8 +75,19 @@ def create_dockerfile(content=None, path=None):
 # goal is to speed up the creation context when we just update project's files,
 # and not the whole dependencies for our project.
 def create_sub_image_tuxml_compressed(tmp_location):
+    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+        CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
+        CONTENT_BASE_IMAGE['LINUX_TAR'],
+        CONTENT_BASE_IMAGE['ENV_VARS'],
+        CONTENT_BASE_IMAGE['ZONEINFO'],
+        CONTENT_BASE_IMAGE['RUN_DEP'],
+        CONTENT_BASE_IMAGE['RUN_DEP_FILE'],
+        CONTENT_BASE_IMAGE['RUN_PIP'],
+        CONTENT_BASE_IMAGE['EXPOSE'],
+        CONTENT_BASE_IMAGE['ENV_NAME']
+    )
     create_dockerfile(
-        content=CONTENT_BASE_IMAGE,
+        content=content,
         path=tmp_location)
     docker_build(
         image=NAME_BASE_IMAGE,
@@ -92,18 +103,26 @@ def create_sub_image_tuxml_compressed(tmp_location):
 # @param dependencies_path The path to the file corresponding to optional
 # dependencies. Default to None.
 def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None):
-    content = CONTENT_IMAGE
+    tmp_content = CONTENT_IMAGE
     if dependencies_path is not None:
         with open(dependencies_path) as dep_file:
             str_dep = ''
             tmp = dep_file.readline()
-            while (tmp != ''):
+            while tmp != '':
                 str_dep += tmp + " "
                 tmp = dep_file.readline()
             str_dep = str_dep.replace("\n", "")
-        content = "{}\n" \
-                  "RUN apt-get update && apt-get -qq -y install {} ".format(
-                    content, str_dep)
+        tmp_content['RUN_DEP'] =\
+            "RUN apt-get update && apt-get -qq -y install {} ".format(str_dep)
+        tmp_content['RUN_DEP_FILE'] = "echo {} >> /dependencies.txt".format(str_dep)
+    content = "{}\n{}\n{}\n{}\n{}".format(
+        tmp_content['PREVIMG_VERSION'],
+        tmp_content['TUXML_TAR'],
+        tmp_content['RUN_DEP'],
+        tmp_content['RUN_DEP_FILE'],
+        tmp_content['EXPOSE'],
+        tmp_content['ENV_NAME']
+    )
     create_dockerfile(
         content=content,
         path=tmp_location)
@@ -113,10 +132,28 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
         path=tmp_location)
 
 
+def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
+    content = "{}\n{}\n{}\n{}\n{}".format(
+        CONTENT_BIG_IMAGE['PREVIMG_VERSION'],
+        CONTENT_BIG_IMAGE['TUXML_TAR'],
+        CONTENT_BIG_IMAGE['RUN_DEP'],
+        CONTENT_BIG_IMAGE['RUN_DEP_FILE'],
+        CONTENT_BIG_IMAGE['EXPOSE'],
+        CONTENT_BIG_IMAGE['ENV_NAME']
+    )
+    create_dockerfile(content=content, path=tmp_location)
+    docker_build(
+        image=NAME_BASE_IMAGE,
+        tag=tag,
+        path=tmp_location
+    )
+
+
 ## exist_sub_image_tuxml_compressed
 # @author PICARD Michaël
 # @version 1
 # @brief Test if the sub_image_tuxml_compressed docker image already exist.
+# TODO: Refactor to be nicer
 def exist_sub_image_tuxml_compressed():
     list_str_test = ["docker", "image", "ls", "--format", "{{.Repository}}"]
     result = subprocess.check_output(
@@ -127,7 +164,7 @@ def exist_sub_image_tuxml_compressed():
     try:
         result.index(NAME_BASE_IMAGE)
         return True
-    except:
+    except KeyError:
         return False
 
 
@@ -175,3 +212,4 @@ if __name__ == "__main__":
         elif not exist_sub_image_tuxml_compressed():
             create_sub_image_tuxml_compressed(tmp_location)
         create_image_tuxml_compressed(tmp_location, args.tag, args.dependencies)
+        create_big_image_tuxml_uncompressed(tmp_location, tag=args.tag)
