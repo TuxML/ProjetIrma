@@ -167,29 +167,111 @@ def exist_sub_image_tuxml_compressed():
     except KeyError:
         return False
 
+## create the directory where we create the docker image
+# @author POLES Malo
+# @version 1
+# @brief Create the directory where we want to build the docker image
+# @param name Name of the directory
+# @param path Location where we want to create the directory, '.' by default
+# @return Return -1 if it is impossible to get to location pointed by path
+#         return -2 if it is impossible to create the directory
+#         return 0 on success
 
+
+def create_build_dir(name="docker_image_tuxml", path=None):
+    if path is not None:
+        try:
+            os.chdir(path)
+        except Exception as err:
+            print("An error occur while moving to {}\n{}".format(path, err))
+            return -1
+    try:
+        os.mkdir(name)
+    except Exception as err:
+        print("An error occur while trying to create the directory\n {}".format(err))
+        return -2
+    return os.getcwd()
+
+
+##Download the linux kernel
+# @author POLES Malo
+# @version 1
+# @brief Download the linux kernel at the current location
+# @param name Specify version of kernel we want, default is 'linux-4.13.3'
+# MUST BE A v4.x version
+# @return Return -1 if an error occur while downloading
+#         Return 0 on succes
+
+def get_linux_kernel(name, path=None):
+    if path is not None:
+        try:
+            os.chdir(path)
+        except Exception as err:
+            print("An error occur while going to location {}\n{}".format(path, err))
+    name += ".tar.xz"
+    list_dir = os.listdir('.')
+    if name not in list_dir:
+        wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
+        try:
+            subprocess.call(wget_cmd, shell=True)
+        except Exception as err:
+            print("An error occur while trying to download {}\n {}".format(name, err))
+            return -1
+    return 0
+
+
+def check_y_or_n():
+    answer = input().lower()
+    while answer != 'n' or answer != 'y':
+        print("y/n")
+        answer = input().lower()
+    if answer == 'y':
+        return True
+    return False
+
+#TODO check for relative path in settings_tuxml Tuxml directory doesn't longer exist so it might bug
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter
+    )
     parser.add_argument(
         '-p',
         '--push',
-        help="Push the image on the distant repository")
+        help="Push the image on the distant repository"
+    )
     parser.add_argument(
         '-t',
         '--tag',
         help="Tag of the image you want to generate/build/push",
-        default="dev")
+        default="dev"
+    )
     parser.add_argument(
         '-dep',
         '--dependencies',
         help="Dependencies you want to add to your docker image when you "
-             "generate your dockerfile")
+             "generate your dockerfile"
+    )
     parser.add_argument(
         '-f',
         '--full_rebuild',
         help="Force the rebuild of the core system image, which is not needed "
              "in most of the case."
+    )
+    parser.add_argument(
+        "-l",
+        "--location",
+        help="Where you want to create your directory to generate/build. Default is current"
+    )
+    parser.add_argument(
+        "-n",
+        "--name",
+        help="Name of the directory you want to create,docker_image_tuxml by default"
+    )
+    parser.add_argument(
+        "-k",
+        "--kernel",
+        help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
+        default="linux-4.14.3"
     )
 
     args = parser.parse_args()
@@ -197,19 +279,16 @@ if __name__ == "__main__":
     if args.push:
         docker_push(NAME_IMAGE, args.tag)
     else:
-        # TODO : Replace with the create tmp_location method
-        tmp_location = '.'
-
+        tmp_location = create_build_dir(args.name, args.location)
         if args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
                   "project (Y/n)? ")
-            answer = input()
-            answer.lower()
-            if answer == "Y" or answer == "y":
+            if check_y_or_n():
                 create_sub_image_tuxml_compressed(tmp_location)
             else:
                 print("Whole rebuild canceled.\n")
         elif not exist_sub_image_tuxml_compressed():
             create_sub_image_tuxml_compressed(tmp_location)
+        get_linux_kernel(args.kernel, tmp_location)
         create_image_tuxml_compressed(tmp_location, args.tag, args.dependencies)
         create_big_image_tuxml_uncompressed(tmp_location, tag=args.tag)

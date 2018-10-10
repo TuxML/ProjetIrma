@@ -7,7 +7,12 @@ BASIC_DEP = "gcc g++ make binutils util-linux kmod e2fsprogs jfsutils xfsprogs b
 CONTENT_BASE_IMAGE = {
     # Constants for the Dockerfile of the "compressed" image
     'DEBIAN_VERSION': 'FROM debian:stretch',
+<<<<<<< HEAD
     'LINUX_TAR': "COPY linux-4.13.3.tar.xz /TuxML/linux-4.13.3.tar.xz",
+=======
+    'LINUX_TAR': "COPY linux-4.13.3.tar.xz linux-4.13.3.tar.xz",
+    'TUXML_TAR': "COPY TuxML.tar.xz TuxML.tar.xz", # Not in the base image, prone to change
+>>>>>>> 3173ea37843e12e53d378ab3943794182afe8218
     'ENV_VARS': ["ENV TZ=Europe/Paris", "ENV DEBIAN_FRONTEND noninteractive"],
     'ZONEINFO': "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone",
     'RUN_DEP': "RUN apt-get update && apt-get -qq -y install python3 python3-dev python3-pip python3-setuptools default-libmysqlclient-dev apt-file apt-utils && apt-get install -qq -y --no-install-recommends --download-only" +
@@ -24,6 +29,7 @@ NAME_IMAGE = "tuxml/debiantuxml"
 # What will be written in the Dockerfile for the compressed docker image.
 CONTENT_IMAGE = {
     # Constants for the Dockerfile of the "uncompressed" image
+<<<<<<< HEAD
     'PREVIMG_VERSION': "FROM " + NAME_BASE_IMAGE,
     'TUXML_TAR': "COPY TuxML.tar.xz /TuxML/TuxML.tar.xz",
     'RUN_DEP': "",
@@ -39,6 +45,17 @@ CONTENT_BIG_IMAGE = {
     'LINUX_UNTAR': "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz",
     'TUXML_UNTAR': "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz",
     'RUN_DEP': "RUN apt-get update $(cat /dependencies.txt)",
+=======
+    'PREVIMG_VERSION': "FROM " + NAME_BASE_IMAGE + ":latest",
+    'ENV_VARS': ["ENV TZ=Europe/Paris", "ENV DEBIAN_FRONTEND noninteractive"],
+    'ZONEINFO': "RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone",
+    'LINUX_UNTAR': "RUN tar xf inux-4.13.3.tar.xz  && rm linux-4.13.3.tar.xz",
+    'TUXML_UNTAR': "RUN tar xf TuxML.tar.xz  && rm TuxML.tar.xz",
+    'RUN_DEP_INSTALL': """RUN apt-get install -qq -y --no-install-recommends gcc g++ make binutils util-linux kmod e2fsprogs
+                    jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool 
+                    nfs-kernel-server procps mcelog libcrypto++6 git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool 
+                    dialog moreutils bison libelf-dev flex libdb5.3-dev""",
+>>>>>>> 3173ea37843e12e53d378ab3943794182afe8218
     'EXPOSE': "EXPOSE 80",
     'ENV_NAME': "ENV NAME World",
 }
