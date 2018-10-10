@@ -139,7 +139,7 @@ def exist_sub_image_tuxml_compressed():
 # @param path Location where we want to create the directory, '.' by default
 # @return Return -1 if it is impossible to get to location pointed by path
 #         return -2 if it is impossible to create the directory
-#         return 0 on success
+#         return path  on success
 
 
 def create_build_dir(name="docker_image_tuxml", path=None):
@@ -172,6 +172,7 @@ def get_linux_kernel(name, path=None):
             os.chdir(path)
         except Exception as err:
             print("An error occur while going to location {}\n{}".format(path, err))
+            return -1
     name += ".tar.xz"
     list_dir = os.listdir('.')
     if name not in list_dir:
@@ -193,7 +194,7 @@ def check_y_or_n():
         return True
     return False
 
-#TODO check for relative path in settings_tuxml Tuxml directory doesn't longer exist so it might bug
+#TODO check for relative path in settings_tuxml since Tuxml directory doesn't longer exist so it might bug
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
@@ -234,7 +235,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-k",
         "--kernel",
-        help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
+        help="Specify the kernel version, default is linux-4.14.3. THIS DOESN'T WORK YET",
         default="linux-4.14.3"
     )
 
