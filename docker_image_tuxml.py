@@ -172,7 +172,6 @@ def exist_sub_image_tuxml_compressed():
     except:
         return False
 
-
 ##Download the linux kernel
 # @author POLES Malo
 # @version 1
@@ -203,7 +202,6 @@ def check_y_or_n():
     return False
 
 
-#TODO check for relative path in settings_tuxml Tuxml directory doesn't longer exist so it might bug
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
