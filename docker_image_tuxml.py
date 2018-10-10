@@ -11,7 +11,7 @@
 import argparse
 import subprocess
 import os
-from .settings_image_tuxml import *
+from settings_image_tuxml import *
 
 
 ## docker_build
@@ -32,7 +32,7 @@ def docker_build(image=None, tag=None, path=None):
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
     print("command : {}".format(str_build))
-    subprocess.call(args=str_build)
+    subprocess.call(str_build.split(' '))
 
 
 ## docker_push
@@ -75,8 +75,10 @@ def create_dockerfile(content=None, path=None):
 # goal is to speed up the creation context when we just update project's files,
 # and not the whole dependencies for our project.
 def create_sub_image_tuxml_compressed(tmp_location):
-    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+    get_linux_kernel(LINUX_KERNEL, tmp_location)
+    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
         CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
+        CONTENT_BASE_IMAGE['MKDIR_TUXML'],
         CONTENT_BASE_IMAGE['LINUX_TAR'],
         CONTENT_BASE_IMAGE['ENV_VARS'],
         CONTENT_BASE_IMAGE['ZONEINFO'],
@@ -114,7 +116,7 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
             str_dep = str_dep.replace("\n", "")
         tmp_content['RUN_DEP'] =\
             "RUN apt-get update && apt-get -qq -y install {} ".format(str_dep)
-        tmp_content['RUN_DEP_FILE'] = "echo {} >> /dependencies.txt".format(str_dep)
+        tmp_content['RUN_DEP_FILE'] = "RUN echo {} >> /dependencies.txt".format(str_dep)
     content = "{}\n{}\n{}\n{}\n{}".format(
         tmp_content['PREVIMG_VERSION'],
         tmp_content['TUXML_TAR'],
@@ -127,23 +129,26 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
         content=content,
         path=tmp_location)
     docker_build(
-        image=NAME_BASE_IMAGE,
+        image=NAME_IMAGE,
         tag=tag,
         path=tmp_location)
 
 
 def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
+    content = "{}".format(CONTENT_BIG_IMAGE['PREVIMG_VERSION'])
+    if tag is not None:
+        content = "{}:{}".format(content, tag)
     content = "{}\n{}\n{}\n{}\n{}".format(
-        CONTENT_BIG_IMAGE['PREVIMG_VERSION'],
-        CONTENT_BIG_IMAGE['TUXML_TAR'],
-        CONTENT_BIG_IMAGE['RUN_DEP'],
+        content,
+        CONTENT_BIG_IMAGE['TUXML_UNTAR'],
+        CONTENT_BIG_IMAGE['LINUX_UNTAR'],
         CONTENT_BIG_IMAGE['RUN_DEP_FILE'],
         CONTENT_BIG_IMAGE['EXPOSE'],
         CONTENT_BIG_IMAGE['ENV_NAME']
     )
     create_dockerfile(content=content, path=tmp_location)
     docker_build(
-        image=NAME_BASE_IMAGE,
+        image=NAME_BIG_IMAGE,
         tag=tag,
         path=tmp_location
     )
@@ -164,70 +169,39 @@ def exist_sub_image_tuxml_compressed():
     try:
         result.index(NAME_BASE_IMAGE)
         return True
-    except KeyError:
+    except:
         return False
-
-## create the directory where we create the docker image
-# @author POLES Malo
-# @version 1
-# @brief Create the directory where we want to build the docker image
-# @param name Name of the directory
-# @param path Location where we want to create the directory, '.' by default
-# @return Return -1 if it is impossible to get to location pointed by path
-#         return -2 if it is impossible to create the directory
-#         return 0 on success
-
-
-def create_build_dir(name="docker_image_tuxml", path=None):
-    if path is not None:
-        try:
-            os.chdir(path)
-        except Exception as err:
-            print("An error occur while moving to {}\n{}".format(path, err))
-            return -1
-    try:
-        os.mkdir(name)
-    except Exception as err:
-        print("An error occur while trying to create the directory\n {}".format(err))
-        return -2
-    return os.getcwd()
 
 
 ##Download the linux kernel
 # @author POLES Malo
 # @version 1
 # @brief Download the linux kernel at the current location
-# @param name Specify version of kernel we want, default is 'linux-4.13.3'
-# MUST BE A v4.x version
+# @param name Specify version of kernel we want. MUST BE A v4.x version.
 # @return Return -1 if an error occur while downloading
 #         Return 0 on succes
-
 def get_linux_kernel(name, path=None):
     if path is not None:
-        try:
-            os.chdir(path)
-        except Exception as err:
-            print("An error occur while going to location {}\n{}".format(path, err))
+        os.chdir(path)
     name += ".tar.xz"
     list_dir = os.listdir('.')
     if name not in list_dir:
+        print("Linux kernel not found, downloading...")
         wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
-        try:
-            subprocess.call(wget_cmd, shell=True)
-        except Exception as err:
-            print("An error occur while trying to download {}\n {}".format(name, err))
-            return -1
-    return 0
+        subprocess.call(wget_cmd, shell=True)
+    else:
+        print("Linux kernel found.")
 
 
 def check_y_or_n():
     answer = input().lower()
-    while answer != 'n' or answer != 'y':
+    while answer != 'n' and answer != 'y':
         print("y/n")
         answer = input().lower()
     if answer == 'y':
         return True
     return False
+
 
 #TODO check for relative path in settings_tuxml Tuxml directory doesn't longer exist so it might bug
 if __name__ == "__main__":
@@ -237,7 +211,8 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p',
         '--push',
-        help="Push the image on the distant repository"
+        help="Push the image on the distant repository",
+        action="store_true"
     )
     parser.add_argument(
         '-t',
@@ -255,40 +230,40 @@ if __name__ == "__main__":
         '-f',
         '--full_rebuild',
         help="Force the rebuild of the core system image, which is not needed "
-             "in most of the case."
+             "in most of the case.",
+        action="store_true"
     )
     parser.add_argument(
         "-l",
         "--location",
-        help="Where you want to create your directory to generate/build. Default is current"
+        help="Where you want to create your directory to generate/build. Default is current",
+        default="."
     )
-    parser.add_argument(
-        "-n",
-        "--name",
-        help="Name of the directory you want to create,docker_image_tuxml by default"
-    )
-    parser.add_argument(
-        "-k",
-        "--kernel",
-        help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
-        default="linux-4.14.3"
-    )
+    # parser.add_argument(
+    #     "-n",
+    #     "--name",
+    #     help="Name of the directory you want to create,docker_image_tuxml by default"
+    # )
+    # parser.add_argument(
+    #     "-k",
+    #     "--kernel",
+    #     help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
+    #     default="linux-4.14.3"
+    # )
 
     args = parser.parse_args()
 
     if args.push:
         docker_push(NAME_IMAGE, args.tag)
     else:
-        tmp_location = create_build_dir(args.name, args.location)
         if args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
                   "project (Y/n)? ")
             if check_y_or_n():
-                create_sub_image_tuxml_compressed(tmp_location)
+                create_sub_image_tuxml_compressed(args.location)
             else:
                 print("Whole rebuild canceled.\n")
         elif not exist_sub_image_tuxml_compressed():
-            create_sub_image_tuxml_compressed(tmp_location)
-        get_linux_kernel(args.kernel, tmp_location)
-        create_image_tuxml_compressed(tmp_location, args.tag, args.dependencies)
-        create_big_image_tuxml_uncompressed(tmp_location, tag=args.tag)
+            create_sub_image_tuxml_compressed(args.location)
+        create_image_tuxml_compressed(args.location, args.tag, args.dependencies)
+        create_big_image_tuxml_uncompressed(args.location, tag=args.tag)
