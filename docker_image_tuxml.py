@@ -32,7 +32,7 @@ def docker_build(image=None, tag=None, path=None):
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
     print("command : {}".format(str_build))
-    subprocess.call(str_build.split(' '))
+    subprocess.call(str_build, shell=True)
 
 
 ## docker_push
@@ -44,7 +44,7 @@ def docker_build(image=None, tag=None, path=None):
 def docker_push(image, tag=None):
     str_push = "sudo docker push {}".format(image)
     if tag is not None:
-        str_push += "{}:{}".format(str_push, tag)
+        str_push = "{}:{}".format(str_push, tag)
     print("command : {}".format(str_push))
     result_push = subprocess.call(args=str_push, shell=True)
     if result_push == 1:
@@ -104,6 +104,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
 # @param tag The tag of the built image. Default to None.
 # @param dependencies_path The path to the file corresponding to optional
 # dependencies. Default to None.
+# TODO: creation of Tuxml.tar.gz beforehand.
 def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None):
     tmp_content = CONTENT_IMAGE
     if dependencies_path is not None:
@@ -134,11 +135,19 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
         path=tmp_location)
 
 
+## create_big_image_tuxml_uncompressed
+# @author PICARD Michaël
+# @version 1
+# @brief Create the uncompressed image to work with.
+# @param tmp_location Where we create and build the image.
+# @param tag The tag of the built image. Default to None.
+# @param dependencies_path The path to the file corresponding to optional
+# dependencies. Default to None.
 def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
     content = "{}".format(CONTENT_BIG_IMAGE['PREVIMG_VERSION'])
     if tag is not None:
         content = "{}:{}".format(content, tag)
-    content = "{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}\n{}\n{}".format(
         content,
         CONTENT_BIG_IMAGE['TUXML_UNTAR'],
         CONTENT_BIG_IMAGE['LINUX_UNTAR'],
@@ -158,6 +167,7 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
 # @author PICARD Michaël
 # @version 1
 # @brief Test if the sub_image_tuxml_compressed docker image already exist.
+# @return Boolean
 # TODO: Refactor to be nicer
 def exist_sub_image_tuxml_compressed():
     list_str_test = ["docker", "image", "ls", "--format", "{{.Repository}}"]
@@ -165,20 +175,19 @@ def exist_sub_image_tuxml_compressed():
         args=list_str_test
     )
     result = result.decode('UTF-8')
-    result.splitlines()
+    result = result.splitlines()
     try:
         result.index(NAME_BASE_IMAGE)
         return True
     except:
         return False
 
-##Download the linux kernel
-# @author POLES Malo
-# @version 1
+
+##get_linux_kernel
+# @author POLES Malo, PICARD Michaël
+# @version 2
 # @brief Download the linux kernel at the current location
 # @param name Specify version of kernel we want. MUST BE A v4.x version.
-# @return Return -1 if an error occur while downloading
-#         Return 0 on succes
 def get_linux_kernel(name, path=None):
     if path is not None:
         os.chdir(path)
@@ -192,14 +201,17 @@ def get_linux_kernel(name, path=None):
         print("Linux kernel found.")
 
 
-def check_y_or_n():
+## ask_for_confirmation
+# @author POLES Malo, PICARD Michaël
+# @version 2
+# @brief Ask a confirmation, and return the answer as boolean
+# @return Boolean
+def ask_for_confirmation():
     answer = input().lower()
     while answer != 'n' and answer != 'y':
         print("y/n")
         answer = input().lower()
-    if answer == 'y':
-        return True
-    return False
+    return answer == 'y'
 
 
 if __name__ == "__main__":
@@ -237,17 +249,6 @@ if __name__ == "__main__":
         help="Where you want to create your directory to generate/build. Default is current",
         default="."
     )
-    # parser.add_argument(
-    #     "-n",
-    #     "--name",
-    #     help="Name of the directory you want to create,docker_image_tuxml by default"
-    # )
-    # parser.add_argument(
-    #     "-k",
-    #     "--kernel",
-    #     help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
-    #     default="linux-4.14.3"
-    # )
 
     args = parser.parse_args()
 
@@ -257,7 +258,7 @@ if __name__ == "__main__":
         if args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
                   "project (Y/n)? ")
-            if check_y_or_n():
+            if ask_for_confirmation():
                 create_sub_image_tuxml_compressed(args.location)
             else:
                 print("Whole rebuild canceled.\n")
