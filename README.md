@@ -1,4 +1,4 @@
-# TuxML: Machine Learning and Linux Kernel
+﻿# TuxML: Machine Learning and Linux Kernel
 
 The goal of TuxML is to predict properties of Linux Kernel configurations (e.g., does the kernel compile? what's its size? does it boot?). 
 The Linux Kernel provides near 15000 configuration options: there is an infinity of different kernels. 
@@ -31,7 +31,7 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
 # Contributors 
 
  * Mathieu Acher (Univ Rennes, Inria, CNRS, IRISA), scientific leader  
- * Alexis Lemasle (University of Rennes 1), main developer 
+ * Alexis LE MASLE (University of Rennes 1), main developer 
  * [DiverSE team (Inria/IRISA research team)](http://www.diverse-team.fr/)
  * [ANR VaryVary project](https://varyvary.github.io/) 
 
