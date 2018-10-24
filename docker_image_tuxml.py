@@ -168,19 +168,14 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
 # @version 1
 # @brief Test if the sub_image_tuxml_compressed docker image already exist.
 # @return Boolean
-# TODO: Refactor to be nicer
 def exist_sub_image_tuxml_compressed():
-    list_str_test = ["docker", "image", "ls", "--format", "{{.Repository}}"]
+    cmd = "sudo docker image ls --format {{.Repository}} | grep"
+    cmd = "{} {}".format(cmd, NAME_BASE_IMAGE)
     result = subprocess.check_output(
-        args=list_str_test
+        args=cmd,
+        shell=True
     )
-    result = result.decode('UTF-8')
-    result = result.splitlines()
-    try:
-        result.index(NAME_BASE_IMAGE)
-        return True
-    except:
-        return False
+    return result.decode('UTF-8') != ""
 
 
 ##get_linux_kernel
@@ -255,14 +250,14 @@ if __name__ == "__main__":
     if args.push:
         docker_push(NAME_IMAGE, args.tag)
     else:
-        if args.full_rebuild:
+        if not exist_sub_image_tuxml_compressed():
+            create_sub_image_tuxml_compressed(args.location)
+        elif args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
-                  "project (Y/n)? ")
+                  " project (Y/n)? ")
             if ask_for_confirmation():
                 create_sub_image_tuxml_compressed(args.location)
             else:
                 print("Whole rebuild canceled.\n")
-        elif not exist_sub_image_tuxml_compressed():
-            create_sub_image_tuxml_compressed(args.location)
         create_image_tuxml_compressed(args.location, args.tag, args.dependencies)
         create_big_image_tuxml_uncompressed(args.location, tag=args.tag)
