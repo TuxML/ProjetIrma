@@ -37,15 +37,15 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
 
     Master 2017 - 2018
 
- * Corentin Chédotal
- * Gwendal Didot 
- * Dorian Dumanget 
- * Antonin Garret
- * Erwan Le Flem
- * Pierre Le Luron 
- * Alexis Le Masle 
- * Mickaël Lebreton
- * Fahim Merzouk
+ * Corentin CHÉDOTAL
+ * Gwendal DIDOT 
+ * Dorian DUMANGET 
+ * Antonin GARRET
+ * Erwan LE FLEM
+ * Pierre LE LURON 
+ * Alexis LE MASLE 
+ * Mickaël LEBRETON
+ * Fahim MERZOUK
 
     Master 2018 - 2019  
 
