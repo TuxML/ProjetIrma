@@ -186,34 +186,68 @@ def check_precondition_and_warning(args):
         set_prompt_color()
 
 
+## docker_uncompress_image
+# @author PICARD Michaël
+# @version 1
+# @brief Uncompress the compressed image to create the big one.
+def docker_uncompress_image():
+    content = "FROM {}".format(_COMPRESSED_IMAGE)
+    if tag is not None:
+        content = "{}:{}".format(content, tag)
+    content = "{}\n" \
+              "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz\n" \
+              "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz\n" \
+              "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)\n" \
+              "EXPOSE 80\n" \
+              "ENV NAME World".format(content)
+    create_dockerfile(content=content, path=".")
+    docker_build(
+        image=_IMAGE,
+        tag=tag,
+        path="."
+    )
+
+
 ## docker_image_update
 # @author PICARD Michaël
 # @version 1
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
-    before_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
-    docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
-    after_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
-    if before_digest != after_digest:
-        content = "FROM {}".format(_COMPRESSED_IMAGE)
-        if tag is not None:
-            content = "{}:{}".format(content, tag)
-        content = "{}\n" \
-                  "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz\n" \
-                  "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz\n" \
-                  "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)\n" \
-                  "EXPOSE 80\n" \
-                  "ENV NAME World".format(content)
-        create_dockerfile(content=content, path=".")
-        docker_build(
-            image=_IMAGE,
-            tag=tag,
-            path="."
-        )
+    try:
+        before_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
+        docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
+        after_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
+        if before_digest != after_digest:
+            docker_uncompress_image()
+    except NotImplementedError:
+        docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
+        docker_uncompress_image()
 
 
-def run_docker_compilation(tag):
-    pass
+def run_docker_compilation(tag, incremental):
+    container_id = subprocess.check_output(
+        args="sudo docker run -i -d {}:{}".format(_IMAGE, tag),
+        shell=True
+    ).decode('UTF-8')
+    container_id = container_id.split("\n")[0]
+    subprocess.run(
+        args="sudo docker exec -t {} /TuxML/runandlog.py {}".format(
+            container_id,
+            incremental),
+        shell=True
+    )
+    return container_id
+
+
+## delete_docker_container
+# @author PICARD Michaël
+# @version 1
+# @brief Stop and delete the container corresponding to the given container_id
+def delete_docker_container(container_id):
+    subprocess.call(
+        "sudo docker stop {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+    subprocess.call(
+        "sudo docker rm {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
 
 
 def feedback_user(nbcontainer, nbincremental):
@@ -230,7 +264,6 @@ def feedback_user(nbcontainer, nbincremental):
     set_prompt_color("Green")
     print(nbcontainer)
 
-    # TODO: Add incremental compilation feedback
     set_prompt_color("Light_Blue")
     print("Number of compilations in a container : ", end="")
     set_prompt_color("Green")
@@ -262,6 +295,12 @@ if __name__ == "__main__":
     if not args.local:
         docker_image_update(tag)
     for i in range(args.nbcontainer):
-        run_docker_compilation(tag)
+        set_prompt_color("Light_Blue")
+        print("\n=============== Docker number ", i, " ===============", end='')
+        set_prompt_color()
+        print('\n', end='')
+
+        container_id = run_docker_compilation(tag, 0)
+        delete_docker_container(container_id)
 
     feedback_user(args.nbcontainer, 0)

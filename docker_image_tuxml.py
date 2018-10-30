@@ -209,6 +209,38 @@ def ask_for_confirmation():
     return answer == 'y'
 
 
+## create_tuxml_archive
+# @author THOMAS Luis, PICARD Michaël
+# @version 1
+# @brief Pack all necessary file inside the archive TuxML.tar.xz
+def create_tuxml_archive(path):
+    list_file = [
+        "core/*",
+        "dependences.txt",
+        "core-correlation",
+        "inDocker/*"
+    ]
+    cmd = "mkdir {}/TuxML".format(path)
+    subprocess.run(args=cmd, shell=True)
+    cmd = "cp -r {} {}/TuxML".format(
+        " ".join(
+            list(map(
+                lambda x: "{}/{}".format(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    x),
+                list_file
+            ))),
+        path
+    )
+    subprocess.run(args=cmd, shell=True)
+
+    os.chdir("{}/TuxML".format(path))
+    subprocess.run(args="tar -cf TuxML.tar.xz *", shell=True)
+    subprocess.run(args="mv TuxML.tar.xz ../TuxML.tar.xz", shell=True)
+    os.chdir("..")
+    subprocess.run(args="rm -rf TuxML", shell=True)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
@@ -259,5 +291,7 @@ if __name__ == "__main__":
                 create_sub_image_tuxml_compressed(args.location)
             else:
                 print("Whole rebuild canceled.\n")
+        create_tuxml_archive(args.location)
         create_image_tuxml_compressed(args.location, args.tag, args.dependencies)
         create_big_image_tuxml_uncompressed(args.location, tag=args.tag)
+        os.remove("{}/TuxML.tar.xz".format(args.location))
