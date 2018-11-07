@@ -171,11 +171,13 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
 def exist_sub_image_tuxml_compressed():
     cmd = "docker image ls --format {{.Repository}} | grep"
     cmd = "{} {}".format(cmd, NAME_BASE_IMAGE)
-    result = subprocess.check_output(
+    # mpicard: grep return 0 if a line is found, 1 is no line found and 2 or
+    # greater if an error occured. So we just check it.
+    result = subprocess.run(
         args=cmd,
         shell=True
     )
-    return result.decode('UTF-8') != ""
+    return result.returncode == 0
 
 
 ##get_linux_kernel
