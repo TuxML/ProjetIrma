@@ -58,7 +58,7 @@ eval $echo cp -av $TOP/build/busybox-x86/_install/* .
 
 # Create simple init script
 
-eval $echo cat >script<<EOF
+eval $echo cat >init<<EOF
 
 #!/bin/sh 
 
