@@ -25,7 +25,7 @@ from settings_image_tuxml import *
 def docker_build(image=None, tag=None, path=None):
     if path is None:
         path = "."
-    str_build = "sudo docker build".format(image)
+    str_build = "docker build".format(image)
     if image is not None:
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
@@ -42,14 +42,14 @@ def docker_build(image=None, tag=None, path=None):
 # @param image The name of the image to push.
 # @param tag The tag of the image to push.
 def docker_push(image, tag=None):
-    str_push = "sudo docker push {}".format(image)
+    str_push = "docker push {}".format(image)
     if tag is not None:
         str_push = "{}:{}".format(str_push, tag)
     print("command : {}".format(str_push))
     result_push = subprocess.call(args=str_push, shell=True)
     if result_push == 1:
         print("You need to login on Docker hub\n")
-        subprocess.call(args="sudo docker login", shell=True)
+        subprocess.call(args="docker login", shell=True)
         docker_push(image=image, tag=tag)
 
 
@@ -169,13 +169,15 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
 # @brief Test if the sub_image_tuxml_compressed docker image already exist.
 # @return Boolean
 def exist_sub_image_tuxml_compressed():
-    cmd = "sudo docker image ls --format {{.Repository}} | grep"
+    cmd = "docker image ls --format {{.Repository}} | grep"
     cmd = "{} {}".format(cmd, NAME_BASE_IMAGE)
-    result = subprocess.check_output(
+    # mpicard: grep return 0 if a line is found, 1 is no line found and 2 or
+    # greater if an error occured. So we just check it.
+    result = subprocess.run(
         args=cmd,
         shell=True
     )
-    return result.decode('UTF-8') != ""
+    return result.returncode == 0
 
 
 ##get_linux_kernel
