@@ -11,6 +11,7 @@ import os
 _COMPRESSED_IMAGE = "tuxml/debiantuxml"
 _IMAGE = "tuxml/tuxmldebian"
 
+
 ## set_prompt_color
 # @author PICARD Michaël
 # @version 1
@@ -79,7 +80,7 @@ def get_digest_docker_image(image, tag=None):
     cmd = "docker image ls {} --format {{.Digest}}".format(image)
     result = subprocess.check_output(
         args=cmd,
-        shell=True
+        shell=True,
     )
     result = result.decode('UTF-8')
     result = result.splitlines()
@@ -101,13 +102,12 @@ def get_digest_docker_image(image, tag=None):
 def docker_build(image=None, tag=None, path=None):
     if path is None:
         path = "."
-    str_build = "sudo docker build".format(image)
+    str_build = "docker build".format(image)
     if image is not None:
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
-    print("command : {}".format(str_build))
     subprocess.call(str_build, shell=True)
 
 
@@ -132,10 +132,9 @@ def create_dockerfile(content=None, path=None):
 # @param image The image name that you want to pull.
 # @param tag The tag's image. Default to None.
 def docker_pull(image, tag=None):
-    str_pull = "sudo docker pull {}".format(image)
+    str_pull = "docker pull {}".format(image)
     if tag is not None:
-        str_pull = "{}:{}".format(image, tag)
-    print("commande : {}".format(str_pull))
+        str_pull = "{}:{}".format(str_pull, tag)
     subprocess.call(args=str_pull, shell=True)
 
 
@@ -177,13 +176,15 @@ def check_precondition_and_warning(args):
         raise ValueError("You can't run less than 1 compilation.")
     if args.dev:
         set_prompt_color("Orange")
-        print("You are using the development version, whose can be unstable.")
+        print("You are using the development version, whose can be unstable.", end='')
         set_prompt_color()
+        print('\n', end='')
     if args.local:
         set_prompt_color("Orange")
         print("You are using the local version, which means that you could be "
               "out to date, or you could crash if you don't have the image.")
         set_prompt_color()
+        print('\n', end='')
 
 
 ## docker_uncompress_image
@@ -226,12 +227,12 @@ def docker_image_update(tag):
 
 def run_docker_compilation(tag, incremental):
     container_id = subprocess.check_output(
-        args="sudo docker run -i -d {}:{}".format(_IMAGE, tag),
+        args="docker run -i -d {}:{}".format(_IMAGE, tag),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
     subprocess.run(
-        args="sudo docker exec -t {} /TuxML/runandlog.py {}".format(
+        args="docker exec -t {} /TuxML/runandlog.py {}".format(
             container_id,
             incremental),
         shell=True
@@ -245,9 +246,9 @@ def run_docker_compilation(tag, incremental):
 # @brief Stop and delete the container corresponding to the given container_id
 def delete_docker_container(container_id):
     subprocess.call(
-        "sudo docker stop {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "docker stop {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
     subprocess.call(
-        "sudo docker rm {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "docker rm {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
 
 
 def feedback_user(nbcontainer, nbincremental):
