@@ -33,7 +33,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
 import tuxml_environment as tenv
-import tuxml_bootCheck as tbch
+import tuxml_boot_check as tbch
 import tuxml_argshandler as targs
 
 

@@ -12,7 +12,7 @@ The TuxML* project is developping tools, mainly based on Docker and Python, to m
 Requirement: `Python3` and `Docker` are needed (do not forget to start the docker service usually with `sudo service docker start`)
 
 ```
-mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v1.0/MLfood.py ; python3 MLfood.py 10 --dev
+mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v1.1/kernel_generator.py ; python3 kernel_generator.py 10 --dev
 ```
 
 Copy this command and run it in a terminal. It will create a folder "TuxML" in your home and sent compilation results to our database.
