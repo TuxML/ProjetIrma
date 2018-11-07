@@ -39,12 +39,10 @@ def generate(args):
     walltime = ":".join(tmp)
 
     if not len(tmp) == 3 or not all([x.isdigit() for x in tmp]) or walltime == "0:00:00":
-        print("walltime error \"" + str(walltime) +
-              "\" --> default value restored: walltime=1:00:00")
+        print("walltime error \"" + str(walltime) + "\" --> default value restored: walltime=1:00:00")
         walltime = "1:00:00"
 
-    assert os.path.isfile(
-        "spring_core.txt"), "The core program of 'spring.sh' from 'spring_core.txt' does not exist"
+    assert os.path.isfile("spring_core.txt"), "The core program of 'spring.sh' from 'spring_core.txt' does not exist"
 
     with open("spring.sh", "w") as spring:
         with open("spring_core.txt", "r") as core:
@@ -73,18 +71,12 @@ def setting(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--nc", "--number_of_compilations", type=int,
-                        help="Number of compilations to do", default=1)
-    parser.add_argument("--nm", "--number_of_machines", type=int,
-                        help="Number of Machines to use", default=1)
-    parser.add_argument("--nb-core", type=int,
-                        help="Number of cores to use", default=4)
-    parser.add_argument("--walltime", type=str,
-                        help="Maximum time of life. (hh:mm:ss) ", default="1:00:00")
-    parser.add_argument(
-        "--besteffort", help="Set the nodes in besteffort mode", action="store_true")
-    parser.add_argument(
-        "--idempotent", help="Set the nodes in idempotent mode", action="store_true")
+    parser.add_argument("--nc", "--number_of_compilations", type=int, help="Number of compilations to do", default=1)
+    parser.add_argument("--nm", "--number_of_machines", type=int, help="Number of Machines to use", default=1)
+    parser.add_argument("--nb-core", type=int, help="Number of cores to use", default=4)
+    parser.add_argument("--walltime", type=str, help="Maximum time of life. (hh:mm:ss) ", default="1:00:00")
+    parser.add_argument("--besteffort", help="Set the nodes in besteffort mode", action="store_true")
+    parser.add_argument("--idempotent", help="Set the nodes in idempotent mode", action="store_true")
     args = parser.parse_args()
 
     print(" | ".join([k + ' : ' + str(vars(args)[k]) for k in vars(args)]))

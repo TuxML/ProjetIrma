@@ -31,7 +31,7 @@ import MySQLdb
 import bz2
 import tuxml_common as tcom
 import tuxml_settings as tset
-import configCompress as compress
+import config_compress as compress
 import subprocess
 
 ## @author  LE LURON Pierre

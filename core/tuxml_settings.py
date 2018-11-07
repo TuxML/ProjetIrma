@@ -115,5 +115,5 @@ SFTP_DIR = "/var/www/html/files/"
 SFTP_LOGS = "/tmp/tuxml_sftp.log"
 
 ## compression names
-# use in configCompress.py
+# use in config_compress.py
 COMPRESS_TYPE = ["GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"]

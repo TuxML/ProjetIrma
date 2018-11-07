@@ -3,7 +3,7 @@
 import argparse
 import tuxml_settings as set
 
-## @file configCompress.py
+## @file config_compress.py
 # @author LE MASLE Alexis
 # @author POLES Malo
 # @copyright Apache License 2.0

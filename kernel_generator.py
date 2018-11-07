@@ -135,6 +135,7 @@ def docker_pull(image, tag=None):
     str_pull = "docker pull {}".format(image)
     if tag is not None:
         str_pull = "{}:{}".format(str_pull, tag)
+    print("commande : {}".format(str_pull))
     subprocess.call(args=str_pull, shell=True)
 
 
