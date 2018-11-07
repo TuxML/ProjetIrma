@@ -29,12 +29,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+import argparse
 import os
 import subprocess
-import time
-import argparse
 import sys
-
+import time
 
 ## COLORS
 WHITE = "\033[0m"                # Default color
@@ -57,31 +56,31 @@ LIGHT_PURPLE = "\033[38;5;13m"          # Informations
 #################### Section 1 ####################
 # Creation of help and arguments parser
 print("")
+
 parser = argparse.ArgumentParser()
 parser.add_argument("nbcompil", type=int,
                     help="Run MLfood into the given number of containers")
 parser.add_argument("incremental", type=int,
-                    help="Used in a case of incremental compilation with <Integer> compilation in a container", nargs='?', default=0)
-parser.add_argument(
-    "--no-clean", help="[dev] Do not delete past containers", action="store_true")
-parser.add_argument(
-    "--reset-logs", help="Delete all the saved logs and exit", action="store_true")
-parser.add_argument(
-    "--dev", help="[dev] Use the image in current development", action="store_true")
+                    help="Used in a case of incremental compilation with <Integer> compilation in a container",
+                    nargs='?', default=0)
+parser.add_argument("--no-clean", help="[dev] Do not delete past containers", action="store_true")
+parser.add_argument("--reset-logs", help="Delete all the saved logs and exit", action="store_true")
+parser.add_argument("--dev", help="[dev] Use the image in current development", action="store_true")
 parser.add_argument("--force-compilation-limits",
-                    help="Use this option to pass the user check if the requested number of compilations exceeds 50", action="store_true")
-parser.add_argument(
-    "--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation", action="store_true")
-parser.add_argument(
-    "--silent", help="Do not print on standard output. Used to compute only without printing", action="store_true")
-parser.add_argument(
-    "--fetch-kernel", help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )", action="store_true")
-parser.add_argument(
-    "--no-logs", help="Do not create local logs", action="store_true")
-parser.add_argument(
-    "--path", help="[dev] Give a .config file to compile, only this one and no more")
-parser.add_argument(
-    "--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
+                    help="Use this option to pass the user check if the requested number of compilations exceeds 50",
+                    action="store_true")
+parser.add_argument("--no-check-log", help="[dev] Do not compute the Logs folder size at the end of compilation",
+                    action="store_true")
+parser.add_argument("--silent", help="Do not print on standard output. Used to compute only without printing",
+                    action="store_true")
+parser.add_argument("--fetch-kernel",
+                    help="[dev] Fetch vmlinux kernel from the Docker container ( Be careful to not overload your hard drive )",
+                    action="store_true")
+parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
+parser.add_argument("--path", help="[dev] Give a .config file to compile, only this one and no more")
+parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
+parser.add_argument("--local", help="Run the local docker image without pulling", action="store_true")
+
 args = parser.parse_args()
 
 ## The main function, used to be a script but encapsulated in a function
@@ -90,26 +89,38 @@ args = parser.parse_args()
 # All sections annoted in the code are explained in the documentation
 
 
+
+## @author  POLES Malo
+#
+#
+#  @brief   ask and check for confirmation (y/n)
+#
+#  @returns False for "n"
+#  @returns True for "y"
+def ask_for_confirmation():
+    res = input().lower()
+    while res != 'n' and res != 'y':
+        res = input("y/n").lower()
+    if res == 'n':
+        return False
+    return True
+
+
 def mlfood():
 
     #################### Section 2 ####################
     # Check if there is the --reset-logs option to erase all the logs.
     if args.reset_logs:
         print(ORANGE + "Are-you sure you want to delete all the saved logs? (y/n)")
-        reset = input()
-
-        while reset != 'n' and reset != 'y':
-            reset = input("Please choose between 'y' and 'n'")
-
-        reset.lower()
-        if reset == "y":
+        reset = ask_for_confirmation()
+        if reset:
             print("Deleting all the logs in Logs/...")
             # subprocess.run("rm -rf Logs/*", shell=True)
             subprocess.call("rm -rf Logs/*", shell=True)
             print("Delete done.")
             print("" + GRAY)
             exit(0)
-        elif reset == 'n':
+        else:
             print("")
             print("Logs are not deleted.")
             print(GRAY)
@@ -122,40 +133,29 @@ def mlfood():
         exit(0)
 
     #################### Section 3 ####################
-    images = []
     if args.dev:
-        images = ["tuxml/tuxmldebian:dev"]
+        images = "tuxml/tuxmldebian:dev"
     else:
         print(ORANGE + "Advice:")
         print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod (stable)")
         print("With '--dev' it will use the current dev version tuxmldebian:dev (possibly unstable)" + GRAY)
-        images = ["tuxml/tuxmldebian:prod"]
+        images = "tuxml/tuxmldebian:prod"
 
     #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
     # If the number is above 50 and the option "-y" is not enable, the script will ask for a confirmation
     if args.nbcompil >= 50 and not args.force_compilation_limits:
         print(ORANGE + "Are-you sure you want to start " +
-              str(args.nbcompil) + " compilation?")
+              str(args.nbcompil) + " compilation? (y/n)")
         print('Canceling it would take as much Ctrl+C as the remaining number of compilations.' + GRAY)
-        ok = input("(y/n)")
-
-        while ok != 'n' and ok != 'y':
-            ok = input("Please choose between 'y' and 'n'")
-
-        ok.lower()
-        if ok == "n":
+        ok = ask_for_confirmation()
+        if not ok:
             print("Canceled" + GRAY)
             exit(0)
-
-        elif ok == 'y':
+        else:
             print(LIGHT_BLUE_1 + "Take a coffee and admire your " +
                   str(args.nbcompil) + " compilations!" + GRAY)
 
-    # The image list must not be empty.
-    if len(images) == 0:
-        print("There are no images.")
-        exit(0)
 
     # We check if the user is a super-user, to prevent users that the super-user privileges are used only to run dockers commands
     if os.geteuid() != 0:
@@ -180,17 +180,17 @@ def mlfood():
 
         #################### Section 7 ####################
         # Get the last version of the image.
-        str2 = "sudo docker pull " + images[i % len(images)]
-        if not args.silent:
-            print(LIGHT_BLUE_1 + "Recovering the last docker image " +
-                  images[i % len(images)] + "\n" + GRAY)
-            # subprocess.run(str2, shell=True)
-            subprocess.call(str2, shell=True)
-        else:
-            # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            subprocess.call(
-                str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+        if not args.local:
+            str2 = "sudo docker pull " + images
+            if not args.silent:
+                print(LIGHT_BLUE_1 + "Recovering the last docker image " +
+                    images + "\n" + GRAY)
+                # subprocess.run(str2, shell=True)
+                subprocess.call(str2, shell=True)
+            else:
+                # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.call(
+                    str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #################### Section 8 ####################
         logsFolder = ""
         if not args.no_logs:
@@ -204,28 +204,26 @@ def mlfood():
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
         chaine = ""
         path = ""
-
         tiny = ""
         if args.tiny:
             tiny = " --tiny"
-
         # If a path to a .config file is precised
         if args.path:
             path = "--path " + args.path
             # Create a new container
             subprocess.call("sudo docker run -i -d " +
-                            images[i % len(images)], shell=True, stdout=subprocess.DEVNULL)
+                            images, shell=True, stdout=subprocess.DEVNULL)
             # Copy on it the .config file to use
             subprocess.call("sudo docker cp " + args.path +
                             " $(sudo docker ps -lq):/TuxML/.config", shell=True)
             chaine = "sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config"
         else:
             if args.silent:
-                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(
+                chaine = 'sudo docker run -t ' + images + ' /TuxML/runandlog.py ' + str(
                     args.incremental) + " " + path + tiny + " --silent"
             else:
                 chaine = 'sudo docker run -t ' + \
-                    images[i % len(images)] + ' /TuxML/runandlog.py ' + \
+                    images + ' /TuxML/runandlog.py ' + \
                     str(args.incremental) + " " + path + tiny
             print(LIGHT_BLUE_1 + "\n=============== Docker number " +
                   str(i + 1) + " ===============" + GRAY)

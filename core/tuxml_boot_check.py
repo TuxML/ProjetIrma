@@ -15,7 +15,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-## @file tuxml_bootCheck.py
+## @file tuxml_boot_check.py
 # @author CHÉDOTAL Corentin
 # @copyright Apache License 2.0
 # @brief File containing the functions used to test compiled kernels

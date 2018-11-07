@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
-import subprocess
 import argparse
+import tuxml_settings as set
 
-## @file configCompress.py
+## @file config_compress.py
 # @author LE MASLE Alexis
+# @author POLES Malo
 # @copyright Apache License 2.0
-# @brief Recompile with differents kernel compressions
+# @brief Recompile with different kernel compressions
 #
 # @details Running this script is only to rewrite .config with a different compression set up
 # you need to choose between different compressions methods then it will be enable in the .config file
@@ -29,58 +30,50 @@ import argparse
 #   limitations under the License.
 
 
+## rewrite a line in .config file
+# @author POLES Malo
+# @version 1
+# @brief find an old line and rewrite it with a new line in .config file
+# @param old Old line to find, can be partial match first occurrence
+# @param new New line to write
+# @param path_to_config Path to the file '.config' should not include '.config'
 def rewrite(old, new, path_to_config):
-    f = open(path_to_config + "/.config", "r")
-    lines = f.readlines()
-    f.close()
-
-    for line in lines:
-        if line == old + "\n":
-            lines[lines.index(line)] = new + '\n'
-
-            f = open(path_to_config + "/.config", "w")
-            f.seek(0)
-            f.writelines(lines)
+    try:
+        with open(path_to_config+".config", "r+") as f:
+            nb_line = f.read().find(old)
+            if nb_line == -1:  # sometimes there is no match because the options is already set as this value
+                return
+            f.seek(nb_line)
+            f.write(new+"\n")
             f.close()
-            return 0
-
-    return -1
-
-# enable a compression and disable the others
-# @return 0 if it succeeds, -1 otherwise
+    except IOError as err:
+        print("{}".format(err))
+        exit(-1)
 
 
+## choose the compression to enable
+# @author POLES Malo
+# @version 1
+# @brief Choose the compression type to enable in .config file disable all the others ones
+# @param Compress Type of compression as string
+# @param path_to_config Path to the file '.config' should not include '.config'
 def enable(compress, path_to_config):
 
-    compression = ["GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"]
-    if compress not in compression:
-        print(compress, "not in compression list", flush=True)
-        return -1
-
+    compression = set.COMPRESS_TYPE
     # enable
     rewrite("# CONFIG_KERNEL_" + compress + " is not set",
             "CONFIG_KERNEL_" + compress + "=y", path_to_config)
-
     # disable
     for c in compression:
             if not c == compress:
                 rewrite("CONFIG_KERNEL_" + c + "=y",
                         "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
 
-    return 0
 
-
-
-# main
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("compression", type=str, choices=[
-                        "GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"], help="Precise the compression you wish to use in the .config file")
-    parser.add_argument(
-        "path", type=str, help="Path to the .config file to change")
+    parser.add_argument("compression", type=str, choices=set.COMPRESS_TYPE,
+                        help="Precise the compression you wish to use in the .config file")
+    parser.add_argument("path", type=str, help="Path to the .config file to change")
     args = parser.parse_args()
-
     enable(args.compression, args.path)
-
-    print("", flush=True)
-    subprocess.run("cat .config | grep CONFIG_KERNEL", shell=True)
