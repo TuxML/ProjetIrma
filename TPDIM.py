@@ -171,8 +171,7 @@ def docker_generate(originImage, tag, dependencesFile=None):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('-g', '--generate',
                         help="Image use to generate a docker file")
