@@ -134,7 +134,7 @@ def create_dockerfile(content=None, path=None):
 def docker_pull(image, tag=None):
     str_pull = "sudo docker pull {}".format(image)
     if tag is not None:
-        str_pull = "{}:{}".format(image, tag)
+        str_pull = "{}:{}".format(str_pull, tag)
     print("commande : {}".format(str_pull))
     subprocess.call(args=str_pull, shell=True)
 
