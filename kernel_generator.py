@@ -154,6 +154,13 @@ def parser():
         help="Provide the number of container to run. Have to be over 0."
     )
     parser.add_argument(
+        "incremental",
+        type=int,
+        help="Optional. Provide the number of additional incremental compilation. Have to be 0 or over.",
+        nargs='?',
+        default=0
+    )
+    parser.add_argument(
         "--dev",
         action="store_true",
         help="Use the image with dev tag instead of prod's one."
@@ -163,6 +170,7 @@ def parser():
         action="store_true",
         help="Don't try update the image to run, i.e. use the local version."
     )
+
     return parser.parse_args()
 
 
@@ -174,7 +182,9 @@ def parser():
 # @param args The parsed commandline argument.
 def check_precondition_and_warning(args):
     if args.nbcontainer <= 0:
-        raise ValueError("You can't run less than 1 compilation.")
+        raise ValueError("You can't run less than 1 container for compilation.")
+    if args.incremental < 0:
+        raise ValueError("You can't use incremental with negative value.")
     if args.dev:
         set_prompt_color("Orange")
         print("You are using the development version, whose can be unstable.", end='')
@@ -226,9 +236,9 @@ def docker_image_update(tag):
         docker_uncompress_image()
 
 
-def run_docker_compilation(tag, incremental):
+def run_docker_compilation(image, incremental):
     container_id = subprocess.check_output(
-        args="docker run -i -d {}:{}".format(_IMAGE, tag),
+        args="docker run -i -d {}".format(image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
@@ -296,13 +306,14 @@ if __name__ == "__main__":
 
     if not args.local:
         docker_image_update(tag)
+    image = "{}:{}".format(_IMAGE, tag)
     for i in range(args.nbcontainer):
         set_prompt_color("Light_Blue")
         print("\n=============== Docker number ", i, " ===============", end='')
         set_prompt_color()
         print('\n', end='')
 
-        container_id = run_docker_compilation(tag, 0)
+        container_id = run_docker_compilation(image, args.incremental)
         delete_docker_container(container_id)
 
-    feedback_user(args.nbcontainer, 0)
+    feedback_user(args.nbcontainer, args.incremental)
