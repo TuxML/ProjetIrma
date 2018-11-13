@@ -50,7 +50,7 @@ def set_prompt_color(color="Default"):
         # LIGHT_BLUE_2 = "\033[38;5;14m"
     }
     try:
-        print(colors[color], end='')
+        print(colors[color], end='', flush=True)
     except KeyError:
         raise KeyError("Unknown color.")
 
@@ -170,6 +170,22 @@ def parser():
         action="store_true",
         help="Don't try update the image to run, i.e. use the local version."
     )
+    parser.add_argument(
+        "--tiny",
+        action="store_true",
+        help="Use Linux tiny configuration. Incompatible with --config argument."
+    )
+    parser.add_argument(
+        "--config",
+        help="Give a specific configuration file. Incompatible with --tiny argument."
+    )
+    parser.add_argument(
+        "--linux4_version",
+        help="Optional. Give a specific linux4 version to compile. "
+             "Note that its local, will take some time to download the kernel "
+             "after compiling, and that the image use to compile it will be "
+             "deleted afterward.",
+    )
 
     return parser.parse_args()
 
@@ -181,22 +197,30 @@ def parser():
 # needed.
 # @param args The parsed commandline argument.
 def check_precondition_and_warning(args):
+    # precondition
     if args.nbcontainer <= 0:
         raise ValueError("You can't run less than 1 container for compilation.")
     if args.incremental < 0:
         raise ValueError("You can't use incremental with negative value.")
+    if args.tiny and (args.config is not None):
+        raise NotImplementedError(
+            "You can't use tiny and config parameter at the same time."
+        )
+
+    # warning
+    set_prompt_color("Orange")
     if args.dev:
-        set_prompt_color("Orange")
-        print("You are using the development version, whose can be unstable.", end='')
-        set_prompt_color()
-        print('\n', end='')
+        print(
+            "You are using the development version, whose can be unstable."
+        )
     if args.local:
-        set_prompt_color("Orange")
         print("You are using the local version, which means that you could be "
               "out to date, or you could crash if you don't have the image.")
-        set_prompt_color()
-        print('\n', end='')
-
+    if args.tiny:
+        print("You are using tiny configuration.")
+    if args.config is not None:
+        print("You are using your specific configuration.")
+    set_prompt_color()
 
 ## docker_uncompress_image
 # @author PICARD Michaël
@@ -309,11 +333,10 @@ if __name__ == "__main__":
     image = "{}:{}".format(_IMAGE, tag)
     for i in range(args.nbcontainer):
         set_prompt_color("Light_Blue")
-        print("\n=============== Docker number ", i, " ===============", end='')
+        print("\n=============== Docker number ", i, " ===============")
         set_prompt_color()
-        print('\n', end='')
 
-        container_id = run_docker_compilation(image, args.incremental)
-        delete_docker_container(container_id)
+        # container_id = run_docker_compilation(image, args.incremental)
+        #delete_docker_container(container_id)
 
     feedback_user(args.nbcontainer, args.incremental)
