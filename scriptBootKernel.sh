@@ -35,7 +35,7 @@ cd $TOP/build/initramfs/busybox-x86
 mkdir -pv {bin,sbin,etc,proc,sys,usr/{bin,sbin}}
 cp -av $TOP/build/busybox-x86/_install/* .
 
-cp $HOME/init $TOM/build/initramfs/busybox-x86
+cp $HOME/../init $TOP/build/initramfs/busybox-x86
 chmod +x init
 # Generate initramfs
 find . -print0 \
