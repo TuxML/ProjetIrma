@@ -336,7 +336,7 @@ if __name__ == "__main__":
         print("\n=============== Docker number ", i, " ===============")
         set_prompt_color()
 
-        # container_id = run_docker_compilation(image, args.incremental)
-        #delete_docker_container(container_id)
+        container_id = run_docker_compilation(image, args.incremental)
+        delete_docker_container(container_id)
 
     feedback_user(args.nbcontainer, args.incremental)
