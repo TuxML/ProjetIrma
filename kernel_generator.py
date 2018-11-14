@@ -108,7 +108,7 @@ def docker_build(image=None, tag=None, path=None):
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
-    subprocess.run(str_build, shell=True)
+    subprocess.call(str_build, shell=True)
 
 
 ## create_dockerfile
@@ -135,7 +135,7 @@ def docker_pull(image, tag=None):
     str_pull = "docker pull {}".format(image)
     if tag is not None:
         str_pull = "{}:{}".format(str_pull, tag)
-    subprocess.run(args=str_pull, shell=True)
+    subprocess.call(args=str_pull, shell=True)
 
 
 ## parser
@@ -291,7 +291,7 @@ def run_docker_compilation(image, incremental, tiny, config, silent):
         specific_configuration = "--tiny"
     elif config is not None:
         specific_configuration = "--path /TuxML/.config"
-        subprocess.run(
+        subprocess.call(
             args="docker cp {} {}:/TuxML/.config".format(container_id, config),
             shell=True
         )
@@ -300,7 +300,7 @@ def run_docker_compilation(image, incremental, tiny, config, silent):
     else:
         silent = ""
 
-    subprocess.run(
+    subprocess.call(
         args="docker exec -t {} /TuxML/runandlog.py {} {} {}".format(
             container_id,
             incremental,

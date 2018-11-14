@@ -221,7 +221,7 @@ def create_tuxml_archive(path):
         "inDocker/*"
     ]
     cmd = "mkdir {}/TuxML".format(path)
-    subprocess.run(args=cmd, shell=True)
+    subprocess.call(args=cmd, shell=True)
     cmd = "cp -r {} {}/TuxML".format(
         " ".join(
             list(map(
@@ -232,13 +232,13 @@ def create_tuxml_archive(path):
             ))),
         path
     )
-    subprocess.run(args=cmd, shell=True)
+    subprocess.call(args=cmd, shell=True)
 
     os.chdir("{}/TuxML".format(path))
-    subprocess.run(args="tar -cf TuxML.tar.xz *", shell=True)
-    subprocess.run(args="mv TuxML.tar.xz ../TuxML.tar.xz", shell=True)
+    subprocess.call(args="tar -cf TuxML.tar.xz *", shell=True)
+    subprocess.call(args="mv TuxML.tar.xz ../TuxML.tar.xz", shell=True)
     os.chdir("..")
-    subprocess.run(args="rm -rf TuxML", shell=True)
+    subprocess.call(args="rm -rf TuxML", shell=True)
 
 
 if __name__ == "__main__":
