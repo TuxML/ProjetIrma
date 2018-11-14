@@ -16,7 +16,7 @@ wget http://busybox.net/downloads/busybox-1.24.2.tar.bz2
 tar xvf busybox-1.24.2.tar.bz2
 rm busybox-1.24.2.tar.bz2
 mv -f busybox-1.24.2/ kdev/
-cp -rf /TuxML/linux-4.13.3/ ~/kdev/linux
+cp -rf /TuxML/linux-4.13.3/ $TOP/linux
 
 # Configure busybox
 cd $TOP/busybox-1.24.2
@@ -35,7 +35,7 @@ cd $TOP/build/initramfs/busybox-x86
 mkdir -pv {bin,sbin,etc,proc,sys,usr/{bin,sbin}}
 cp -av $TOP/build/busybox-x86/_install/* .
 
-cp $HOME/../init $TOP/build/initramfs/busybox-x86
+# cp $HOME/../init $TOP/build/initramfs/busybox-x86
 chmod +x init
 # Generate initramfs
 find . -print0 \
@@ -43,16 +43,16 @@ find . -print0 \
    | gzip -9 > $TOP/build/initramfs-busybox-x86.cpio.gz
 
 # Configure Linux using simple defconfig and kvm options
-cd $TOP/linux
-make O=$TOP/build/linux-x86-basic x86_64_defconfig
-make O=$TOP/build/linux-x86-basic kvmconfig
+#cd $TOP/linux
+#make O=$TOP/build/linux-x86-basic x86_64_defconfig
+#make O=$TOP/build/linux-x86-basic kvmconfig
 
 # Build Linux
-make O=$TOP/build/linux-x86-basic -j2
+#make O=$TOP/build/linux-x86-basic -j2
 
 # Boot with Qemu
-cd $TOP
-qemu-system-x86_64 \
-  -kernel build/linux-x86-basic/arch/x86_64/boot/bzImage \
-  -initrd build/initramfs-busybox-x86.cpio.gz \
-  -nographic -append "console=ttyS0"
+#cd $TOP
+#qemu-system-x86_64 \
+#  -kernel build/linux-x86-basic/arch/x86_64/boot/bzImage \
+#  -initrd build/initramfs-busybox-x86.cpio.gz \
+#  -nographic -append "console=ttyS0"
