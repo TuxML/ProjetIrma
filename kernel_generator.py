@@ -156,7 +156,8 @@ def parser():
     parser.add_argument(
         "incremental",
         type=int,
-        help="Optional. Provide the number of additional incremental compilation. Have to be 0 or over.",
+        help="Optional. Provide the number of additional incremental "
+             "compilation. Have to be 0 or over.",
         nargs='?',
         default=0
     )
@@ -173,11 +174,13 @@ def parser():
     parser.add_argument(
         "--tiny",
         action="store_true",
-        help="Use Linux tiny configuration. Incompatible with --config argument."
+        help="Use Linux tiny configuration. Incompatible with --config "
+             "argument."
     )
     parser.add_argument(
         "--config",
-        help="Give a specific configuration file. Incompatible with --tiny argument."
+        help="Give a path to specific configuration file. Incompatible with "
+             "--tiny argument."
     )
     parser.add_argument(
         "--linux4_version",
@@ -260,16 +263,31 @@ def docker_image_update(tag):
         docker_uncompress_image()
 
 
-def run_docker_compilation(image, incremental):
+def run_docker_compilation(image, incremental, tiny, config):
+    # Starting the container
     container_id = subprocess.check_output(
         args="docker run -i -d {}".format(image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
+
+    # Converting parameter
+    specific_configuration = ""
+    if tiny:
+        specific_configuration = "--tiny"
+    elif config is not None:
+        specific_configuration = "--path /TuxML/.config"
+        subprocess.run(
+            args="docker cp {} {}:/TuxML/.config".format(container_id, config),
+            shell=True
+        )
+
     subprocess.run(
-        args="docker exec -t {} /TuxML/runandlog.py {}".format(
+        args="docker exec -t {} /TuxML/runandlog.py {} {}".format(
             container_id,
-            incremental),
+            incremental,
+            specific_configuration
+        ),
         shell=True
     )
     return container_id
@@ -328,15 +346,24 @@ if __name__ == "__main__":
     else:
         tag = "prod"
 
+    # Update the image
     if not args.local:
         docker_image_update(tag)
+
+    # Setting image name to run (useful later with linux4_version)
     image = "{}:{}".format(_IMAGE, tag)
+
     for i in range(args.nbcontainer):
         set_prompt_color("Light_Blue")
         print("\n=============== Docker number ", i, " ===============")
         set_prompt_color()
 
-        container_id = run_docker_compilation(image, args.incremental)
+        container_id = run_docker_compilation(
+            image,
+            args.incremental,
+            args.tiny,
+            args.config
+        )
         delete_docker_container(container_id)
 
     feedback_user(args.nbcontainer, args.incremental)
