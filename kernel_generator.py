@@ -108,7 +108,7 @@ def docker_build(image=None, tag=None, path=None):
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
-    subprocess.call(str_build, shell=True)
+    subprocess.run(str_build, shell=True)
 
 
 ## create_dockerfile
@@ -135,8 +135,7 @@ def docker_pull(image, tag=None):
     str_pull = "docker pull {}".format(image)
     if tag is not None:
         str_pull = "{}:{}".format(str_pull, tag)
-    print("commande : {}".format(str_pull))
-    subprocess.call(args=str_pull, shell=True)
+    subprocess.run(args=str_pull, shell=True)
 
 
 ## parser
@@ -189,6 +188,11 @@ def parser():
              "after compiling, and that the image use to compile it will be "
              "deleted afterward.",
     )
+    parser.add_argument(
+        "-s", "--silent",
+        action="store_true",
+        help="Prevent printing on standard output when compiling."
+    )
 
     return parser.parse_args()
 
@@ -213,9 +217,7 @@ def check_precondition_and_warning(args):
     # warning
     set_prompt_color("Orange")
     if args.dev:
-        print(
-            "You are using the development version, whose can be unstable."
-        )
+        print("You are using the development version, whose can be unstable.")
     if args.local:
         print("You are using the local version, which means that you could be "
               "out to date, or you could crash if you don't have the image.")
@@ -223,6 +225,8 @@ def check_precondition_and_warning(args):
         print("You are using tiny configuration.")
     if args.config is not None:
         print("You are using your specific configuration.")
+    if args.silent:
+        print("You have enable the silent mode.")
     set_prompt_color()
 
 ## docker_uncompress_image
@@ -252,18 +256,28 @@ def docker_uncompress_image():
 # @version 1
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
+    set_prompt_color("Purple")
     try:
+        print("Trying to update docker image...")
         before_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
         docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
         after_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
         if before_digest != after_digest:
+            print("Update found, uncompressing...")
             docker_uncompress_image()
+        else:
+            print("No update found.")
     except NotImplementedError:
+        set_prompt_color("Red")
+        print("An error occured when updating. Force update...")
         docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
         docker_uncompress_image()
+    set_prompt_color("Purple")
+    print("Updating of docker image done.")
+    set_prompt_color()
 
 
-def run_docker_compilation(image, incremental, tiny, config):
+def run_docker_compilation(image, incremental, tiny, config, silent):
     # Starting the container
     container_id = subprocess.check_output(
         args="docker run -i -d {}".format(image),
@@ -281,12 +295,17 @@ def run_docker_compilation(image, incremental, tiny, config):
             args="docker cp {} {}:/TuxML/.config".format(container_id, config),
             shell=True
         )
+    if silent:
+        silent = "--silent"
+    else:
+        silent = ""
 
     subprocess.run(
-        args="docker exec -t {} /TuxML/runandlog.py {} {}".format(
+        args="docker exec -t {} /TuxML/runandlog.py {} {} {}".format(
             container_id,
             incremental,
-            specific_configuration
+            specific_configuration,
+            silent
         ),
         shell=True
     )
@@ -354,15 +373,17 @@ if __name__ == "__main__":
     image = "{}:{}".format(_IMAGE, tag)
 
     for i in range(args.nbcontainer):
-        set_prompt_color("Light_Blue")
-        print("\n=============== Docker number ", i, " ===============")
-        set_prompt_color()
+        if not args.silent:
+            set_prompt_color("Light_Blue")
+            print("\n=============== Docker number ", i, " ===============")
+            set_prompt_color()
 
         container_id = run_docker_compilation(
             image,
             args.incremental,
             args.tiny,
-            args.config
+            args.config,
+            args.silent
         )
         delete_docker_container(container_id)
 

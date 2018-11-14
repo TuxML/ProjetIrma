@@ -31,8 +31,7 @@ def docker_build(image=None, tag=None, path=None):
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
-    print("command : {}".format(str_build))
-    subprocess.call(str_build, shell=True)
+    subprocess.run(str_build, shell=True)
 
 
 ## docker_push
@@ -45,11 +44,10 @@ def docker_push(image, tag=None):
     str_push = "docker push {}".format(image)
     if tag is not None:
         str_push = "{}:{}".format(str_push, tag)
-    print("command : {}".format(str_push))
     result_push = subprocess.call(args=str_push, shell=True)
     if result_push == 1:
         print("You need to login on Docker hub\n")
-        subprocess.call(args="docker login", shell=True)
+        subprocess.run(args="docker login", shell=True)
         docker_push(image=image, tag=tag)
 
 
@@ -173,11 +171,11 @@ def exist_sub_image_tuxml_compressed():
     cmd = "{} {}".format(cmd, NAME_BASE_IMAGE)
     # mpicard: grep return 0 if a line is found, 1 is no line found and 2 or
     # greater if an error occured. So we just check it.
-    result = subprocess.run(
+    returncode = subprocess.call(
         args=cmd,
         shell=True
     )
-    return result.returncode == 0
+    return returncode == 0
 
 
 ##get_linux_kernel
@@ -193,7 +191,7 @@ def get_linux_kernel(name, path=None):
     if name not in list_dir:
         print("Linux kernel not found, downloading...")
         wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
-        subprocess.call(wget_cmd, shell=True)
+        subprocess.run(args=wget_cmd, shell=True)
     else:
         print("Linux kernel found.")
 
