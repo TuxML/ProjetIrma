@@ -213,6 +213,14 @@ def check_precondition_and_warning(args):
         raise NotImplementedError(
             "You can't use tiny and config parameter at the same time."
         )
+    if args.config is not None:
+        raise NotImplementedError(
+            "Currently unsupported."
+        )
+    if args.linux4_version is not None:
+        raise NotImplementedError(
+            "Currently unsupported."
+        )
 
     # warning
     set_prompt_color("Orange")
