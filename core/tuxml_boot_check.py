@@ -40,8 +40,10 @@ import tuxml_settings as tset
 #
 #  @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
 def boot_try():
-	tcom.pprint(2, "Launching boot test on kernel")
+	tcom.pprint(2, "Launching boot test on kernel (currently deactivated)")
+	return -2
 
+        # TODO: following code is deprecated; we will migrate with the new QEMU procedure
 	try:
 		sbStatus = subprocess.call(["mkinitramfs", "-o", tset.PATH +
                               "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)
