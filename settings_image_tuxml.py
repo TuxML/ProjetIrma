@@ -17,6 +17,9 @@ CONTENT_BASE_IMAGE = {
             BASIC_DEP,
     'RUN_DEP_FILE': "RUN echo " + BASIC_DEP + " > /dependencies.txt",
     'RUN_PIP': "RUN pip3 install wheel mysqlclient psutil",
+    'CPRUN_BB': "COPY installBusyBox.sh /installBusyBox.sh\n"
+                "RUN chmod 777 /installBusyBox.sh\n"
+                "RUN ./installBusyBox.sh",
     'EXPOSE': "EXPOSE 80",
     'ENV_NAME': "ENV NAME World",
 }
