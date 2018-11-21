@@ -1,1 +1,1 @@
-nano qemu
+nano
