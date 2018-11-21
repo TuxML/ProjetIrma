@@ -21,7 +21,11 @@ cd $TOP/busybox-1.24.2
 mkdir -p $TOP/build/busybox-x86
 make O=$TOP/build/busybox-x86 defconfig
 #make O=$TOP/build/busybox-x86 menuconfig
-echo "CONFIG_STATIC=y" >> $TOP/build/busybox-x86/.config
+#echo "CONFIG_STATIC=y" >> $TOP/build/busybox-x86/.config
+
+#echo "Config busybox DONE"
+#cat $TOP/build/busybox-x86/.config
+sed -i 's/"# CONFIG_STATIC is not set"/"CONFIG_STATIC=y"/' $TOP/build/busybox-x86/.config
 
 # Build and install busybox
 cd $TOP/build/busybox-x86
