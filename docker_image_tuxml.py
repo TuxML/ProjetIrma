@@ -114,7 +114,7 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
                 tmp = dep_file.readline()
             str_dep = str_dep.replace("\n", "")
         tmp_content['RUN_DEP'] =\
-            "RUN apt-get update && apt-get -qq -y install {} ".format(str_dep)
+            "RUN apt-get install -qq -y --no-install-recommends --download-only {} ".format(str_dep)
         tmp_content['RUN_DEP_FILE'] = "RUN echo {} >> /dependencies.txt".format(str_dep)
     content = "{}\n{}\n{}\n{}\n{}".format(
         tmp_content['PREVIMG_VERSION'],
