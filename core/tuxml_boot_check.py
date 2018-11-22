@@ -15,7 +15,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-## @file tuxml_bootCheck.py
+## @file tuxml_boot_check.py
 # @author CHÉDOTAL Corentin
 # @copyright Apache License 2.0
 # @brief File containing the functions used to test compiled kernels
@@ -40,8 +40,10 @@ import tuxml_settings as tset
 #
 #  @deprecated The use of mkinitramfs is deprecated as it is incompatible with the computing grids
 def boot_try():
-	tcom.pprint(2, "Launching boot test on kernel")
+	tcom.pprint(2, "Launching boot test on kernel (currently deactivated)")
+	return -2
 
+        # TODO: following code is deprecated; we will migrate with the new QEMU procedure
 	try:
 		sbStatus = subprocess.call(["mkinitramfs", "-o", tset.PATH +
                               "/arch/x86_64/boot/initrd.img-4.13.3"], stdout=tset.OUTPUT, stderr=tset.OUTPUT)

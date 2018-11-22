@@ -67,24 +67,16 @@ def args_handler():
     s_help = "choose on which database send the compilation results"
     t_help = "choose to use the tiny_tuxml.config pre-set file"
 
-    parser = argparse.ArgumentParser(
-        description=msg, formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description=msg, formatter_class=argparse.RawTextHelpFormatter)
     gexcl1 = parser.add_mutually_exclusive_group()
     parser.add_argument("source_path",     help=p_help)
-    parser.add_argument("-v", "--verbose", help=v_help,
-                        type=int, choices=range(1, 5))
-    parser.add_argument("-V", "--version", help=V_help,
-                        action='version', version='%(prog)s pre-alpha v0.2')
-    parser.add_argument("-c", "--cores",   help=c_help,
-                        type=int, metavar="NB_CORES")
-    parser.add_argument("-d", "--debug",   help=d_help,
-                        type=str, metavar="KCONFIG")
-    gexcl1.add_argument("--incremental",   help=i_help,
-                        type=int, metavar="NINC")
-    gexcl1.add_argument("--incrementalVS", help=j_help,
-                        type=str, metavar="KCONFIG", nargs=2)
-    parser.add_argument("--database",      help=s_help,
-                        type=str, default='prod', choices=['prod', 'dev'])
+    parser.add_argument("-v", "--verbose", help=v_help, type=int, choices=range(1, 5))
+    parser.add_argument("-V", "--version", help=V_help, action='version', version='%(prog)s pre-alpha v0.2')
+    parser.add_argument("-c", "--cores",   help=c_help, type=int, metavar="NB_CORES")
+    parser.add_argument("-d", "--debug",   help=d_help, type=str, metavar="KCONFIG")
+    gexcl1.add_argument("--incremental",   help=i_help, type=int, metavar="NINC")
+    gexcl1.add_argument("--incrementalVS", help=j_help, type=str, metavar="KCONFIG", nargs=2)
+    parser.add_argument("--database",      help=s_help, type=str, default='prod', choices=['prod', 'dev'])
     parser.add_argument("--tiny",          help=t_help, action="store_true")
     args = parser.parse_args()
 

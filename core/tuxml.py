@@ -33,7 +33,7 @@ import tuxml_common as tcom
 import tuxml_settings as tset
 import tuxml_depman as tdep
 import tuxml_environment as tenv
-import tuxml_bootCheck as tbch
+import tuxml_boot_check as tbch
 import tuxml_argshandler as targs
 
 
@@ -213,9 +213,22 @@ def gen_config(Kconfig=None):
         tcom.pprint(2, "Randomising new KCONFIG_FILE")
         if not tset.TUXCONFIG == "tuxml.config":
             tcom.pprint(2, "\"" + tset.TUXCONFIG + "\" used")
-        tcom.pprint(2, "KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
+
+        # TODO: weird code
+        # TODO: hard coded value
+        if tset.TUXCONFIG == "tiny_tuxml.config":
+            tcom.pprint(2, "TINY config with preset values here=" + os.path.dirname(
+                os.path.abspath(__file__)) + "/" + "x64" +
+                        " make -C " + tset.PATH + " tinyconfig")
+            status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(
+                os.path.abspath(__file__)) + "/" + "x64.config" +
+                                      " make -C " + tset.PATH + " tinyconfig"],
+                                     stdout=subprocess.DEVNULL,
+                                     stderr=tset.OUTPUT, shell=True)
+        else:
+            tcom.pprint(2, "KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
                     " make -C " + tset.PATH + " randconfig")
-        status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
+            status = subprocess.call(["KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
                                   " make -C " + tset.PATH + " randconfig"], stdout=subprocess.DEVNULL, stderr=tset.OUTPUT, shell=True)
 
     # testing status after subprocess call to make randconfig

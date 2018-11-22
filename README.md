@@ -1,4 +1,4 @@
-# TuxML: Machine Learning and Linux Kernel
+﻿# TuxML: Machine Learning and Linux Kernel
 
 The goal of TuxML is to predict properties of Linux Kernel configurations (e.g., does the kernel compile? what's its size? does it boot?). 
 The Linux Kernel provides near 15000 configuration options: there is an infinity of different kernels. 
@@ -12,7 +12,7 @@ The TuxML* project is developping tools, mainly based on Docker and Python, to m
 Requirement: `Python3` and `Docker` are needed (do not forget to start the docker service usually with `sudo service docker start`)
 
 ```
-mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v1.0/MLfood.py ; python3 MLfood.py 10 --dev
+mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/releases/download/v1.1/kernel_generator.py ; python3 kernel_generator.py 10 --dev
 ```
 
 Copy this command and run it in a terminal. It will create a folder "TuxML" in your home and sent compilation results to our database.
@@ -31,21 +31,21 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
 # Contributors 
 
  * Mathieu Acher (Univ Rennes, Inria, CNRS, IRISA), scientific leader  
- * Alexis Lemasle (University of Rennes 1), main developer 
+ * Alexis LE MASLE (University of Rennes 1), main developer 
  * [DiverSE team (Inria/IRISA research team)](http://www.diverse-team.fr/)
  * [ANR VaryVary project](https://varyvary.github.io/) 
 
     Master 2017 - 2018
 
- * Corentin Chédotal
- * Gwendal Didot 
- * Dorian Dumanget 
- * Antonin Garret
- * Erwan Le Flem
- * Pierre Le Luron 
- * Alexis Le Masle 
- * Mickaël Lebreton
- * Fahim Merzouk
+ * Corentin CHÉDOTAL
+ * Gwendal DIDOT 
+ * Dorian DUMANGET 
+ * Antonin GARRET
+ * Erwan LE FLEM
+ * Pierre LE LURON 
+ * Alexis LE MASLE 
+ * Mickaël LEBRETON
+ * Fahim MERZOUK
 
     Master 2018 - 2019  
 

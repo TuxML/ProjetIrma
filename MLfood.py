@@ -79,6 +79,7 @@ parser.add_argument("--fetch-kernel",
 parser.add_argument("--no-logs", help="Do not create local logs", action="store_true")
 parser.add_argument("--path", help="[dev] Give a .config file to compile, only this one and no more")
 parser.add_argument("--tiny", help="Use the tiny_tuxml.config file pre-set", action="store_true")
+parser.add_argument("--local", help="Run the local docker image without pulling", action="store_true")
 
 args = parser.parse_args()
 
@@ -132,14 +133,13 @@ def mlfood():
         exit(0)
 
     #################### Section 3 ####################
-    images = []
     if args.dev:
-        images = ["tuxml/tuxmldebian:dev"]
+        images = "tuxml/tuxmldebian:dev"
     else:
         print(ORANGE + "Advice:")
         print("Without '--dev' the image is the functionnal version 'prod' of tuxmldebian:prod (stable)")
         print("With '--dev' it will use the current dev version tuxmldebian:dev (possibly unstable)" + GRAY)
-        images = ["tuxml/tuxmldebian:prod"]
+        images = "tuxml/tuxmldebian:prod"
 
     #################### Section 4 ####################
     # Convert the parameter in an Integer which is the number of compilation to do.
@@ -156,10 +156,6 @@ def mlfood():
             print(LIGHT_BLUE_1 + "Take a coffee and admire your " +
                   str(args.nbcompil) + " compilations!" + GRAY)
 
-    # The image list must not be empty.
-    if len(images) == 0:
-        print("There are no images.")
-        exit(0)
 
     # We check if the user is a super-user, to prevent users that the super-user privileges are used only to run dockers commands
     if os.geteuid() != 0:
@@ -184,17 +180,17 @@ def mlfood():
 
         #################### Section 7 ####################
         # Get the last version of the image.
-        str2 = "sudo docker pull " + images[i % len(images)]
-        if not args.silent:
-            print(LIGHT_BLUE_1 + "Recovering the last docker image " +
-                  images[i % len(images)] + "\n" + GRAY)
-            # subprocess.run(str2, shell=True)
-            subprocess.call(str2, shell=True)
-        else:
-            # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            subprocess.call(
-                str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+        if not args.local:
+            str2 = "sudo docker pull " + images
+            if not args.silent:
+                print(LIGHT_BLUE_1 + "Recovering the last docker image " +
+                    images + "\n" + GRAY)
+                # subprocess.run(str2, shell=True)
+                subprocess.call(str2, shell=True)
+            else:
+                # subprocess.run(str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.call(
+                    str2, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #################### Section 8 ####################
         logsFolder = ""
         if not args.no_logs:
@@ -208,28 +204,26 @@ def mlfood():
         # Main command which run a docker which execute the runandlog.py script and write the logs in output.logs
         chaine = ""
         path = ""
-
         tiny = ""
         if args.tiny:
             tiny = " --tiny"
-
         # If a path to a .config file is precised
         if args.path:
             path = "--path " + args.path
             # Create a new container
             subprocess.call("sudo docker run -i -d " +
-                            images[i % len(images)], shell=True, stdout=subprocess.DEVNULL)
+                            images, shell=True, stdout=subprocess.DEVNULL)
             # Copy on it the .config file to use
             subprocess.call("sudo docker cp " + args.path +
                             " $(sudo docker ps -lq):/TuxML/.config", shell=True)
             chaine = "sudo docker exec -t $(sudo docker ps -lq) /TuxML/runandlog.py --path /TuxML/.config"
         else:
             if args.silent:
-                chaine = 'sudo docker run -t ' + images[i % len(images)] + ' /TuxML/runandlog.py ' + str(
+                chaine = 'sudo docker run -t ' + images + ' /TuxML/runandlog.py ' + str(
                     args.incremental) + " " + path + tiny + " --silent"
             else:
                 chaine = 'sudo docker run -t ' + \
-                    images[i % len(images)] + ' /TuxML/runandlog.py ' + \
+                    images + ' /TuxML/runandlog.py ' + \
                     str(args.incremental) + " " + path + tiny
             print(LIGHT_BLUE_1 + "\n=============== Docker number " +
                   str(i + 1) + " ===============" + GRAY)

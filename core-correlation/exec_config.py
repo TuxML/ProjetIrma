@@ -1,15 +1,15 @@
 #!/usr/bin/python3
 
-## @file ExecConfig.py
+## @file exec_config.py
 # @author LE MASLE Alexis
 # @copyright Apache License 2.0
 # @brief File which start tuxml.py with specific parameters
 #
-# @details This script works almost like tuxLogs.py, it is used to execute tuxml.py with the number of cores given by Fetch.py.
+# @details This script works almost like tuxLogs.py, it is used to execute tuxml.py with the number of cores given by fetch.py.
 # The program runs tuxml.py with a given number of cores, and configure it to send the compilations data to an other database used
-# to make correlations as it was said in Fetch.py with the help of Machine Learning.
+# to make correlations as it was said in fetch.py with the help of Machine Learning.
 
-# ExecConfig.py, Fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
+# exec_config.py, fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
 
 #   Copyright 2018 TuxML Team
 #
@@ -50,7 +50,7 @@ LIGHT_PURPLE    = "\033[38;5;13m"
 if len(argv) < 3:
 	print("")
 	print(LIGHT_BLUE_1 + "Use:")
-	print("./ExecConfig.py [num .config] [nb core]" + GRAY)
+	print("./exec_config.py [num .config] [nb core]" + GRAY)
 	print("")
 	exit(0)
 
