@@ -2,7 +2,12 @@
  
 # Install required build tools on host machine ubuntu
 apt update
-apt install -y ncurses-dev build-essential libssl-dev libelf-dev git qemu
+apt install -y ncurses-dev
+apt install build-essential 
+apt install libssl-dev 
+apt install libelf-dev
+apt install git
+apt install -y qemu
 
 # Prepare a working space for kernel development
 cd $HOME
@@ -20,12 +25,7 @@ cp -rf /TuxML/linux-4.13.3/ $TOP/linux
 cd $TOP/busybox-1.24.2
 mkdir -p $TOP/build/busybox-x86
 make O=$TOP/build/busybox-x86 defconfig
-#make O=$TOP/build/busybox-x86 menuconfig
-#echo "CONFIG_STATIC=y" >> $TOP/build/busybox-x86/.config
-
-#echo "Config busybox DONE"
-#cat $TOP/build/busybox-x86/.config
-sed -i 's/"# CONFIG_STATIC is not set"/"CONFIG_STATIC=y"/' $TOP/build/busybox-x86/.config
+make O=$TOP/build/busybox-x86 menuconfig
 
 # Build and install busybox
 cd $TOP/build/busybox-x86
@@ -61,5 +61,4 @@ qemu-system-x86_64 \
   -nographic -append "console=ttyS0" >> log.txt &
 
 # Watch if Boot works or not
-cd ~/..
 ./watchBootKernel.sh
