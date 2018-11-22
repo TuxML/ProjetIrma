@@ -18,12 +18,11 @@ mv -f busybox-1.24.2/ kdev/
 cd $TOP/busybox-1.24.2
 mkdir -p $TOP/build/busybox-x86
 make O=$TOP/build/busybox-x86 defconfig
-# make O=$TOP/build/busybox-x86 menuconfig
-echo "CONFIG_STATIC=y" >> $TOP/build/busybox-x86/.config
+sed 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' -i $TOP/build/busybox-x86/.config
 
 # Build and install busybox
 cd $TOP/build/busybox-x86
-make -j2
+make
 make install
 
 # Create minimal filesystem

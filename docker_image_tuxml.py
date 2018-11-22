@@ -173,7 +173,8 @@ def exist_sub_image_tuxml_compressed():
     # greater if an error occured. So we just check it.
     returncode = subprocess.call(
         args=cmd,
-        shell=True
+        shell=True,
+        stdout=subprocess.DEVNULL
     )
     return returncode == 0
 
@@ -254,7 +255,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-t',
         '--tag',
-        help="Tag of the image you want to generate/build/push",
+        help="Tag of the image you want to generate/build/push. Default to \"dev\"",
         default="dev"
     )
     parser.add_argument(
