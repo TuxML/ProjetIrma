@@ -1,11 +1,8 @@
 #!/bin/bash
 
-isFound=false
-pid='ps -a | grep qemu'
-
 while [ egrep "Boot took|Kernel panic" log.txt ];
 do
-	
+
 done
 
 if [ grep "Boot took" log.txt -eq 1 ]; then
@@ -16,5 +13,5 @@ else
    	echo "Error" 
 fi
 
-kill -9 $pid
+kill -9 $(pgrep qemu)
 
