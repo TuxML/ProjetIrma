@@ -8,8 +8,8 @@ import argparse
 import subprocess
 import os
 
-_COMPRESSED_IMAGE = "tuxml/debiantuxml"
-_IMAGE = "tuxml/tuxmldebian"
+_COMPRESSED_IMAGE = "tuxml/tartuxml"
+_IMAGE = "tuxml/tuxml"
 
 
 ## set_prompt_color
@@ -75,9 +75,11 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
+    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
-    cmd = "docker image ls {} --format {{.Digest}}".format(image)
+        cmd = "{}:{}".format(cmd, "{{.Tag}}")
+    cmd = "{} {} | grep \"{}\"".format(cmd, "{{.Digest}}\"", image)
     result = subprocess.check_output(
         args=cmd,
         shell=True,
@@ -86,9 +88,10 @@ def get_digest_docker_image(image, tag=None):
     result = result.splitlines()
     if len(result) == 0:
         raise NotImplementedError("Image not found.")
-    if result[0] == "<none>":
+    result = result[0].split(" ")
+    if result[1] == "<none>":
         raise NotImplementedError("No digest found.")
-    return result[0]
+    return result[1]
 
 
 ## docker_build
@@ -278,6 +281,7 @@ def docker_image_update(tag):
     except NotImplementedError:
         set_prompt_color("Red")
         print("An error occured when updating. Force update...")
+        set_prompt_color()
         docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
         docker_uncompress_image()
     set_prompt_color("Purple")
