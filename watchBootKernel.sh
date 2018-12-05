@@ -1,16 +1,19 @@
+
 #!/bin/bash
 
-while [ egrep "Boot took|Kernel panic" log.txt ];
-do
+var=1
+echo "Scan running"
 
+while [[ $var -eq "1" ]];
+do
+        tmp=$(egrep 'Boot took|Kernel panic' root/kdev/log.txt)
+        var=$?
 done
 
-if [ grep "Boot took" log.txt -eq 1 ]; then
-	echo 'grep "Boot took" log.txt'
-elif [ grep "Kernel panic" -eq 1 ]; then
-	echo "Kernel panic"
+if [[ $var -gt "1" ]]; then
+        echo "Error"
 else 
-   	echo "Error" 
+        echo $tmp 
 fi
 
 kill -9 $(pgrep qemu)
