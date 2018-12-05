@@ -48,21 +48,38 @@ def check(n, file):
         os.chdir("gen_config")
         # AM: don't get it, I removed it
         fd_str = [ln.strip() for ln in fd]
-        print(fd_str)
-        nb_err = 0
+        print("pre-set options to check", fd_str)        
         while n:
-            for word in fd_str:
-                if word not in open("config"+str(max-n)).read():
-                    nb_err += 1
+            nb_err = 0
+            for opt in fd_str:
+                # opt is in the form CONFIG_XXX=y
+                s = opt.split('=')
+                opt_name = s[0] # option name
+                opt_value = s[1] # y, n, or m
+                content_config = open("config"+str(max-n)).read()
+                # we verify that the option is not set to yes
+                if opt_value == 'n':
+                    # TODO: check that comment 'CONFIG_XXX  is not set' appears? 
+                    opt_yes = opt_name + "=" + "y"
+                    opt_m = opt_name + "=" + "m"
+                    if opt_yes in content_config and opt_m in content_config:
+                        print(opt, "should be 'n' but is 'y' or 'm")
+                        nb_err += 1
+                elif opt_value == 'y':
+                    if opt not in content_config:
+                        print(opt, "should be 'y' but is 'n' or 'm")
+                        nb_err += 1
+                else:
+                    print("TODO (module?)")
             display_error(max-n, nb_err)
             n -= 1
 
 
 def display_error(nb_config_file, nb_error):
     if nb_error > 0:
-        print("there is {} error in file .config{}\n".format(nb_error, nb_config_file))
+        print("there is {} error in file config{}\n".format(nb_error, nb_config_file))
     else:
-        print("No error in file .config{}\n".format(nb_config_file))
+        print("No error in file config{}\n".format(nb_config_file))
 
 
 
