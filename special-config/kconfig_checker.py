@@ -2,6 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 import re
+import errno 
 
 def get_linux_kernel(name, path=None):
     if path is not None:
@@ -68,8 +69,11 @@ if __name__ == '__main__':
     os.chdir("linux-4.13.3")
     try:
         os.mkdir("gen_config")
-    except Exception as e:
-        print(e)
+    except OSError as exc:  
+        if exc.errno == errno.EEXIST:
+            pass
+        else:
+            raise
     generate_n_config(2, "../core/tuxml.config")
     print("end")
 
