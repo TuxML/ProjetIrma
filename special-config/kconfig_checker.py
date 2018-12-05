@@ -44,11 +44,12 @@ def store_config_file(n, max):
 
 def check(n, file):
     max = n
-    nb_err = 0
     with open(file) as fd:
         os.chdir("gen_config")
-        fd_str = (ln.strip() for ln in fd)
+        # AM: don't get it, I removed it
+        fd_str = [ln.strip() for ln in fd]
         print(fd_str)
+        nb_err = 0
         while n:
             for word in fd_str:
                 if word not in open("config"+str(max-n)).read():
@@ -58,7 +59,7 @@ def check(n, file):
 
 
 def display_error(nb_config_file, nb_error):
-    if nb_error:
+    if nb_error > 0:
         print("there is {} error in file .config{}\n".format(nb_error, nb_config_file))
     else:
         print("No error in file .config{}\n".format(nb_config_file))
@@ -75,6 +76,6 @@ if __name__ == '__main__':
             pass
         else:
             raise
-    generate_n_config(2, "../core/tuxml.config")
+    generate_n_config(10, "../core/tuxml.config")
     print("end")
 
