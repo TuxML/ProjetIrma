@@ -43,8 +43,8 @@ def store_config_file(n, max):
 def check(n, file):
     max = n
     nb_err = 0
-    os.chdir("gen_config")
     with open(file) as fd:
+        os.chdir("gen_config")
         fd_str = (ln.strip() for ln in fd)
         print(fd_str)
         while n:
