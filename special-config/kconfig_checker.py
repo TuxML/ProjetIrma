@@ -22,7 +22,8 @@ def get_linux_kernel(name, path=None):
 def generate_n_config(n, file):
     max = n
     if Path(file).is_file():
-        cmd = "make KCONFIG_ALLCONFIG=" + file + " randconfig"
+        cmd = "KCONFIG_ALLCONFIG=" + file +  " make randconfig"
+        print("compilation command", cmd, "in", os.getcwd())
         while n:
             status = subprocess.call(cmd, shell=True)
             if status:
