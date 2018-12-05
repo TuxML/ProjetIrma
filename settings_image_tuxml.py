@@ -1,9 +1,9 @@
 LINUX_KERNEL = 'linux-4.13.3'
 
 ## Information about the base image
-NAME_BASE_IMAGE = "tuxml/minituxml"
+NAME_BASE_IMAGE = "tuxml/basetuxml"
 
-BASIC_DEP = "gcc g++ make binutils util-linux kmod e2fsprogs jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool nfs-kernel-server procps mcelog libcrypto++6 git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool dialog moreutils bison libelf-dev flex libdb5.3-dev"
+BASIC_DEP = "gcc g++ make binutils util-linux kmod e2fsprogs jfsutils xfsprogs btrfs-progs pcmciautils ppp grub iptables openssl bc reiserfsprogs squashfs-tools quotatool nfs-kernel-server procps mcelog libcrypto++6 git wget qemu-system qemu-utils initramfs-tools lzop liblz4-tool dialog moreutils bison libelf-dev flex libdb5.3-dev qemu"
 
 # What will be written in the Dockerfile for the base image to produce the image.
 CONTENT_BASE_IMAGE = {
@@ -17,12 +17,16 @@ CONTENT_BASE_IMAGE = {
             BASIC_DEP,
     'RUN_DEP_FILE': "RUN echo " + BASIC_DEP + " > /dependencies.txt",
     'RUN_PIP': "RUN pip3 install wheel mysqlclient psutil",
+    'CPRUN_BB': "COPY installBusyBox.sh /installBusyBox.sh\n"
+                "COPY init /init\n"
+                "RUN chmod 777 /installBusyBox.sh\n"
+                "RUN ./installBusyBox.sh",
     'EXPOSE': "EXPOSE 80",
     'ENV_NAME': "ENV NAME World",
 }
 
 ## Information about the built image
-NAME_IMAGE = "tuxml/debiantuxml"
+NAME_IMAGE = "tuxml/tartuxml"
 
 # What will be written in the Dockerfile for the compressed docker image.
 CONTENT_IMAGE = {
@@ -36,7 +40,7 @@ CONTENT_IMAGE = {
 }
 
 
-NAME_BIG_IMAGE = "tuxml/tuxmldebian"
+NAME_BIG_IMAGE = "tuxml/tuxml"
 CONTENT_BIG_IMAGE = {
     'PREVIMG_VERSION': "FROM " + NAME_IMAGE,
     'LINUX_UNTAR': "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz",

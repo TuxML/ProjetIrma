@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-## @file Fetch.py
+## @file fetch.py
 # @author LE MASLE Alexis
 # @copyright Apache License 2.0
 # @brief File used to start a given number of compilation with a given number of core
@@ -13,7 +13,7 @@
 # affect compilations.
 # All machine used to perform the same .config needs to be the same ( Same configurations, hardware ).
 
-# ExecConfig.py, Fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
+# exec_config.py, fetch.py and genconf.py are NOT USEFUL in the TuxML Project.
 
 #   Copyright 2018 TuxML Team
 #
@@ -36,7 +36,7 @@ from sys import argv
 
 if len(argv) < 2:
     print("Please, enter a non-zero positive number of core to use")
-    print("Try ./Fetch.py [Integer]")
+    print("Try ./fetch.py [Integer]")
     exit(0)
 
 try:
@@ -52,7 +52,7 @@ subprocess.run("sudo docker pull tuxml/tuxmldebian:dev", shell=True).stdout
 # Compile all the .config file
 for i in range(100):
     print("------Docker num " + str(i) + "-------")
-    chaine = 'sudo docker run -i tuxml/tuxmldebian:dev TuxML/gcc-learn/ExecConfig.py ' + str(i) + ' ' + str(n)
+    chaine = 'sudo docker run -i tuxml/tuxmldebian:dev TuxML/gcc-learn/exec_config.py ' + str(i) + ' ' + str(n)
     subprocess.run(chaine, shell=True).stdout
     print("-------------------------")
     print("Cleaning containers . . .")

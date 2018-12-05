@@ -3,7 +3,7 @@
 import argparse
 import tuxml_settings as set
 
-## @file configCompress.py
+## @file config_compress.py
 # @author LE MASLE Alexis
 # @author POLES Malo
 # @copyright Apache License 2.0
@@ -36,19 +36,27 @@ import tuxml_settings as set
 # @brief find an old line and rewrite it with a new line in .config file
 # @param old Old line to find, can be partial match first occurrence
 # @param new New line to write
-# @param path_to_config Path to the file '.config' should not include '.config'
+# @param path_to_config Path to the file '.config' (should not contain a slash, and shoud not include '.config')
+# TODO: something can go wring at several places and we always return True (of course we should handle exceptions)
 def rewrite(old, new, path_to_config):
-    try:
-        with open(path_to_config+".config", "r+") as f:
-            nb_line = f.read().find(old)
-            if nb_line == -1:  # sometimes there is no match because the options is already set as this value
-                return
-            f.seek(nb_line)
-            f.write(new+"\n")
+    # we read all lines
+    f = open(path_to_config + "/.config", "r")
+    lines = f.readlines()
+    f.close()
+
+    # and then replace old by new (TODO: regular expression)
+    # we replace the content of config file (ie we write the new content into the same config file)
+    for line in lines:
+        if line == old + "\n":
+            lines[lines.index(line)] = new + '\n'
+
+            f = open(path_to_config + "/.config", "w")
+            f.seek(0)
+            f.writelines(lines)
             f.close()
-    except IOError as err:
-        print("{}".format(err))
-        exit(-1)
+
+    return True
+
 
 
 ## choose the compression to enable
@@ -59,17 +67,25 @@ def rewrite(old, new, path_to_config):
 # @param path_to_config Path to the file '.config' should not include '.config'
 def enable(compress, path_to_config):
 
-    compression = set.COMPRESS_TYPE
+    compression = set.COMPRESS_TYPE # set of all compression methods
+
     # enable
-    rewrite("# CONFIG_KERNEL_" + compress + " is not set",
-            "CONFIG_KERNEL_" + compress + "=y", path_to_config)
+    activating = rewrite("# CONFIG_KERNEL_" + compress + " is not set", "CONFIG_KERNEL_" + compress + "=y", path_to_config)
+    if (not activating):
+        print("Unable to activate compression option", str(compress), flush=True)
+        return -1
+        
     # disable
     for c in compression:
             if not c == compress:
-                rewrite("CONFIG_KERNEL_" + c + "=y",
-                        "# CONFIG_KERNEL_" + c + " is not set", path_to_config)
+                if not rewrite("CONFIG_KERNEL_" + c + "=y", "# CONFIG_KERNEL_" + c + " is not set", path_to_config):
+                    print ("Unable to deactivate compression option", str(compress), flush=True)
+                    return -1
+    
+    return 1
 
-
+# TODO: unnecessary
+# TODO: rather unit tests
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("compression", type=str, choices=set.COMPRESS_TYPE,

@@ -25,14 +25,13 @@ from settings_image_tuxml import *
 def docker_build(image=None, tag=None, path=None):
     if path is None:
         path = "."
-    str_build = "sudo docker build".format(image)
+    str_build = "docker build".format(image)
     if image is not None:
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{} {}".format(str_build, path)
-    print("command : {}".format(str_build))
-    subprocess.call(str_build.split(' '))
+    subprocess.run(str_build, shell=True)
 
 
 ## docker_push
@@ -42,14 +41,13 @@ def docker_build(image=None, tag=None, path=None):
 # @param image The name of the image to push.
 # @param tag The tag of the image to push.
 def docker_push(image, tag=None):
-    str_push = "sudo docker push {}".format(image)
+    str_push = "docker push {}".format(image)
     if tag is not None:
-        str_push += "{}:{}".format(str_push, tag)
-    print("command : {}".format(str_push))
+        str_push = "{}:{}".format(str_push, tag)
     result_push = subprocess.call(args=str_push, shell=True)
     if result_push == 1:
         print("You need to login on Docker hub\n")
-        subprocess.call(args="sudo docker login", shell=True)
+        subprocess.run(args="docker login", shell=True)
         docker_push(image=image, tag=tag)
 
 
@@ -76,7 +74,7 @@ def create_dockerfile(content=None, path=None):
 # and not the whole dependencies for our project.
 def create_sub_image_tuxml_compressed(tmp_location):
     get_linux_kernel(LINUX_KERNEL, tmp_location)
-    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
         CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
         CONTENT_BASE_IMAGE['MKDIR_TUXML'],
         CONTENT_BASE_IMAGE['LINUX_TAR'],
@@ -85,6 +83,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
         CONTENT_BASE_IMAGE['RUN_DEP'],
         CONTENT_BASE_IMAGE['RUN_DEP_FILE'],
         CONTENT_BASE_IMAGE['RUN_PIP'],
+        CONTENT_BASE_IMAGE['CPRUN_BB'],
         CONTENT_BASE_IMAGE['EXPOSE'],
         CONTENT_BASE_IMAGE['ENV_NAME']
     )
@@ -115,7 +114,7 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
                 tmp = dep_file.readline()
             str_dep = str_dep.replace("\n", "")
         tmp_content['RUN_DEP'] =\
-            "RUN apt-get update && apt-get -qq -y install {} ".format(str_dep)
+            "RUN apt-get install -qq -y --no-install-recommends --download-only {} ".format(str_dep)
         tmp_content['RUN_DEP_FILE'] = "RUN echo {} >> /dependencies.txt".format(str_dep)
     content = "{}\n{}\n{}\n{}\n{}".format(
         tmp_content['PREVIMG_VERSION'],
@@ -134,11 +133,19 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
         path=tmp_location)
 
 
+## create_big_image_tuxml_uncompressed
+# @author PICARD Michaël
+# @version 1
+# @brief Create the uncompressed image to work with.
+# @param tmp_location Where we create and build the image.
+# @param tag The tag of the built image. Default to None.
+# @param dependencies_path The path to the file corresponding to optional
+# dependencies. Default to None.
 def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
     content = "{}".format(CONTENT_BIG_IMAGE['PREVIMG_VERSION'])
     if tag is not None:
         content = "{}:{}".format(content, tag)
-    content = "{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}\n{}\n{}".format(
         content,
         CONTENT_BIG_IMAGE['TUXML_UNTAR'],
         CONTENT_BIG_IMAGE['LINUX_UNTAR'],
@@ -158,27 +165,25 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
 # @author PICARD Michaël
 # @version 1
 # @brief Test if the sub_image_tuxml_compressed docker image already exist.
-# TODO: Refactor to be nicer
+# @return Boolean
 def exist_sub_image_tuxml_compressed():
-    list_str_test = ["docker", "image", "ls", "--format", "{{.Repository}}"]
-    result = subprocess.check_output(
-        args=list_str_test
+    cmd = "docker image ls --format {{.Repository}} | grep"
+    cmd = "{} {}".format(cmd, NAME_BASE_IMAGE)
+    # mpicard: grep return 0 if a line is found, 1 is no line found and 2 or
+    # greater if an error occured. So we just check it.
+    returncode = subprocess.call(
+        args=cmd,
+        shell=True,
+        stdout=subprocess.DEVNULL
     )
-    result = result.decode('UTF-8')
-    result.splitlines()
-    try:
-        result.index(NAME_BASE_IMAGE)
-        return True
-    except:
-        return False
+    return returncode == 0
 
-##Download the linux kernel
-# @author POLES Malo
-# @version 1
+
+##get_linux_kernel
+# @author POLES Malo, PICARD Michaël
+# @version 2
 # @brief Download the linux kernel at the current location
 # @param name Specify version of kernel we want. MUST BE A v4.x version.
-# @return Return -1 if an error occur while downloading
-#         Return 0 on succes
 def get_linux_kernel(name, path=None):
     if path is not None:
         os.chdir(path)
@@ -187,19 +192,54 @@ def get_linux_kernel(name, path=None):
     if name not in list_dir:
         print("Linux kernel not found, downloading...")
         wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
-        subprocess.call(wget_cmd, shell=True)
+        subprocess.run(args=wget_cmd, shell=True)
     else:
         print("Linux kernel found.")
 
 
-def check_y_or_n():
+## ask_for_confirmation
+# @author POLES Malo, PICARD Michaël
+# @version 2
+# @brief Ask a confirmation, and return the answer as boolean
+# @return Boolean
+def ask_for_confirmation():
     answer = input().lower()
     while answer != 'n' and answer != 'y':
         print("y/n")
         answer = input().lower()
-    if answer == 'y':
-        return True
-    return False
+    return answer == 'y'
+
+
+## create_tuxml_archive
+# @author THOMAS Luis, PICARD Michaël
+# @version 1
+# @brief Pack all necessary file inside the archive TuxML.tar.xz
+def create_tuxml_archive(path):
+    list_file = [
+        "core/*",
+        "dependences.txt",
+        "core-correlation",
+        "inDocker/*"
+    ]
+    cmd = "mkdir {}/TuxML".format(path)
+    subprocess.call(args=cmd, shell=True)
+    cmd = "cp -r {} {}/TuxML".format(
+        " ".join(
+            list(map(
+                lambda x: "{}/{}".format(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    x),
+                list_file
+            ))),
+        path
+    )
+    subprocess.call(args=cmd, shell=True)
+
+    os.chdir("{}/TuxML".format(path))
+    subprocess.call(args="tar -cf TuxML.tar.xz *", shell=True)
+    subprocess.call(args="mv TuxML.tar.xz ../TuxML.tar.xz", shell=True)
+    os.chdir("..")
+    subprocess.call(args="rm -rf TuxML", shell=True)
 
 
 if __name__ == "__main__":
@@ -215,7 +255,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-t',
         '--tag',
-        help="Tag of the image you want to generate/build/push",
+        help="Tag of the image you want to generate/build/push. Default to \"dev\"",
         default="dev"
     )
     parser.add_argument(
@@ -237,31 +277,22 @@ if __name__ == "__main__":
         help="Where you want to create your directory to generate/build. Default is current",
         default="."
     )
-    # parser.add_argument(
-    #     "-n",
-    #     "--name",
-    #     help="Name of the directory you want to create,docker_image_tuxml by default"
-    # )
-    # parser.add_argument(
-    #     "-k",
-    #     "--kernel",
-    #     help="Specify the kernel version, default is linux-4.14.3 NOT WORKING",
-    #     default="linux-4.14.3"
-    # )
 
     args = parser.parse_args()
 
     if args.push:
         docker_push(NAME_IMAGE, args.tag)
     else:
-        if args.full_rebuild:
+        if not exist_sub_image_tuxml_compressed():
+            create_sub_image_tuxml_compressed(args.location)
+        elif args.full_rebuild:
             print("Are you sure that you want to rebuild the whole docker image"
-                  "project (Y/n)? ")
-            if check_y_or_n():
+                  " project (Y/n)? ")
+            if ask_for_confirmation():
                 create_sub_image_tuxml_compressed(args.location)
             else:
                 print("Whole rebuild canceled.\n")
-        elif not exist_sub_image_tuxml_compressed():
-            create_sub_image_tuxml_compressed(args.location)
+        create_tuxml_archive(args.location)
         create_image_tuxml_compressed(args.location, args.tag, args.dependencies)
         create_big_image_tuxml_uncompressed(args.location, tag=args.tag)
+        os.remove("{}/TuxML.tar.xz".format(args.location))
