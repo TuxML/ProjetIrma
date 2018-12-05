@@ -16,7 +16,7 @@ cd $TOP
 qemu-system-x86_64 \
   -kernel build/linux-x86-basic/arch/x86_64/boot/bzImage \
   -initrd build/initramfs-busybox-x86.cpio.gz \
-  -nographic -append "console=ttyS0" >> log.txt &
+  -nographic -append "console=ttyS0" > log.txt &
 
 # Watch if Boot works or not
 cd ~/..
