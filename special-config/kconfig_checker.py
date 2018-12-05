@@ -1,6 +1,5 @@
 import os
 import subprocess
-from pathlib import Path
 import re
 import errno 
 
@@ -21,7 +20,7 @@ def get_linux_kernel(name, path=None):
 
 def generate_n_config(n, file):
     max = n
-    if Path(file).is_file():
+    if os.path.isfile(file):
         cmd = "KCONFIG_ALLCONFIG=" + file +  " make randconfig"
         print("compilation command", cmd, "in", os.getcwd())
         while n:
@@ -31,7 +30,9 @@ def generate_n_config(n, file):
                 exit(-1)
             store_config_file(n, max)
             n = n - 1
-    check(max, file)
+    else:
+        print(file, "does not exist")
+    
 
 
 def store_config_file(n, max):
@@ -82,6 +83,10 @@ def display_error(nb_config_file, nb_error):
         print("No error in file config{}\n".format(nb_config_file))
 
 
+def generate_and_check(nrep, file_spe_options):
+    generate_n_config(nrep, file_spe_options)
+    check(nrep, file_spe_options)
+
 
 if __name__ == '__main__':
     get_linux_kernel("linux-4.13.3")
@@ -93,6 +98,10 @@ if __name__ == '__main__':
             pass
         else:
             raise
-    generate_n_config(100, "../core/tuxml.config")
+    nrep=10
+    file_spe_options="../core/tuxml.config"
+    generate_and_check(nrep, file_spe_options)
+    # if you only want to check, simply call check (see below)
+    # check(nrep, file_spe_options)
     print("end")
 
