@@ -93,6 +93,6 @@ if __name__ == '__main__':
             pass
         else:
             raise
-    generate_n_config(10, "../core/tuxml.config")
+    generate_n_config(100, "../core/tuxml.config")
     print("end")
 
