@@ -80,10 +80,13 @@ def get_digest_docker_image(image, tag=None):
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
     cmd = "{} {} | grep \"{}\"".format(cmd, "{{.Digest}}\"", image)
-    result = subprocess.check_output(
-        args=cmd,
-        shell=True,
-    )
+    try:
+        result = subprocess.check_output(
+            args=cmd,
+            shell=True,
+        )
+    except subprocess.CalledProcessError as ex:
+        raise NotImplementedError("No digest found") from ex
     result = result.decode('UTF-8')
     result = result.splitlines()
     if len(result) == 0:
