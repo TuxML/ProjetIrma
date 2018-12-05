@@ -211,7 +211,7 @@ def gen_config(Kconfig=None):
     else:
         # generating new KConfig file
         tcom.pprint(2, "Randomising new KCONFIG_FILE")
-        if not tset.TUXCONFIG == "tuxml.config":
+        if tset.TUXCONFIG == "tuxml.config":
             tcom.pprint(2, "\"" + tset.TUXCONFIG + "\" used")
         tcom.pprint(2, "KCONFIG_ALLCONFIG=" + os.path.dirname(os.path.abspath(__file__)) + "/" + tset.TUXCONFIG +
                     " make -C " + tset.PATH + " randconfig")
