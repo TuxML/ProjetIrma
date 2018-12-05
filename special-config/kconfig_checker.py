@@ -105,11 +105,12 @@ if __name__ == '__main__':
             pass
         else:
             raise
-    nrep=1000
+    nrep=100
     file_spe_options="../core/tuxml.config"
-    #print(generate_and_check(nrep, file_spe_options))
+    rep = generate_and_check(nrep, file_spe_options)
+    #print(rep)
     # if you only want to check, simply call check (see below)
-    rep = check(nrep, file_spe_options)
+    # rep = check(nrep, file_spe_options)
     # print(rep)
     uniq_opts = []
     for opt in rep['options']:
