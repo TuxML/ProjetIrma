@@ -78,7 +78,7 @@ def check(n, file):
                         diff_options.append(opt)
                         nb_err += 1
                 else:
-                    print("TODO (module?)")
+                    print("TODO (module?)", opt)
             #display_error(max-n, nb_err)
             report_data.loc[n] = (n, nb_err, diff_options)
             n -= 1
@@ -107,14 +107,14 @@ if __name__ == '__main__':
         else:
             raise
     nrep=100
-    file_spe_options="../core/tuxml2.config"
+    file_spe_options="../core/tuxml.config"
     file_spe_options2= tempfile.NamedTemporaryFile(suffix=".config").name
     with open(file_spe_options) as f:
         lines = f.readlines()
-        lines = [l for l in lines]
         with open(file_spe_options2, "w") as f1:
             f1.writelines(lines)
-            #f1.write('CONFIG_EXPERT=y')
+            f1.write('\n')
+            f1.write('CONFIG_EXPERT=y')
     rep = generate_and_check(nrep, file_spe_options2)
     #print(rep)
     # if you only want to check, simply call check (see below)
