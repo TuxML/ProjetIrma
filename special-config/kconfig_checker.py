@@ -2,6 +2,8 @@ import os
 import subprocess
 import re
 import errno 
+import pandas as pd 
+import tempfile
 
 def get_linux_kernel(name, path=None):
     if path is not None:
@@ -45,13 +47,16 @@ def store_config_file(n, max):
 
 def check(n, file):
     max = n
+    report_data = pd.DataFrame(columns=['configid', 'nberrors', 'options'])
     with open(file) as fd:
         os.chdir("gen_config")
         # AM: don't get it, I removed it
         fd_str = [ln.strip() for ln in fd]
-        print("pre-set options to check", fd_str)        
+        print("pre-set options to check", fd_str)       
+        
         while n:
             nb_err = 0
+            diff_options =  []
             for opt in fd_str:
                 # opt is in the form CONFIG_XXX=y
                 s = opt.split('=')
@@ -64,17 +69,20 @@ def check(n, file):
                     opt_yes = opt_name + "=" + "y"
                     opt_m = opt_name + "=" + "m"
                     if opt_yes in content_config and opt_m in content_config:
-                        print(opt, "should be 'n' but is 'y' or 'm")
+                        #print(opt, "should be 'n' but is 'y' or 'm")
+                        diff_options.append(opt)
                         nb_err += 1
                 elif opt_value == 'y':
                     if opt not in content_config:
-                        print(opt, "should be 'y' but is 'n' or 'm")
+                        #print(opt, "should be 'y' but is 'n' or 'm")
+                        diff_options.append(opt)
                         nb_err += 1
                 else:
-                    print("TODO (module?)")
-            display_error(max-n, nb_err)
+                    print("TODO (module?)", opt)
+            #display_error(max-n, nb_err)
+            report_data.loc[n] = (n, nb_err, diff_options)
             n -= 1
-
+    return report_data
 
 def display_error(nb_config_file, nb_error):
     if nb_error > 0:
@@ -85,7 +93,7 @@ def display_error(nb_config_file, nb_error):
 
 def generate_and_check(nrep, file_spe_options):
     generate_n_config(nrep, file_spe_options)
-    check(nrep, file_spe_options)
+    return check(nrep, file_spe_options)
 
 
 if __name__ == '__main__':
@@ -98,10 +106,25 @@ if __name__ == '__main__':
             pass
         else:
             raise
-    nrep=10
+    nrep=100
     file_spe_options="../core/tuxml.config"
-    generate_and_check(nrep, file_spe_options)
+    file_spe_options2= tempfile.NamedTemporaryFile(suffix=".config").name
+    with open(file_spe_options) as f:
+        lines = f.readlines()
+        with open(file_spe_options2, "w") as f1:
+            f1.writelines(lines)
+            f1.write('\n')
+            f1.write('CONFIG_EXPERT=y')
+    rep = generate_and_check(nrep, file_spe_options2)
+    #print(rep)
     # if you only want to check, simply call check (see below)
-    # check(nrep, file_spe_options)
-    print("end")
+    # rep = check(nrep, file_spe_options)
+    # print(rep)
+    uniq_opts = []
+    for opt in rep['options']:
+        if opt not in uniq_opts:
+            uniq_opts.append(opt)        
+    print(uniq_opts)
+    nerrors = rep['nberrors'].sum()
+    print((nerrors / len(rep)))
 
