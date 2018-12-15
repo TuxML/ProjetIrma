@@ -242,7 +242,11 @@ def create_tuxml_archive(path):
     subprocess.call(args="rm -rf TuxML", shell=True)
 
 
-if __name__ == "__main__":
+## parser
+# @author PICARD Michaël
+# @version 1
+# @brief Parse the commandline and result the parsed result.
+def parser():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter
     )
@@ -255,11 +259,12 @@ if __name__ == "__main__":
     parser.add_argument(
         '-t',
         '--tag',
-        help="Tag of the image you want to generate/build/push. Default to \"dev\"",
+        help="Tag of the image you want to generate/build/push. Default to "
+             "\"dev\"",
         default="dev"
     )
     parser.add_argument(
-        '-dep',
+        '-d',
         '--dependencies',
         help="Dependencies you want to add to your docker image when you "
              "generate your dockerfile"
@@ -274,11 +279,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "-l",
         "--location",
-        help="Where you want to create your directory to generate/build. Default is current",
+        help="Where you want to create your directory to generate/build. "
+             "Default is current",
         default="."
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parser()
 
     if args.push:
         docker_push(NAME_IMAGE, args.tag)

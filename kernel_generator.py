@@ -195,6 +195,10 @@ def parser():
              "deleted afterward.",
     )
     parser.add_argument(
+        "--logs",
+        help="Optional. Save the logs to the specified path."
+    )
+    parser.add_argument(
         "-s", "--silent",
         action="store_true",
         help="Prevent printing on standard output when compiling."
@@ -219,11 +223,17 @@ def check_precondition_and_warning(args):
         raise NotImplementedError(
             "You can't use tiny and config parameter at the same time."
         )
+
+    # not implemented yet
     if args.config is not None:
         raise NotImplementedError(
             "Currently unsupported."
         )
     if args.linux4_version is not None:
+        raise NotImplementedError(
+            "Currently unsupported."
+        )
+    if args.logs is not None:
         raise NotImplementedError(
             "Currently unsupported."
         )
