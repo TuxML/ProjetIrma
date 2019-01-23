@@ -150,9 +150,7 @@ def docker_pull(image, tag=None):
 # @brief Parse the commandline argument
 # @return An object where each attribute is one argument and its value.
 def parser():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawTextHelpFormatter
-    )
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "nbcontainer",
         type=int,
@@ -203,6 +201,18 @@ def parser():
         action="store_true",
         help="Prevent printing on standard output when compiling."
     )
+    parser.add_argument(
+        "--fetch_kernel",
+        help="Optional. Fetch linux kernel from the docker container."
+    )
+    parser.add_argument(
+        "--unit_testing",
+        action="store_true",
+        help="Optional. Run the unit testing of the compilation script. Prevent"
+             " any compilation to happen. Will disable --tiny, --config, "
+             "--linux4_version, --silent, --fetch_kernel and incremental "
+             "feature during runtime."
+    )
 
     return parser.parse_args()
 
@@ -223,20 +233,24 @@ def check_precondition_and_warning(args):
         raise NotImplementedError(
             "You can't use tiny and config parameter at the same time."
         )
+    if args.unit_testing is not None:
+        args.incremental = 0
+        args.tiny = None
+        args.config = None
+        args.linux4_version = None
+        args.fetch_kernel = None
+        args.silent = None
 
     # not implemented yet
-    if args.config is not None:
+    if args.config is not None \
+            or args.linux4_version is not None \
+            or args.logs is not None \
+            or args.fetch_kernel is not None \
+            or args.unit_testing:
         raise NotImplementedError(
             "Currently unsupported."
         )
-    if args.linux4_version is not None:
-        raise NotImplementedError(
-            "Currently unsupported."
-        )
-    if args.logs is not None:
-        raise NotImplementedError(
-            "Currently unsupported."
-        )
+
 
     # warning
     set_prompt_color("Orange")
@@ -249,9 +263,16 @@ def check_precondition_and_warning(args):
         print("You are using tiny configuration.")
     if args.config is not None:
         print("You are using your specific configuration.")
+    if args.fetch_kernel is not None:
+        print("You will retrieve the kernel after the compilation phase, if it"
+              " succeed.")
+    if args.unit_testing is not None:
+        print("You will unit test the project, which will not compile any "
+              "kernel and could have disabled a few of your option choice.")
     if args.silent:
         print("You have enable the silent mode.")
     set_prompt_color()
+
 
 ## docker_uncompress_image
 # @author PICARD Michaël
