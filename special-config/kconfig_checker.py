@@ -151,19 +151,24 @@ def minimal_test(nrep, opt):
         conf_mini.close()
     test_kernel("linux-4.13.3", nrep, conf_file)
 
-## for testing multiple kernel use kernel_list file
+## for testing multiple kernel use kernel_list file wich should contains the kernel + versions, one line at the time
 ## the kernel must be present on https://cdn.kernel.org/pub/linux/kernel/
-## for minimal invoke minimal_test method
+
+## for minimal tests ( test with only one pre set option ) invoke minimal_test method
 ## pre-conf to generate & test 100 files
+
 ## no clean up method exist yet
 
 if __name__ == '__main__':
     with open("kernel_list") as kl:
         a = [ln.strip() for ln in kl]
         kl.close()
+
     for x in a:
         print(x)
         test_kernel(x, 100, "../../core/tuxml.config")
-    minimal_test(100, "CONFIG_SLOB=y")
+
+
+    #minimal_test(100, "CONFIG_SLOB=y")
 
 
