@@ -182,5 +182,7 @@ if __name__ == '__main__':
     # usage
     # randconfig_withpreoptions_test("linux-4.13.3", 100, "../../core/tuxml.config")
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_SLOB=y")
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_CC_OPTIMIZE_FOR_SIZE=y")
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_X86_NEED_RELOCS=y")
 
 
