@@ -104,7 +104,10 @@ def generate_and_check(nrep, file_spe_options):
     return check(nrep, file_spe_options)
 
 
-def test_kernel(kernel_name, nrep, conf_file, expert_enable=0):
+# kernel name: kernel version (dowloads if needs be)
+# nrep: how many times we call randconfig
+# conf_file: file for presetting options
+def randconfig_withpreoptions_test(kernel_name, nrep, conf_file, expert_enable=0):
     get_linux_kernel(kernel_name)
     os.chdir(kernel_name)
     try:
@@ -126,7 +129,7 @@ def test_kernel(kernel_name, nrep, conf_file, expert_enable=0):
                 f1.write('CONFIG_EXPERT=y')
         rep = generate_and_check(nrep, file_spe_options2)
     else:
-        print("Test with CONFIG_EXPERT not at the end of the file, might (should) be still there because of dependances")
+        print("(Information) CONFIG_EXPERT not at the end of the configuration file, might (should) be still there because of dependances (workaround)")
         rep = generate_and_check(nrep, file_spe_options)
     # print(rep)
     # if you only want to check, simply call check (see below)
@@ -138,18 +141,21 @@ def test_kernel(kernel_name, nrep, conf_file, expert_enable=0):
             uniq_opts.append(opt)
     print(uniq_opts)
     nerrors = rep['nberrors'].sum()
-    print("Test on kernel {}".format(kernel_name))
-    print((nerrors / len(rep)))
+    print("Results on kernel {}".format(kernel_name))
+    print((nerrors / len(rep)), " (ratio of options whose values differ from pre-settings)")
+    print("######\n\n")
     os.chdir("../..")
 
 
-
-def minimal_test(nrep, opt):
+# kernel name: kernel version (dowloads if needs be)
+# nrep: how many times we call randconfig
+# opt: preset options
+def minimal_randconfig_test(kernel_name, nrep, opt):
     conf_file = os.getcwd() + "minimal.config"
     with open(conf_file, "w+") as conf_mini:
         conf_mini.write(opt)
         conf_mini.close()
-    test_kernel("linux-4.13.3", nrep, conf_file)
+    randconfig_withpreoptions_test(kernel_name, nrep, conf_file)
 
 ## for testing multiple kernel use kernel_list file wich should contains the kernel + versions, one line at the time
 ## the kernel must be present on https://cdn.kernel.org/pub/linux/kernel/
@@ -161,14 +167,15 @@ def minimal_test(nrep, opt):
 
 if __name__ == '__main__':
     with open("kernel_list") as kl:
-        a = [ln.strip() for ln in kl]
+        kernels = [ln.strip() for ln in kl]
         kl.close()
 
-    for x in a:
-        print(x)
-        test_kernel(x, 100, "../../core/tuxml.config")
-
-
-    #minimal_test(100, "CONFIG_SLOB=y")
+    for k in kernels:
+        print("Testing randconfig with kernel", k)
+        minimal_randconfig_test(k, 100, "CONFIG_SLOB=y")
+        
+    # usage
+    # randconfig_withpreoptions_test("linux-4.13.3", 100, "../../core/tuxml.config")
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_SLOB=y")
 
 
