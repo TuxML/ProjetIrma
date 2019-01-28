@@ -5,6 +5,11 @@ import errno
 import pandas as pd 
 import tempfile
 
+
+'''
+Authors: Malo Poles and Mathieu Acher 
+'''
+
 def get_linux_kernel(name, path=None):
     if path is not None:
         os.chdir(path)
