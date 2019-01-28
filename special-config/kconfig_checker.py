@@ -151,7 +151,7 @@ def randconfig_withpreoptions_test(kernel_name, nrep, conf_file, expert_enable=0
 # nrep: how many times we call randconfig
 # opt: preset options
 def minimal_randconfig_test(kernel_name, nrep, opt):
-    conf_file = os.getcwd() + "minimal.config"
+    conf_file = os.getcwd() + "/minimal.config"
     with open(conf_file, "w+") as conf_mini:
         conf_mini.write(opt)
         conf_mini.close()
