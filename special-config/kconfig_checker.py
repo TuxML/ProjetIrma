@@ -191,5 +191,5 @@ if __name__ == '__main__':
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y")  # 1.54  (ratio of options whose values differ from pre-settings) (AM: we need to divide the ratio by 2 right?)  
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y") # 1.96  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/media/usb/dvb-usb/Kconfig
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_TTY=y\nCONFIGT_HCIUART=y") # 1.0  (ratio of options whose values differ from pre-settings) (should be divided by 2) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig 
-    minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
+    minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
