@@ -175,14 +175,21 @@ if __name__ == '__main__':
         kernels = [ln.strip() for ln in kl]
         kl.close()
 
-    for k in kernels:
-        print("Testing randconfig with kernel", k)
-        minimal_randconfig_test(k, 100, "CONFIG_SLOB=y")
+    #for k in kernels:
+    #    print("Testing randconfig with kernel", k)
+    #    minimal_randconfig_test(k, 100, "CONFIG_SLOB=y")
         
     # usage
     # randconfig_withpreoptions_test("linux-4.13.3", 100, "../../core/tuxml.config")
-    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_SLOB=y")
-    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_CC_OPTIMIZE_FOR_SIZE=y")
-    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_X86_NEED_RELOCS=y")
-
-
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_SLOB=y") # dependencies explicitly needed, see below
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_EXPERT=y\nCONFIG_SLOB=y") # OK # 0.0  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_CC_OPTIMIZE_FOR_SIZE=y") # OK, no dependencies!
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_X86_NEED_RELOCS=y") # "blind" option
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_KASAN=y") # 0.72  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/v4.20/lib/Kconfig.kasan # if HAVE_ARCH_KASAN
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_USB_SERIAL_OPTICON=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/usb/serial/Kconfig # if USB_SERIAL
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_KASAN_OUTLINE=y") # depends on KASAN # 0.91  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y")  # 1.54  (ratio of options whose values differ from pre-settings) (AM: we need to divide the ratio by 2 right?)  
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y") # 1.96  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/media/usb/dvb-usb/Kconfig
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_TTY=y\nCONFIGT_HCIUART=y") # 1.0  (ratio of options whose values differ from pre-settings) (should be divided by 2) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig 
+    minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
