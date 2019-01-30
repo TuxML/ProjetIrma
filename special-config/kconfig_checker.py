@@ -1,10 +1,9 @@
 import os
 import subprocess
-import re
-import errno 
+import errno
 import pandas as pd 
 import tempfile
-
+import shutil
 
 '''
 Authors: Malo Poles and Mathieu Acher 
@@ -104,8 +103,11 @@ def display_error(nb_config_file, nb_error):
         print("No error in file config{}\n".format(nb_config_file))
 
 
+def clean_gen_config_dir():
+    shutil.rmtree('gen_config', ignore_errors=True) # ignore any error and delete anyway
+
+
 def generate_and_check(nrep, file_spe_options):
-    # clean existing configuration files in gen_config 
     generate_n_config(nrep, file_spe_options)
     return check(nrep, file_spe_options)
 
@@ -116,6 +118,7 @@ def generate_and_check(nrep, file_spe_options):
 def randconfig_withpreoptions_test(kernel_name, nrep, conf_file, expert_enable=0):
     get_linux_kernel(kernel_name)
     os.chdir(kernel_name)
+    clean_gen_config_dir()
     try:
         os.mkdir("gen_config")
     except OSError as exc:
@@ -176,6 +179,8 @@ if __name__ == '__main__':
         kernels = [ln.strip() for ln in kl]
         kl.close()
 
+    # minimal_randconfig_test("linux-4.13.3", 1, "CONFIG_SLOB=y") # dependencies explicitly needed, see below
+
     #for k in kernels:
     #    print("Testing randconfig with kernel", k)
     #    minimal_randconfig_test(k, 100, "CONFIG_SLOB=y")
@@ -192,5 +197,5 @@ if __name__ == '__main__':
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_KASAN_OUTLINE=y") # depends on KASAN # 0.91  (ratio of options whose values differ from pre-settings)
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y") # 1.96  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/media/usb/dvb-usb/Kconfig
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_TTY=y\nCONFIGT_HCIUART=y") # 1.0  (ratio of options whose values differ from pre-settings) (should be divided by 2) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig 
-    minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
