@@ -35,7 +35,7 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
  * [DiverSE team (Inria/IRISA research team)](http://www.diverse-team.fr/)
  * [ANR VaryVary project](https://varyvary.github.io/) 
 
-    # Master 2017 - 2018
+    Master 2017 - 2018
 
  * Corentin CHÉDOTAL
  * Gwendal DIDOT 
@@ -47,7 +47,7 @@ Plese check our [wiki](https://github.com/TuxML/ProjetIrma/wiki)
  * Mickaël LEBRETON
  * Fahim MERZOUK
 
-    # Master 2018 - 2019  
+    Master 2018 - 2019  
 
  * Valentin PETIT
  * Julien ROYON CHALENDARD
