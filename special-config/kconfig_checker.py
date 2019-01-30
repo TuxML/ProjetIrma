@@ -105,6 +105,7 @@ def display_error(nb_config_file, nb_error):
 
 
 def generate_and_check(nrep, file_spe_options):
+    # clean existing configuration files in gen_config 
     generate_n_config(nrep, file_spe_options)
     return check(nrep, file_spe_options)
 
