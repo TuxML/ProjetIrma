@@ -233,7 +233,7 @@ def check_precondition_and_warning(args):
         raise NotImplementedError(
             "You can't use tiny and config parameter at the same time."
         )
-    if args.unit_testing is not None:
+    if args.unit_testing:
         args.incremental = 0
         args.tiny = None
         args.config = None
