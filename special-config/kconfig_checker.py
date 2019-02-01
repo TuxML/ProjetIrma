@@ -152,6 +152,8 @@ def randconfig_withpreoptions_test(kernel_name, nrep, conf_file, expert_enable=0
     nerrors = rep['nberrors'].sum()
     print("Results on kernel {}".format(kernel_name))
     print((nerrors / len(rep)), " (ratio of options whose values differ from pre-settings)")
+    print("# errors report\n\n")
+    print(rep)
     print("######\n\n")
     os.chdir("../..")
 
@@ -198,4 +200,18 @@ if __name__ == '__main__':
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y") # 1.96  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/media/usb/dvb-usb/Kconfig
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_TTY=y\nCONFIGT_HCIUART=y") # 1.0  (ratio of options whose values differ from pre-settings) (should be divided by 2) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig 
     # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
+<<<<<<< HEAD
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
+=======
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # 1.36  (ratio of options whose values differ from pre-settings) # BT seems needed (menu option) # https://github.com/torvalds/linux/blob/master/net/bluetooth/Kconfig
+    # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_NET=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # 0.9  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_RFKILL=y\nCONFIG_NET=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.8  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.5  (ratio of options whose values differ from pre-settings) # depends on ARCH_EXYNOS || COMPILE_TEST # https://github.com/torvalds/linux/blob/master/drivers/devfreq/Kconfig
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_COMPILE_TEST=y\nCONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.0 since we force # https://github.com/torvalds/linux/blob/master/drivers/devfreq/Kconfig
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_ARCH_EXYNOS=y\nCONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y")  # 1.58  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/v4.20/arch/arm64/Kconfig.platforms
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_ARCH_EXYNOS=y") # 1.0  (ratio of options whose values differ from pre-settings)
+    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_ARM64=y\nCONFIG_ARCH_EXYNOS=y") # 2.0  (ratio of options whose values differ from pre-settings)
+    minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_ARM64=y") # 1.0  (ratio of options whose values differ from pre-settings)
+>>>>>>> novel experiments; towards unit testing
