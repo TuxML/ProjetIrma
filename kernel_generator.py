@@ -302,6 +302,7 @@ def docker_uncompress_image():
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
     set_prompt_color("Purple")
+    have_been_updated = True
     try:
         print("Trying to update docker image...")
         before_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
@@ -314,6 +315,7 @@ def docker_image_update(tag):
             docker_uncompress_image()
         else:
             print("No update found.")
+            have_been_updated = False
     except NotImplementedError:
         set_prompt_color("Red")
         print("An error occured when updating. Force update...")
@@ -323,6 +325,7 @@ def docker_image_update(tag):
     set_prompt_color("Purple")
     print("Updating of docker image done.")
     set_prompt_color()
+    return have_been_updated
 
 
 def run_docker_compilation(image, incremental, tiny, config, silent):
@@ -449,8 +452,9 @@ if __name__ == "__main__":
         tag = "prod"
 
     # Update the image
+    have_been_updated = False
     if not args.local:
-        docker_image_update(tag)
+        have_been_updated = docker_image_update(tag)
 
     # Setting image name to run (useful later with linux4_version)
     image = "{}:{}".format(_IMAGE, tag)

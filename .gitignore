@@ -1,1 +1,2 @@
-docker_management/linux*.tar.xz
+linux*.tar.xz
+*/__pycache__

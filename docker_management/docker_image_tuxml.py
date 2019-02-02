@@ -4,7 +4,7 @@
 # @author DIDOT Gwendal ACHER Mathieu PICARD Michaël
 # @copyright Apache License 2.0
 # @brief Script use to simplified creation and uses of Docker images.
-# @details This script was design to help members of the TuxML project to easily
+# @details This script id design to help members of the TuxML project to easily
 # use Docker, without any knowledge require other than what a Docker image is
 # (check https://docs.docker.com/get-started/ for more information).
 
@@ -74,6 +74,25 @@ def create_dockerfile(content=None, path=None):
 # and not the whole dependencies for our project.
 def create_sub_image_tuxml_compressed(tmp_location):
     get_linux_kernel(LINUX_KERNEL, tmp_location)
+    # we need to ensure that the Dockerfile, installBusyBox.sh and init are in
+    # the same directory
+    subprocess.run(
+        args="cp {}/installBusyBox.sh {}/installBusyBox.sh".format(
+            os.path.dirname(os.path.abspath(__file__)),
+            tmp_location
+        ),
+        shell=True,
+        stdout=subprocess.DEVNULL
+    )
+    subprocess.run(
+        args="cp {}/init {}/init".format(
+            os.path.dirname(os.path.abspath(__file__)),
+            tmp_location
+        ),
+        shell=True,
+        stdout=subprocess.DEVNULL
+    )
+
     content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
         CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
         CONTENT_BASE_IMAGE['MKDIR_TUXML'],
@@ -93,6 +112,9 @@ def create_sub_image_tuxml_compressed(tmp_location):
     docker_build(
         image=NAME_BASE_IMAGE,
         path=tmp_location)
+
+    os.remove("{}/installBusyBox.sh".format(tmp_location))
+    os.remove("{}/init".format(tmp_location))
 
 
 ## create_image_tuxml_compressed
