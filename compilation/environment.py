@@ -30,6 +30,7 @@
 #   + incremental_mod ? shouldn't be in the environnement details, isn't it?
 
 import platform
+import os
 
 
 ## _get_system_details
@@ -60,6 +61,49 @@ def __get_system_details():
         "os_kernel_version": platform.release()
     }
     return system
+
+
+## get_hardware_details()
+# @author LE FLEM Erwan, PICARD Michaël
+# @version 2
+def get_hardware_details():
+    # Ugly code but :
+    # -> Do we have a cleaner way to get model name and computation power of our
+    # cpu?
+    # For the name of our processor, it's enough, but other solution exist :
+    # (https://www.binarytides.com/linux-cpu-information/
+    # https://www.poftut.com/get-cpu-info-number-cpus-linux/)
+    # But for computation power, we have a problem : with cpuinfo, we get the
+    # actual computation power used right now, but this value change over time!
+    # It will probably be wiser to get the min and the max value?
+    # -> Same question for ram size?
+    with open('/proc/cpuinfo') as f:
+        for line in f:
+            if line.strip():
+                if line.rstrip('\n').startswith('model name'):
+                    cpu_name = line.rstrip('\n').split(':')[1].strip()
+                if line.rstrip('\n').startswith('cpu MHz'):
+                    cpu_freq = line.rstrip('\n').split(':')[1]
+                    cpu_freq = cpu_freq.split('.')[0].strip()
+
+        with open('/proc/meminfo') as f:
+            for line in f:
+                if line.strip():
+                    if line.rstrip('\n').startswith('MemTotal'):
+                        # Le deuxième strip élimite l'unité 'kB' de la chaîne
+                        memory = line.rstrip('\n').split(
+                            ':')[1].strip().split(' ')[0]
+
+    hw = {
+        "cpu": cpu_name,
+        "cpu_freq": cpu_freq,
+        "ram": memory,
+        "arch": platform.machine(),
+        "cpu_cores": str(os.cpu_count()),
+        "mechanical_drive": "",  # __get_type_of_disk()
+    }
+
+    return hw
 
 
 # Development part : have to be removed
