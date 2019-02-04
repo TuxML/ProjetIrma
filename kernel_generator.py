@@ -278,16 +278,14 @@ def check_precondition_and_warning(args):
 # @author PICARD Michaël
 # @version 1
 # @brief Uncompress the compressed image to create the big one.
-def docker_uncompress_image():
+def docker_uncompress_image(tag):
     content = "FROM {}".format(_COMPRESSED_IMAGE)
     if tag is not None:
         content = "{}:{}".format(content, tag)
     content = "{}\n" \
               "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz\n" \
               "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz\n" \
-              "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)\n" \
-              "EXPOSE 80\n" \
-              "ENV NAME World".format(content)
+              "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
     create_dockerfile(content=content, path=".")
     docker_build(
         image=_IMAGE,
@@ -312,7 +310,7 @@ def docker_image_update(tag):
         set_prompt_color("Purple")
         if before_digest != after_digest:
             print("Update found, uncompressing...")
-            docker_uncompress_image()
+            docker_uncompress_image(tag)
         else:
             print("No update found.")
             have_been_updated = False

@@ -31,6 +31,8 @@
 
 import platform
 import os
+import psutil
+import subprocess
 
 
 ## _get_system_details
@@ -63,10 +65,27 @@ def __get_system_details():
     return system
 
 
-## get_hardware_details()
+## __get_type_of_disk
+# @author LE FLEM Erwan, MERZOUK Fahim, PICARD Michaël
+# @version 2
+# @return 0 if the disk is a SSD, 1 if the disk is a regular HDD.
+# @todo Will the kernel will always be compiled in the same disk where tuxml scripts are located?
+def __get_type_of_disk():
+    disk = psutil.disk_partitions()[0][0].split("/")[2]
+    disk = ''.join(i for i in disk if not i.isdigit())
+    try:
+        result = subprocess.check_output(
+            ["cat", "/sys/block/{}/queue/rotational".format(disk)],
+            universal_newlines=True)
+    except subprocess.CalledProcessError:
+        return '-1'
+    return result.split('\n')[0].strip()
+
+
+## __get_hardware_details()
 # @author LE FLEM Erwan, PICARD Michaël
 # @version 2
-def get_hardware_details():
+def __get_hardware_details():
     # Ugly code but :
     # -> Do we have a cleaner way to get model name and computation power of our
     # cpu?
@@ -100,12 +119,19 @@ def get_hardware_details():
         "ram": memory,
         "arch": platform.machine(),
         "cpu_cores": str(os.cpu_count()),
-        "mechanical_drive": "",  # __get_type_of_disk()
+        "mechanical_drive": __get_type_of_disk()
     }
 
     return hw
 
 
-# Development part : have to be removed
-if __name__ == "__main__":
-    print(__get_system_details())
+## get_environment_details
+# @author LEBRETON Mickaël
+def get_environment_details():
+    env = {
+        "system": __get_system_details(),
+        "hardware": __get_hardware_details(),
+        "compilation": ""
+    }
+
+    return env

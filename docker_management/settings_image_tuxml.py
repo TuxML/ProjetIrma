@@ -21,9 +21,7 @@ CONTENT_BASE_IMAGE = {
                 "COPY init /init\n"
                 "RUN chmod 777 /installBusyBox.sh\n"
                 "RUN ./installBusyBox.sh\n"
-                "RUN rm installBusyBox.sh",
-    'EXPOSE': "EXPOSE 80",
-    'ENV_NAME': "ENV NAME World",
+                "RUN rm installBusyBox.sh"
 }
 
 ## Information about the built image
@@ -36,8 +34,7 @@ CONTENT_IMAGE = {
     'TUXML_TAR': "COPY TuxML.tar.xz /TuxML/TuxML.tar.xz",
     'RUN_DEP': "",
     'RUN_DEP_FILE': "",
-    'EXPOSE': "EXPOSE 80",
-    'ENV_NAME': "ENV NAME World",
+    'ENV_PYTHON': 'ENV PYTHONPATH=/TuxML'
 }
 
 
@@ -46,7 +43,5 @@ CONTENT_BIG_IMAGE = {
     'PREVIMG_VERSION': "FROM " + NAME_IMAGE,
     'LINUX_UNTAR': "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz",
     'TUXML_UNTAR': "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz",
-    'RUN_DEP_FILE': "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)",
-    'EXPOSE': "EXPOSE 80",
-    'ENV_NAME': "ENV NAME World",
+    'RUN_DEP_FILE': "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)"
 }

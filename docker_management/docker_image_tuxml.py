@@ -93,7 +93,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
         stdout=subprocess.DEVNULL
     )
 
-    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
         CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
         CONTENT_BASE_IMAGE['MKDIR_TUXML'],
         CONTENT_BASE_IMAGE['LINUX_TAR'],
@@ -102,9 +102,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
         CONTENT_BASE_IMAGE['RUN_DEP'],
         CONTENT_BASE_IMAGE['RUN_DEP_FILE'],
         CONTENT_BASE_IMAGE['RUN_PIP'],
-        CONTENT_BASE_IMAGE['CPRUN_BB'],
-        CONTENT_BASE_IMAGE['EXPOSE'],
-        CONTENT_BASE_IMAGE['ENV_NAME']
+        CONTENT_BASE_IMAGE['CPRUN_BB']
     )
     create_dockerfile(
         content=content,
@@ -143,8 +141,7 @@ def create_image_tuxml_compressed(tmp_location, tag=None, dependencies_path=None
         tmp_content['TUXML_TAR'],
         tmp_content['RUN_DEP'],
         tmp_content['RUN_DEP_FILE'],
-        tmp_content['EXPOSE'],
-        tmp_content['ENV_NAME']
+        tmp_content['ENV_PYTHON']
     )
     create_dockerfile(
         content=content,
@@ -168,13 +165,11 @@ def create_big_image_tuxml_uncompressed(tmp_location, tag=None):
     content = "{}".format(CONTENT_BIG_IMAGE['PREVIMG_VERSION'])
     if tag is not None:
         content = "{}:{}".format(content, tag)
-    content = "{}\n{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}".format(
         content,
         CONTENT_BIG_IMAGE['TUXML_UNTAR'],
         CONTENT_BIG_IMAGE['LINUX_UNTAR'],
-        CONTENT_BIG_IMAGE['RUN_DEP_FILE'],
-        CONTENT_BIG_IMAGE['EXPOSE'],
-        CONTENT_BIG_IMAGE['ENV_NAME']
+        CONTENT_BIG_IMAGE['RUN_DEP_FILE']
     )
     create_dockerfile(content=content, path=tmp_location)
     docker_build(
