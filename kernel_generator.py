@@ -432,10 +432,9 @@ def run_unit_testing(image):
     container_id = container_id.split("\n")[0]
     subprocess.call(
         args="docker exec -t {} py.test /TuxML/tests "
-             "--cov=\"/TuxML/compilation\"".format(container_id),
+             "--cov=\"/TuxML/compilation\" -p no:warnings".format(container_id),
         shell=True
     )
-    # py.test {} --cov={}
     delete_docker_container(container_id)
 
 
