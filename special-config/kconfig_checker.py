@@ -250,7 +250,7 @@ class TestRandconfigSpeMethods(unittest.TestCase):
     # 1.54  (ratio of options whose values differ from pre-settings) (AM: we need to divide the ratio by 2 right?) 
     # hum... 
     def test_kasan_withifdependency(self):
-        self.assert_spe_sucess("CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y", iter_randconfig=20) # AM: for me it should be a success!
+        self.assert_spe_success("CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y", iter_randconfig=20) # AM: for me it should be a success!
 
     # basic reason is that HAVE_ARCH_KASAN is NOT necessarily set to 'y' https://github.com/torvalds/linux/blob/master/lib/Kconfig.kasan 
     # it seems a blind option (no prompt)
