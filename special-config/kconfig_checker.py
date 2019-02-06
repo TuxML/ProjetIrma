@@ -207,6 +207,10 @@ class TestRandconfigSpeMethods(unittest.TestCase):
         rep = minimal_randconfig_test(spe_options, iter_randconfig, linux_version)
         self.assertNotEqual(rep['nberrors'].sum(), 0.0)
 
+    # same as above    
+    def assert_spe_shouldsuccessbutfail(self, spe_options, iter_randconfig=10, linux_version="linux-4.20.1"):
+        self.assert_spe_success(spe_options, iter_randconfig, linux_version)
+
 
     ##### Cases
 
@@ -237,7 +241,7 @@ class TestRandconfigSpeMethods(unittest.TestCase):
      # we can disagree with this design choice, but it's how Kconfig/randconfig works
      # so CONFIG_X86_NEED_RELOCS will be sometimes 'n' (despite our pre-setting)
     def test_blind_option(self):
-        self.assert_spe_success("CONFIG_X86_NEED_RELOCS=y") # AM: for me it should be a success!
+        self.assert_spe_shouldsuccessbutfail ("CONFIG_X86_NEED_RELOCS=y") # AM: for me it should be a success!
 
 
     # ~0.72  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/v4.20/lib/Kconfig.kasan 
