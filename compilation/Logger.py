@@ -13,6 +13,9 @@ _COLOR_TIME = "\033[38;5;12m"
 class Logger:
     def __init__(self, user_output_file, stdout_file, stderr_file,
                  silent=False):
+        self.__user_output_file = user_output_file
+        self.__stdout_file = stdout_file
+        self.__stderr_file = stderr_file
         self.__output = open(user_output_file, mode='w')
         self.__stdout = open(stdout_file, mode='w')
         self.__stderr = open(stderr_file, mode='w')
@@ -53,6 +56,18 @@ class Logger:
                 flush=True
             )
         self.__output.write("{}{}{}".format(date, message, end))
+
+    def reset_stdout_pipe(self):
+        self.__stdout.close()
+        self.__stdout = open(self.__stdout_file, 'w')
+
+    def reset_stderr_pipe(self):
+        self.__stderr.close()
+        self.__stderr = open(self.__stderr_file, 'w')
+
+    def reset_output_pipe(self):
+        self.__output.close()
+        self.__output = open(self.__user_output_file, 'w')
 
     def __del__(self):
         self.__output.close()
