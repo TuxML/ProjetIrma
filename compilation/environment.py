@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 ## @file tuxml_environment.py
 # @author LE FLEM Erwan, LEBRETON Mickaël, PICARD Michaël
 # @version 2
@@ -9,7 +7,7 @@
 #   + os
 #   + distribution
 #   + distrib_version
-#   + os_kernel_version
+#   + kernel => os_kernel_version
 # - hardware :
 #   + cpu
 #   + cpu_freq
@@ -20,13 +18,11 @@
 # - libs :
 #   + libc_version
 #   + gcc_version
+#   + tuxml_version
 # - others :
 #   + core_used ? Should be the same as the number of core that the machine got,
 #       so we make a duplicate here?
-#   + kernel_compiled ? needed, but it's not environment data
 #   + branch ? empty, so not needed? docker_image useless also?
-#   + tuxml_version ? Could be usefull, but needed to be hardcoded in a settings
-#        file
 #   + incremental_mod ? shouldn't be in the environnement details, isn't it?
 
 import platform
@@ -34,40 +30,26 @@ import os
 import psutil
 import subprocess
 
+from compilation.settings import TUXML_VERSION
+
 
 ## _get_system_details
 # @author LE FLEM Erwan, PICARD Michaël
 # @version 2
 # @brief Returns a dictionary containing system details
 def __get_system_details():
-    # Something smell bad here : we retrieve the os but already assume that is
-    # an linux... so we try to get its distribution. With method that are
-    # deprecated. Also, what if we try to get from a Mac/Windows/Java os?
-    # If we always want to compile on a debian image (which imply that os and
-    # distribution are always Linux and Debian) we should just get
-    # distribution_version and os_kernel_version, which are mandatory to ensure
-    # that any update have been recorded. Also, each entries correspond to an
-    # entries on the database, with some obvious always the same result.
-    # So what about change to something like :
-    # - debian_version :
-    # - kernel_version :
-    # Even if we want to ensure that we can change the distribution
-    # (e.g. alpine), the os entry will still be Linux.
-    # About the deprecation, we can ignore it if we stick to a Python 3 version
-    # before 3.7, where this method will be removed. (Deprecated with 3.5 :
-    # https://docs.python.org/fr/3.5/library/platform.html#platform.linux_distribution)
     system = {
         "os": platform.system(),
         "distribution": platform.linux_distribution()[0],
         "distrib_version": platform.linux_distribution()[1],
-        "os_kernel_version": platform.release()
+        "kernel": platform.release()
     }
     return system
 
 
 ## __is_mechanical_disk
 # @author LE FLEM Erwan, MERZOUK Fahim, THOMAS Luis, PICARD Michaël
-# @version 2
+# @version 3
 # @brief Determine if TuxML project's content is located in a mechanical disk
 # @return False if the disk is a SSD, True if the disk is a regular HDD.
 # @todo Will the kernel will always be compiled in the same disk where tuxml scripts are located?
@@ -130,8 +112,44 @@ def __get_hardware_details():
         "cpu_cores": os.cpu_count(),
         "mechanical_drive": __is_mechanical_disk()
     }
-
     return hw
+
+
+## __get_libc_version
+# @author LE FLEM Erwan, PICARD Michaël
+# @version 2
+# @brief Retrieve the version of the libc on this machine.
+def __get_libc_version():
+    return subprocess.check_output(
+        "ldd --version",
+        universal_newlines=True,
+        shell=True
+    ).split(" ")[3][:-1]
+
+
+## __get_gcc_version
+# @author LE FLEM Erwan, PICARD Michaël
+# @version 2
+# @brief Retrieve the version of the gcc compiler on this machine.
+def __get_gcc_version():
+        return subprocess.check_output(
+            "gcc --version",
+            universal_newlines=True,
+            shell=True
+        ).split(" ")[2][:-1]
+
+
+def __get_compilation_details():
+    compilation = {
+        "tuxml_version": TUXML_VERSION,
+        "libc_version": __get_libc_version(),
+        "gcc_version": __get_gcc_version(),
+        # "core_used": os.cpu_count(),  # Temporary
+        # "incremental_mod": "0",
+        # "git_branch": "",
+        # "docker_image": ""
+    }
+    return compilation
 
 
 ## get_environment_details
@@ -141,7 +159,7 @@ def get_environment_details():
     env = {
         "system": __get_system_details(),
         "hardware": __get_hardware_details(),
-        "compilation": ""
+        "compilation": __get_compilation_details()
     }
 
     return env
@@ -153,14 +171,10 @@ def get_environment_details():
 # @brief Using the print_method, pretty_print the environment details.
 def print_environment_details(environment_details, print_method=print):
     for primary_key in environment_details:
-        print_method("    ==> {}".format(primary_key), flush=True)
+        print_method("    ==> {}".format(primary_key))
         for secondary_key in environment_details[primary_key]:
             print_method(
                 "      --> {}: {}".format(
                     secondary_key,
                     environment_details[primary_key][secondary_key]
-                ), flush=True)
-
-
-if __name__ == "__main__":
-    print_environment_details(get_environment_details())
+                ))

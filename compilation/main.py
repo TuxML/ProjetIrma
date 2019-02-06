@@ -2,6 +2,9 @@
 
 import argparse
 
+from compilation.environment import get_environment_details, print_environment_details
+from compilation.configuration import create_configuration, print_configuration
+from compilation.Logger import Logger
 
 def parser():
     parser = argparse.ArgumentParser(
@@ -36,4 +39,17 @@ def parser():
 
 if __name__ == "__main__":
     args = parser()
-    raise NotImplementedError("TODO")
+
+    logger = Logger(
+        "/TuxML/output",
+        "/TuxML/out.log",
+        "/TuxML/err.log",
+        args.silent)
+
+    logger.timed_print_output("Getting environment details.")
+    environment = get_environment_details()
+    print_environment_details(environment, logger.print_output)
+
+    logger.timed_print_output("Getting configuration details.")
+    configuration = create_configuration(args)
+    print_configuration(configuration, logger.print_output)
