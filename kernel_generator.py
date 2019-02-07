@@ -319,7 +319,7 @@ def docker_image_update(tag):
         print("An error occured when updating. Force update...")
         set_prompt_color()
         docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
-        docker_uncompress_image()
+        docker_uncompress_image(tag)
     set_prompt_color("Purple")
     print("Updating of docker image done.")
     set_prompt_color()
