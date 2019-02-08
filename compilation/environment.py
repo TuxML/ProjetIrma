@@ -139,8 +139,8 @@ def __get_gcc_version():
         ).split(" ")[2][:-1]
 
 
-def __get_compilation_details():
-    compilation = {
+def __get_software_details():
+    software = {
         "tuxml_version": TUXML_VERSION,
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
@@ -149,7 +149,7 @@ def __get_compilation_details():
         # "git_branch": "",
         # "docker_image": ""
     }
-    return compilation
+    return software
 
 
 ## get_environment_details
@@ -159,7 +159,7 @@ def get_environment_details():
     env = {
         "system": __get_system_details(),
         "hardware": __get_hardware_details(),
-        "compilation": __get_compilation_details()
+        "software": __get_software_details()
     }
 
     return env
