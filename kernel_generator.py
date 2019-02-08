@@ -201,7 +201,8 @@ def parser():
     parser.add_argument(
         "-s", "--silent",
         action="store_true",
-        help="Prevent printing on standard output when compiling."
+        help="Prevent printing on standard output when compiling. "
+             "Will still display the feature warning."
     )
     parser.add_argument(
         "--fetch_kernel",
@@ -292,6 +293,7 @@ def docker_uncompress_image(tag):
         tag=tag,
         path="."
     )
+    os.remove("./Dockerfile")
 
 
 ## docker_image_update
@@ -350,7 +352,7 @@ def run_docker_compilation(image, incremental, tiny, config, silent):
         silent = ""
 
     subprocess.call(
-        args="docker exec -t {} /TuxML/compilation/main.py {} {} {}".format(
+        args="docker exec -t {} /TuxML/compilation/main.py {} {} {} | ts -s".format(
             container_id,
             incremental,
             specific_configuration,
@@ -419,8 +421,8 @@ def compilation(image, args):
             args.silent
         )
         delete_docker_container(container_id)
-
-    feedback_user(args.nbcontainer, args.incremental)
+    if not args.silent:
+        feedback_user(args.nbcontainer, args.incremental)
 
 
 def run_unit_testing(image):
