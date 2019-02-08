@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 
 import argparse
-import subprocess
 
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
-from compilation.Logger import Logger
+from compilation.package_management import update_system, \
+    install_compiler_dependencies, install_most_common_dependencies
+from compilation.Logger import Logger, COLOR_SUCCESS, COLOR_ERROR, \
+    COLOR_DEBUG, COLOR_WARNING
 import compilation.settings as settings
 
 
@@ -40,17 +42,6 @@ def parser():
     return parser.parse_args()
 
 
-def update_system(logger):
-    logger.timed_print_output("Update of package manager (apt).")
-    subprocess.run(
-        "apt-get update && apt-file update",
-        shell=True,
-        check=True,
-        stdout=logger.get_stdout_pipe(),
-        stderr=logger.get_stderr_pipe()
-    )
-
-
 def create_logger(silent):
     return Logger(
         settings.OUTPUT_FILE,
@@ -74,10 +65,21 @@ def retrieve_and_display_configuration(logger, args):
     return configuration
 
 
-if __name__ == "__main__":
-    args = parser()
+def init_system(args):
     logger = create_logger(args.silent)
     environment = retrieve_and_display_environment(logger)
     configuration = retrieve_and_display_configuration(logger, args)
 
     update_system(logger)
+    install_compiler_dependencies(logger)
+    install_most_common_dependencies(logger)
+
+    return logger, environment, configuration
+
+
+if __name__ == "__main__":
+    args = parser()
+    logger, configuration, environment = init_system(args)
+
+
+
