@@ -1,6 +1,7 @@
 # @file Logger.py
 
 import time
+import inspect
 
 COLOR_SUCCESS = "\033[38;5;10m"
 COLOR_ERROR = "\033[38;5;9m"
@@ -44,18 +45,22 @@ class Logger:
             "[%Y-%m-%d %H:%M:%S %Z] ",
             time.localtime(time.time())
         )
+        calling_function = "[{}] ".format(inspect.stack()[1].function)
         if not self.__silent:
             print(
-                "{}{}{}{}{}".format(
+                "{}{}{}{}{}{}{}".format(
                     _COLOR_TIME,
                     date,
+                    COLOR_DEBUG,
+                    calling_function,
                     color,
                     message,
                     COLOR_DEFAULT),
                 end=end,
                 flush=True
             )
-        self.__output.write("{}{}{}".format(date, message, end))
+        self.__output.write("{}{}{}{}".format(
+            date, calling_function, message, end))
 
     def reset_stdout_pipe(self):
         self.__stdout.close()
