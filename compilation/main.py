@@ -4,8 +4,7 @@ import argparse
 
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
-from compilation.package_management import update_system, \
-    install_compiler_dependencies, install_most_common_dependencies
+from compilation.package_management import update_system
 from compilation.Logger import Logger, COLOR_SUCCESS, COLOR_ERROR, \
     COLOR_DEBUG, COLOR_WARNING
 import compilation.settings as settings
@@ -65,21 +64,12 @@ def retrieve_and_display_configuration(logger, args):
     return configuration
 
 
-def init_system(args):
-    logger = create_logger(args.silent)
-    environment = retrieve_and_display_environment(logger)
-    configuration = retrieve_and_display_configuration(logger, args)
-
-    update_system(logger)
-    install_compiler_dependencies(logger)
-    install_most_common_dependencies(logger)
-
-    return logger, environment, configuration
-
-
 if __name__ == "__main__":
     args = parser()
-    logger, configuration, environment = init_system(args)
+    logger = create_logger(args.silent)
+    update_system(logger)
+    environment = retrieve_and_display_environment(logger)
+    configuration = retrieve_and_display_configuration(logger, args)
 
 
 
