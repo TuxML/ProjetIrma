@@ -7,5 +7,3 @@ PASSWORD_USERNAME_BDD = "ud6cw3xNRKnrOz6H"
 OUTPUT_FILE = "/TuxML/output"
 STDOUT_FILE = "/TuxML/out.log"
 STDERR_FILE = "/TuxML/err.log"
-
-MOST_COMMON_DEPENDENCIES = ["gcc-6-plugin-dev", "libssl-dev"]
