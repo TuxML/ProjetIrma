@@ -5,8 +5,7 @@ import argparse
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
 from compilation.package_management import update_system
-from compilation.Logger import Logger, COLOR_SUCCESS, COLOR_ERROR, \
-    COLOR_DEBUG, COLOR_WARNING
+from compilation.Logger import Logger
 import compilation.settings as settings
 
 
