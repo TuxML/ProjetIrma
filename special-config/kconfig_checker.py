@@ -196,16 +196,29 @@ class TestRandconfigSpeMethods(unittest.TestCase):
     ##### Utility assertions
 
     # linux version used (and so Kconfig files/randconfig version used)    
-    # number of times we call randconfig (we repeat the procedure to see if the random process selects sometimes option)    
+    # number of times we call randconfig (we repeat the procedure to see if the random process selects sometimes option)  
+    # pass if spe_options are all set to pre-set values  (specialization works)
     def assert_spe_success(self, spe_options, iter_randconfig=10, linux_version="linux-4.20.1"):
         rep = minimal_randconfig_test(spe_options, iter_randconfig, linux_version)
         self.assertEqual(rep['nberrors'].sum(), 0.0)
 
     # same as above   
     # more iterations by default to falsify the specialization 
+    # fail if some spe_options are not set to pre-set values (specialization fails)
     def assert_spe_fail(self, spe_options, iter_randconfig=20, linux_version="linux-4.20.1"):
         rep = minimal_randconfig_test(spe_options, iter_randconfig, linux_version)
-        self.assertNotEqual(rep['nberrors'].sum(), 0.0)
+        self.assertNotEqual(rep['nberrors'].sum(), 0.0)        
+
+    # same as above  
+    # we expect that specialization works, but it fails  
+    def assert_spe_shouldsuccessbutfail(self, spe_options, iter_randconfig=20, linux_version="linux-4.20.1"):
+        self.assert_spe_fail(spe_options, iter_randconfig, linux_version)
+        self.assertTrue(False, "should success but fail")
+
+     # we expect that specialization fails, but it works
+    def assert_spe_shouldfailbutsuccess(self, spe_options, iter_randconfig=20, linux_version="linux-4.20.1"):
+        self.assert_spe_success(spe_options, iter_randconfig, linux_version)
+        self.assertTrue(False, "should fail but success")
 
 
     ##### Cases
@@ -237,7 +250,7 @@ class TestRandconfigSpeMethods(unittest.TestCase):
      # we can disagree with this design choice, but it's how Kconfig/randconfig works
      # so CONFIG_X86_NEED_RELOCS will be sometimes 'n' (despite our pre-setting)
     def test_blind_option(self):
-        self.assert_spe_success("CONFIG_X86_NEED_RELOCS=y") # AM: for me it should be a success!
+        self.assert_spe_shouldsuccessbutfail ("CONFIG_X86_NEED_RELOCS=y") # AM: for me it should be a success!
 
 
     # ~0.72  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/v4.20/lib/Kconfig.kasan 
@@ -246,46 +259,125 @@ class TestRandconfigSpeMethods(unittest.TestCase):
     def test_kasan_ifdependency(self):
         self.assert_spe_fail("CONFIG_KASAN=y", iter_randconfig=20)
 
+    # KASAN_OUTLINE depends on KASAN
+    # see below for the root cause of the issue
+    def test_kasan_outline(self):    
+        self.assert_spe_fail("CONFIG_KASAN=y\nCONFIG_KASAN_OUTLINE=y")  
+
     # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y")  
     # 1.54  (ratio of options whose values differ from pre-settings) (AM: we need to divide the ratio by 2 right?) 
     # hum... 
     def test_kasan_withifdependency(self):
-        self.assert_spe_sucess("CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y", iter_randconfig=20) # AM: for me it should be a success!
+        self.assert_spe_fail("CONFIG_HAVE_ARCH_KASAN=y\nCONFIG_KASAN=y", iter_randconfig=20) # reason (aka fault/source of the error) is that spe of CONFIG_HAVE_ARCH_KASAN fails
 
     # basic reason is that HAVE_ARCH_KASAN is NOT necessarily set to 'y' https://github.com/torvalds/linux/blob/master/lib/Kconfig.kasan 
     # it seems a blind option (no prompt)
     def test_archkasan(self):
-        self.assert_spe_success("CONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20) # AM: for me it should be a success!
+        self.assert_spe_shouldsuccessbutfail("CONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20) # AM: for me it should be a success! (I am seeing no dependency)
     ## another attempt
     def test_archkasan_withX86_64(self):
-        self.assert_spe_success("CONFIG_X86_64=y\nCONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20)  # AM: for me it should be a success!
+        self.assert_spe_shouldsuccessbutfail("CONFIG_X86_64=y\nCONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20)  # AM: for me it should be a success!
     
-    # KASAN_OUTLINE depends on KASAN
-    # impacted (see above)
-    def test_kasan_outline(self):    
-        self.assert_spe_success("CONFIG_KASAN=y\nCONFIG_KASAN_OUTLINE=y")  # AM: for me it should be a success!
-   
+
     
-    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_USB_SERIAL_OPTICON=y") 
-    # 0.89  (ratio of options whose values differ from pre-settings) 
     # https://github.com/torvalds/linux/blob/v4.20/drivers/usb/serial/Kconfig 
     # if USB_SERIAL
     def test_usb_opticon(self):
         self.assert_spe_fail("CONFIG_USB_SERIAL_OPTICON=y", iter_randconfig=20) 
     # with USB_SERIAL (dependency) and depends on CONFIG_TTY as well https://github.com/torvalds/linux/blob/v4.20/drivers/tty/Kconfig 
     # which itself depends on CONFIG_EXPERT 
-    def test_usb_option_with_serial(self):
-        self.assert_spe_success("CONFIG_EXPERT=y\nCONFIG_TTY=y\nCONFIG_USB_SERIAL=y\nCONFIG_USB_SERIAL_OPTICON=y", iter_randconfig=20) # AM: for me it should be a success! 
+    def test_usb_opticon_with_serial(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_TTY=y\nCONFIG_USB_SUPPORT=y\nCONFIG_USB_SERIAL=y\nCONFIG_USB_SERIAL_OPTICON=y", iter_randconfig=20) # AM: for me it should be a success since all dependencies are made explicit
     
+    # USB_SERIAL needs USB_SUPPORT (there is a conditional over the inclusion of the Kconfig serial file)
+    # https://github.com/torvalds/linux/blob/v4.20/drivers/usb/Kconfig
+    # but still it fails
+    # so CONFIG_USB_SERIAL seems to be the root cause 
+    def test_proper_usb_serial(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_TTY=y\nCONFIG_USB_SUPPORT=y\nCONFIG_USB_SERIAL=y") 
+
+    def test_usb_support_alone(self):
+        self.assert_spe_success("CONFIG_USB_SUPPORT=y") # no dependency 
+
+    def test_usb_serial_alone(self):
+        self.assert_spe_fail("CONFIG_USB_SERIAL=y") # depends on TTY
+    
+    def test_proper_tty(self):
+        self.assert_spe_success("CONFIG_EXPERT=y\nCONFIG_TTY=y", iter_randconfig=50) # high budget
+
+    ### OK TTY is always set to 'y' so it's not the root cause of the previous test case
+    ## but it is actually a strange case since it depends on CONFIG_EXPERT and we do not have to force it in this specific case
+    # https://github.com/torvalds/linux/blob/v4.20/drivers/tty/Kconfig
+    # maybe because of the default value? 
+    def test_strange_tty(self):
+        self.assert_spe_shouldfailbutsuccess("CONFIG_TTY=y", iter_randconfig=50) # high budget
+
+    
+
+    # https://github.com/torvalds/linux/blob/v4.20/drivers/bluetooth/Kconfig
+    # CONFIG_BT_HCIUART
+    # depends on SERIAL_DEV_BUS || !SERIAL_DEV_BUS
+	# depends on NVMEM || !NVMEM
+	# depends on TTY
+    def test_tty_hci(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_SERIAL_DEV_BUS=y\nCONFIG_NVMEM=y\nCONFIG_TTY=y\nCONFIG_BT_HCIUART=y")
+    
+
+
     # https://github.com/torvalds/linux/blob/v4.20/drivers/media/usb/dvb-usb/Kconfig#L42
     # lots of dependencies of dependencies
-    # hard case I must admit 
+    # hard case I must admit and hard to debug 
     def test_dvb_usb_mb(self):
-        self.assert_spe_success("CONFIG_USB_ARCH_HAS_HCD=y\nCONFIG_MEDIA_SUPPORT=y\nCONFIG_MEDIA_DIGITAL_TV_SUPPORT=y\nCONFIG_DVB_CORE=y\nCONFIG_USB=y\nCONFIG_I2C=y\nCONFIG_RC_CORE=y\nCONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y", iter_randconfig=10) 
+        self.assert_spe_shouldsuccessbutfail("CONFIG_USB_ARCH_HAS_HCD=y\nCONFIG_MEDIA_SUPPORT=y\nCONFIG_MEDIA_DIGITAL_TV_SUPPORT=y\nCONFIG_DVB_CORE=y\nCONFIG_USB=y\nCONFIG_I2C=y\nCONFIG_RC_CORE=y\nCONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y", iter_randconfig=10) 
     
 
     def test_arm_exynos(self):
         self.assert_spe_success("CONFIG_COMPILE_TEST=y\nCONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y")
+
+    
+    # https://github.com/torvalds/linux/blob/v4.20/drivers/bluetooth/Kconfig
+    # depends on RPMSG || (COMPILE_TEST && RPMSG=n)
+	# depends on QCOM_WCNSS_CTRL || (COMPILE_TEST && QCOM_WCNSS_CTRL=n)
+    # https://github.com/torvalds/linux/blob/v4.20/net/bluetooth/Kconfig
+ 
+    def test_bt_qcomsd(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_NET=y\nCONFIG_RFKILL=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
+   
+    def test_bt_qcomsd_explicit(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_NET=y\nCONFIG_RFKILL=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_RPMSG=y\nCONFIG_QCOM_WCNSS_CTRL=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
+    
+    # https://github.com/torvalds/linux/blob/v4.20/net/bluetooth/Kconfig
+    # depends on NET && !S390
+	# depends on RFKILL || !RFKILL
+    def test_bt(self):
+        self.assert_spe_success("CONFIG_NET=y\nCONFIG_RFKILL=y\nCONFIG_S390=n\nCONFIG_BT=y")
+
+    # # RPMSG always gets selected by whoever wants it
+    # config RPMSG
+	# tristate
+    # https://github.com/torvalds/linux/blob/v4.20/drivers/rpmsg/Kconfig (no dependency)
+    #### big lesson here: as you cannot pre-set value to RPMSG, you cannot pre-set value of many options!
+    def test_rpmsg(self):
+        self.assert_spe_shouldsuccessbutfail("CONFIG_RPMSG=y") # the root cause of failure above
+
+    ###
+    #config QCOM_WCNSS_CTRL
+	#tristate "Qualcomm WCNSS control driver"
+	#depends on ARCH_QCOM || COMPILE_TEST
+	#depends on RPMSG
+    # see issue above with RPMSG
+    def test_qcom_ctrl(self):
+        self.assert_spe_success("CONFIG_COMPILE_TEST=y\nCONFIG_RPMSG=y\nCONFIG_QCOM_WCNSS_CTRL=y")
+
+
+
+    # https://github.com/torvalds/linux/blob/v4.20/net/rfkill/Kconfig
+    # no dependency! except https://github.com/torvalds/linux/blob/v4.20/net/Kconfig 
+    def test_rfkill(self):
+        self.assert_spe_success("CONFIG_NET=y\nCONFIG_RFKILL=y")
+
+    def test_bt_qcomsd_negate(self):
+        self.assert_spe_success("CONFIG_BT_QCOMSMD=n") # easy (independent option when 'n')
     
 
 if __name__ == '__main__':
@@ -305,12 +397,6 @@ if __name__ == '__main__':
 
     ##### TODO (Mathieu: I will fix the migration process to unit tests)
   
-   ##   # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_TTY=y\nCONFIGT_HCIUART=y") # 1.0  (ratio of options whose values differ from pre-settings) (should be divided by 2) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig 
-    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT_QCOMSMD=y") # 0.89  (ratio of options whose values differ from pre-settings) # https://github.com/torvalds/linux/blob/master/drivers/bluetooth/Kconfig
-    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # 1.36  (ratio of options whose values differ from pre-settings) # BT seems needed (menu option) # https://github.com/torvalds/linux/blob/master/net/bluetooth/Kconfig
-    # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_NET=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # 0.9  (ratio of options whose values differ from pre-settings)
-    # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_RFKILL=y\nCONFIG_NET=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
-    # minimal_randconfig_test("linux-4.13.3", 100, "CONFIG_BT_QCOMSMD=n") # OK! 0.0  (ratio of options whose values differ from pre-settings)
     # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.8  (ratio of options whose values differ from pre-settings)
     # minimal_randconfig_test("linux-4.20.1", 10, "CONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.5  (ratio of options whose values differ from pre-settings) # depends on ARCH_EXYNOS || COMPILE_TEST # https://github.com/torvalds/linux/blob/master/drivers/devfreq/Kconfig
     # minimal_randconfig_test("linux-4.20.1", 100, "CONFIG_COMPILE_TEST=y\nCONFIG_PM_DEVFREQ=y\nCONFIG_ARM_EXYNOS_BUS_DEVFREQ=y") # 0.0 since we force # https://github.com/torvalds/linux/blob/master/drivers/devfreq/Kconfig
