@@ -8,8 +8,11 @@ import argparse
 import subprocess
 import os
 
-_COMPRESSED_IMAGE = "tuxml/tartuxml"
-_IMAGE = "tuxml/tuxml"
+__COMPRESSED_IMAGE = "tuxml/tartuxml"
+__IMAGE = "tuxml/tuxml"
+# __sudo_right: internal global variable whose goal is to use sudo if the user
+# isn't in the docker group.
+__sudo_right = ""
 
 
 ## set_prompt_color
@@ -70,7 +73,7 @@ def ask_for_confirmation():
 
 ## get_digest_docker_image
 # @author PICARD Michaël
-# @version 1
+# @version 2
 # @brief Return the digest of selected docker image
 # @param image
 # @param tag
@@ -79,19 +82,19 @@ def get_digest_docker_image(image, tag=None):
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
-    cmd = "{} {} | grep \"{}\"".format(cmd, "{{.Digest}}\"", image)
+    cmd = "{}{} {} | grep \"{}\"".format(__sudo_right, cmd, "{{.Digest}}\"",
+                                         image)
     try:
         result = subprocess.check_output(
             args=cmd,
             shell=True,
+            universal_newlines=True
         )
     except subprocess.CalledProcessError as ex:
         raise NotImplementedError("No digest found") from ex
-    result = result.decode('UTF-8')
-    result = result.splitlines()
     if len(result) == 0:
         raise NotImplementedError("Image not found.")
-    result = result[0].split(" ")
+    result = result.splitlines()[0].split(" ")
     if result[1] == "<none>":
         raise NotImplementedError("No digest found.")
     return result[1]
@@ -113,7 +116,7 @@ def docker_build(image=None, tag=None, path=None):
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
-    str_build = "{} {}".format(str_build, path)
+    str_build = "{}{} {}".format(__sudo_right, str_build, path)
     subprocess.call(str_build, shell=True)
 
 
@@ -138,7 +141,7 @@ def create_dockerfile(content=None, path=None):
 # @param image The image name that you want to pull.
 # @param tag The tag's image. Default to None.
 def docker_pull(image, tag=None):
-    str_pull = "docker pull {}".format(image)
+    str_pull = "{}docker pull {}".format(__sudo_right, image)
     if tag is not None:
         str_pull = "{}:{}".format(str_pull, tag)
     subprocess.call(args=str_pull, shell=True)
@@ -255,6 +258,14 @@ def check_precondition_and_warning(args):
 
     # warning
     set_prompt_color("Orange")
+    # user right : sudo or docker group
+    if "docker" not in subprocess.check_output(
+            "groups",
+            shell=True,
+            universal_newlines=True):
+        __sudo_right = "sudo "
+        print("You aren't in the docker group, hence you will be ask superuser"
+              " access.")
     if args.dev:
         print("You are using the development version, whose can be unstable.")
     if args.local:
@@ -280,7 +291,7 @@ def check_precondition_and_warning(args):
 # @version 1
 # @brief Uncompress the compressed image to create the big one.
 def docker_uncompress_image(tag):
-    content = "FROM {}".format(_COMPRESSED_IMAGE)
+    content = "FROM {}".format(__COMPRESSED_IMAGE)
     if tag is not None:
         content = "{}:{}".format(content, tag)
     content = "{}\n" \
@@ -289,7 +300,7 @@ def docker_uncompress_image(tag):
               "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
     create_dockerfile(content=content, path=".")
     docker_build(
-        image=_IMAGE,
+        image=__IMAGE,
         tag=tag,
         path="."
     )
@@ -305,13 +316,21 @@ def docker_image_update(tag):
     have_been_updated = True
     try:
         print("Trying to update docker image...")
-        before_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
+        before_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color()
-        docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
-        after_digest = get_digest_docker_image(image=_COMPRESSED_IMAGE, tag=tag)
+        docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
+        after_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color("Purple")
         if before_digest != after_digest:
             print("Update found, uncompressing...")
+            set_prompt_color()
+            if docker_image_exist(__IMAGE, tag):
+                docker_image_rm(__IMAGE, tag)
+            docker_uncompress_image(tag)
+        elif not docker_image_exist(__IMAGE, tag):
+            print("No update but {}:{} doesn't exist. "
+                  "Building it...".format(__IMAGE, tag))
+            set_prompt_color()
             docker_uncompress_image(tag)
         else:
             print("No update found.")
@@ -320,12 +339,45 @@ def docker_image_update(tag):
         set_prompt_color("Red")
         print("An error occured when updating. Force update...")
         set_prompt_color()
-        docker_pull(image=_COMPRESSED_IMAGE, tag=tag)
+        docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
         docker_uncompress_image(tag)
     set_prompt_color("Purple")
     print("Updating of docker image done.")
     set_prompt_color()
     return have_been_updated
+
+
+## docker_image_exist
+# @author Picard Michaël
+# @version 1
+# @brief Check the existence of an image.
+# @return A boolean value.
+def docker_image_exist(image, tag=None):
+    cmd = "{}docker image ls -q {}".format(__sudo_right, image)
+    if tag is not None:
+        cmd = "{}:{}".format(cmd, tag)
+    try:
+        return len(subprocess.check_output(
+            args=cmd,
+            shell=True,
+            universal_newlines=True,
+            stderr=subprocess.DEVNULL
+        ).splitlines())
+    except subprocess.CalledProcessError:
+        return False
+
+
+## docker_image_rm
+# @author Picard Michaël
+# @version 1
+# @brief Delete a docker image.
+# Will throw if the image doesn't exist or if it is use in another image or
+# container.
+def docker_image_rm(image, tag=None):
+    cmd = "{}docker image rm {}".format(__sudo_right, image)
+    if tag is not None:
+        cmd = "{}:{}".format(cmd, tag)
+    subprocess.run(args=cmd, shell=True, stdout=subprocess.DEVNULL)
 
 
 def run_docker_compilation(image, incremental, tiny, config, silent):
@@ -454,9 +506,14 @@ if __name__ == "__main__":
     have_been_updated = False
     if not args.local:
         have_been_updated = docker_image_update(tag)
+    elif not docker_image_exist(__IMAGE, tag):
+        set_prompt_color("Red")
+        print("The base docker image doesn't exist! Building it...")
+        set_prompt_color()
+        docker_uncompress_image(tag)
 
     # Setting image name to run (useful later with linux4_version)
-    image = "{}:{}".format(_IMAGE, tag)
+    image = "{}:{}".format(__IMAGE, tag)
 
     if args.unit_testing:
         run_unit_testing(image)
