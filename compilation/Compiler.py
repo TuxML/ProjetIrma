@@ -29,7 +29,7 @@ class Compiler:
         self.__do_a_compilation()
         # Logging compilation result
         if self.is_successful():
-            self.__logger(
+            self.__logger.timed_print_output(
                 "Successfully compiled in {}".format(
                     time.strftime("%H:%M:%S",
                                   time.gmtime(self.__compilation_time))
@@ -37,7 +37,7 @@ class Compiler:
                 color=COLOR_SUCCESS
             )
         else:
-            self.__logger(
+            self.__logger.timed_print_output(
                 "Unable to compile using this KCONFIG_FILE, status={}".format(
                     self.__compilation_time),
                 color=COLOR_ERROR
@@ -49,7 +49,7 @@ class Compiler:
         self.__logger.reset_stdout_pipe()
         self.__logger.reset_stderr_pipe()
 
-        while self.__compile():
+        while not self.__compile():
             start_installation_timer = time.time()
 
             success, missing_files, missing_package = self.__log_analyser()
