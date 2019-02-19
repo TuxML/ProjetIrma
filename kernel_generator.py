@@ -251,7 +251,8 @@ def check_precondition_and_warning(args):
     if args.config is not None \
             or args.linux4_version is not None \
             or args.logs is not None \
-            or args.fetch_kernel is not None:
+            or args.fetch_kernel is not None\
+            or args.incremental > 0:
         raise NotImplementedError(
             "Currently unsupported."
         )
