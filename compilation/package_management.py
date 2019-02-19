@@ -2,7 +2,7 @@
 
 import subprocess
 
-from compilation.Logger import COLOR_SUCCESS, COLOR_FAILURE
+from compilation.Logger import COLOR_SUCCESS, COLOR_ERROR
 
 
 def update_system(logger):
@@ -40,7 +40,7 @@ def install_package(logger, package_list):
     except subprocess.CalledProcessError:
         logger.timed_print_output(
             "Error while installing the packages.",
-            color=COLOR_FAILURE
+            color=COLOR_ERROR
         )
         return False
 
