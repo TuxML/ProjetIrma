@@ -248,8 +248,7 @@ def check_precondition_and_warning(args):
         args.silent = None
 
     # not implemented yet
-    if args.config is not None \
-            or args.linux4_version is not None \
+    if args.linux4_version is not None \
             or args.logs is not None \
             or args.fetch_kernel is not None\
             or args.incremental > 0:
@@ -275,7 +274,8 @@ def check_precondition_and_warning(args):
     if args.tiny:
         print("You are using tiny configuration.")
     if args.config is not None:
-        print("You are using your specific configuration.")
+        print("You are using your specific configuration : {}".format(
+            args.config))
     if args.fetch_kernel is not None:
         print("You will retrieve the kernel after the compilation phase, if it"
               " succeed.")
@@ -394,9 +394,10 @@ def run_docker_compilation(image, incremental, tiny, config, silent):
     if tiny:
         specific_configuration = "--tiny"
     elif config is not None:
-        specific_configuration = "--path /TuxML/.config"
+        specific_configuration = "--config /TuxML/.config"
         subprocess.call(
-            args="docker cp {} {}:/TuxML/.config".format(container_id, config),
+            args="docker cp {}/{} {}:/TuxML/.config".format(
+                os.getcwd(), config, container_id),
             shell=True
         )
     if silent:
