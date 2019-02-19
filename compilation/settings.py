@@ -8,3 +8,6 @@ NAME_BDD = "IrmaDB_prod"
 OUTPUT_FILE = "/TuxML/user_output.log"
 STDOUT_FILE = "/TuxML/stdout.log"
 STDERR_FILE = "/TuxML/stderr.log"
+
+TINY_CONFIG_SEED_FILE = "/TuxML/compilation/x64.config"
+CONFIG_SEED_FILE = "/TuxML/compilation/tuxml.config"
