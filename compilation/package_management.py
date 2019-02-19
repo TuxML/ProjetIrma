@@ -9,7 +9,7 @@ def update_system(logger):
     logger.timed_print_output("Updating packages repositories and "
                               "upgrading packages.")
     subprocess.run(
-        "apt-get update && apt-file update && apt-get upgrade",
+        "apt-get update && apt-file update && apt-get upgrade -y",
         shell=True,
         check=True,
         stdout=logger.get_stdout_pipe(),
