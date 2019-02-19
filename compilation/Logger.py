@@ -22,9 +22,6 @@ class Logger:
         self.__stderr = open(stderr_file, mode='w')
         self.__silent = silent
 
-    def get_output_pipe(self):
-        return self.__output
-
     def get_stdout_pipe(self):
         return self.__stdout
 
