@@ -37,6 +37,12 @@ def parser():
         help="Give a path to specific configuration file. Incompatible with "
              "--tiny argument."
     )
+    parser.add_argument(
+        "--cpu_cores",
+        help="Give the number of cpu cores to use. Default to 0, which mean all"
+             " the cores.",
+        default=0
+    )
     return parser.parse_args()
 
 
