@@ -2,10 +2,11 @@
 
 import argparse
 
-from compilation.environment import get_environment_details, print_environment_details
-from compilation.configuration import create_configuration, print_configuration
-from compilation.package_management import update_system
-from compilation.Logger import Logger
+from compilation.environment import *
+from compilation.configuration import *
+from compilation.package_management import *
+from compilation.Logger import *
+from compilation.Compiler import Compiler
 import compilation.settings as settings
 
 
@@ -76,5 +77,4 @@ if __name__ == "__main__":
     environment = retrieve_and_display_environment(logger)
     configuration = retrieve_and_display_configuration(logger, args)
 
-
-
+    compiler = Compiler(logger, configuration, args)
