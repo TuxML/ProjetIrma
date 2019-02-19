@@ -51,6 +51,19 @@ def docker_push(image, tag=None):
         docker_push(image=image, tag=tag)
 
 
+## docker_pull
+# @author PICARD Michaël
+# @version 1
+# @brief pull a docker image
+# @param image The image name that you want to pull.
+# @param tag The tag's image. Default to None.
+def docker_pull(image, tag=None):
+    str_pull = "docker pull {}".format(image)
+    if tag is not None:
+        str_pull = "{}:{}".format(str_pull, tag)
+    subprocess.call(args=str_pull, shell=True)
+
+
 ## create_dockerfile
 # @author DIDOT Gwendal, PICARD Michaël
 # @version 2
@@ -295,6 +308,12 @@ def parser():
              "Default is current",
         default="."
     )
+    parser.add_argument(
+        "-u",
+        "--update",
+        help="Download the image from the directory",
+        action="store_true"
+    )
 
     return parser.parse_args()
 
@@ -304,6 +323,9 @@ if __name__ == "__main__":
 
     if args.push:
         docker_push(NAME_IMAGE, args.tag)
+    elif args.update:
+        docker_pull(NAME_IMAGE, args.tag)
+        create_big_image_tuxml_uncompressed(args.location, tag=args.tag)
     else:
         if not exist_sub_image_tuxml_compressed():
             create_sub_image_tuxml_compressed(args.location)
