@@ -4,13 +4,10 @@
 import os
 
 
-def __get_compilation_mode(tiny, config):
-    if tiny:
-        return "tiny config"
-    elif config is not None:
-        return "given config"
-    else:
-        return "random config"
+def __get_kernel_version_and_path():
+    kernel_version = "4.13.3"
+    kernel_path = "/TuxML/linux-{}".format(kernel_version)
+    return kernel_version, kernel_path
 
 
 def __get_cpu_cores_to_use(nb_cpu_core):
@@ -22,11 +19,12 @@ def __get_cpu_cores_to_use(nb_cpu_core):
 
 
 def create_configuration(args):
+    kernel_version, kernel_path = __get_kernel_version_and_path()
     configuration = {
         "core_used": __get_cpu_cores_to_use(args.cpu_cores),
         "incremental_mod": args.incremental != 0,
-        "kernel_version_compilation": "4.13.3",
-        "config used": __get_compilation_mode(args.tiny, args.config)
+        "kernel_version_compilation": kernel_version,
+        "kernel_path": kernel_path
     }
     return configuration
 
