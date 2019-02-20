@@ -110,7 +110,7 @@ class Compiler:
     def __compile(self):
         self.__logger.timed_print_output("Compilation in progress")
         failure = subprocess.call(
-            args="make -C {} -j | ts -s".format(
+            args="make -C {} -j{} | ts -s".format(
                 self.__kernel_path,
                 self.__nb_core
             ),
