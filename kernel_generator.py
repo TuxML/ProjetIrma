@@ -219,6 +219,13 @@ def parser():
              "--linux4_version, --silent, --fetch_kernel and incremental "
              "feature during runtime."
     )
+    parser.add_argument(
+        "-n",
+        "--number_cpu",
+        help="Optional. Specify the number of cpu cores to use while compiling."
+             "Useful if your computer can't handle the process at full power.",
+        type=int
+    )
 
     return parser.parse_args()
 
@@ -238,6 +245,10 @@ def check_precondition_and_warning(args):
     if args.tiny and (args.config is not None):
         raise NotImplementedError(
             "You can't use tiny and config parameter at the same time."
+        )
+    if args.number_cpu is not None and args.number_cpu <= 0:
+        raise NotImplementedError(
+            "You can't compile with a negative or null number of cpu."
         )
     if args.unit_testing:
         args.incremental = 0
@@ -381,7 +392,7 @@ def docker_image_rm(image, tag=None):
     subprocess.run(args=cmd, shell=True, stdout=subprocess.DEVNULL)
 
 
-def run_docker_compilation(image, incremental, tiny, config, silent):
+def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
     # Starting the container
     container_id = subprocess.check_output(
         args="docker run -i -d {}".format(image),
@@ -404,13 +415,18 @@ def run_docker_compilation(image, incremental, tiny, config, silent):
         silent = "--silent"
     else:
         silent = ""
+    if cpu_cores:
+        cpu_cores = "--cpu_cores {}".format(cpu_cores)
+    else:
+        cpu_cores = ""
 
     subprocess.call(
-        args="docker exec -t {} /TuxML/compilation/main.py {} {} {} | ts -s".format(
+        args="docker exec -t {} /TuxML/compilation/main.py {} {} {} {} | ts -s".format(
             container_id,
             incremental,
             specific_configuration,
-            silent
+            silent,
+            cpu_cores
         ),
         shell=True
     )
@@ -472,7 +488,8 @@ def compilation(image, args):
             args.incremental,
             args.tiny,
             args.config,
-            args.silent
+            args.silent,
+            args.number_cpu
         )
         delete_docker_container(container_id)
     if not args.silent:
