@@ -4,6 +4,7 @@ import re
 import subprocess
 import shutil
 import time
+import sys
 
 from compilation.Logger import *
 from compilation.package_management import *
@@ -17,6 +18,7 @@ class Compiler:
         self.__kernel_path = configuration['kernel_path']
 
         # Variables results
+        self.__compilation_success = True
         self.__compilation_time = 0
         self.__installed_package = list()
         self.__kernel_size = -1
@@ -27,51 +29,60 @@ class Compiler:
             file = optional_config_file
         self.__linux_config_generator(args.tiny, file)
         self.__do_a_compilation()
-        # Logging compilation result
-        if self.is_successful():
-            self.__logger.timed_print_output(
-                "Successfully compiled in {}".format(
-                    time.strftime("%H:%M:%S",
-                                  time.gmtime(self.__compilation_time))
-                ),
-                color=COLOR_SUCCESS
-            )
-        else:
-            self.__logger.timed_print_output(
-                "Unable to compile using this KCONFIG_FILE, status={}".format(
-                    self.__compilation_time),
-                color=COLOR_ERROR
-            )
 
     def __do_a_compilation(self):
         start_compilation_timer = time.time()
         install_time_cpt = 0
         self.__logger.reset_stdout_pipe()
         self.__logger.reset_stderr_pipe()
+        self.__compilation_success = True
 
-        while not self.__compile():
+        while self.__compilation_success and not self.__compile():
             start_installation_timer = time.time()
 
             success, missing_files, missing_package = self.__log_analyser()
-            if not success:
-                self.__compilation_time = -2
-                return
-            elif self.__install_missing(missing_files, missing_package):
-                self.__logger("Restarting compilation",
-                              color=COLOR_SUCCESS)
-            else:
-                self.__compilation_time = -3
-                return
-            stop_installation_timer = time.time()
+            retry = success and self.__install_missing(missing_files,
+                                                       missing_package)
 
+            stop_installation_timer = time.time()
             install_time_cpt += \
                 stop_installation_timer - start_installation_timer
-            self.__logger.reset_stdout_pipe()
-            self.__logger.reset_stderr_pipe()
+            if retry:
+                self.__logger("Restarting compilation", color=COLOR_SUCCESS)
+                self.__logger.reset_stdout_pipe()
+                self.__logger.reset_stderr_pipe()
+            else:
+                self.__compilation_success = False
 
         end_compilation_timer = time.time()
         self.__compilation_time = \
             end_compilation_timer - start_compilation_timer - install_time_cpt
+
+        # Logging compilation result
+        if self.is_successful():
+            self.__logger.timed_print_output(
+                "Successfully compiled in {} (installation_time = {})".format(
+                    time.strftime(
+                        "%H:%M:%S",
+                        time.gmtime(self.__compilation_time)),
+                    time.strftime(
+                        "%H:%M:%S",
+                        time.gmtime(install_time_cpt)),
+                ),
+                color=COLOR_SUCCESS
+            )
+        else:
+            self.__logger.timed_print_output(
+                "Unable to compile in {} (installation_time = {})".format(
+                    time.strftime(
+                        "%H:%M:%S",
+                        time.gmtime(self.__compilation_time)),
+                    time.strftime(
+                        "%H:%M:%S",
+                        time.gmtime(install_time_cpt)),
+                ),
+                color=COLOR_ERROR
+            )
 
     def __linux_config_generator(self, tiny, specific_config):
         if specific_config is not None:
@@ -169,7 +180,7 @@ class Compiler:
                install_package(self.__logger, packages)
 
     def is_successful(self):
-        return self.__compilation_time > 0
+        return self.__compilation_success
 
     def get_compilation_dictionary(self):
         # TODO
