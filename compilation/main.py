@@ -77,7 +77,8 @@ def retrieve_and_display_configuration(logger, args):
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
 def run(logger, configuration, environment, args, package_manager, optional_config_file=None):
-    compiler = Compiler(logger, configuration, args, optional_config_file)
+    compiler = Compiler(logger, configuration, args, package_manager,
+                        optional_config_file)
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
     logger.print_output(compilation_result)

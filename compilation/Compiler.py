@@ -203,7 +203,6 @@ class Compiler:
         pass
 
     def __set_result_dictionary(self):
-        # TODO : complete this dictionary
         self.__result_dictionary = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S",
                                               time.localtime(time.time())),
@@ -218,7 +217,8 @@ class Compiler:
                 open(self.__logger.get_user_output_file(), "rb").read()),
             "compiled_kernel_size": self.__kernel_size,
             "compressed_compiled_kernel_size": self.__kernel_compressed_size,
-            "dependencies": "",  # TODO
+            "dependencies": " ".join(
+                self.__package_manager.get_package_list_copy()),
             "number_cpu_core_used": self.__nb_core,
             "compiled_kernel_version":
                 self.__configuration['kernel_version_compilation']
