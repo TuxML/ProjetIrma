@@ -71,6 +71,15 @@ class Logger:
         self.__output.close()
         self.__output = open(self.__user_output_file, 'w')
 
+    def get_stdout_file(self):
+        return self.__stdout_file
+
+    def get_stderr_file(self):
+        return self.__stderr_file
+
+    def get_user_output_file(self):
+        return self.__user_output_file
+
     def __del__(self):
         self.__output.close()
         self.__stdout.close()

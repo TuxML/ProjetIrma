@@ -11,3 +11,5 @@ STDERR_FILE = "/TuxML/stderr.log"
 
 TINY_CONFIG_SEED_FILE = "/TuxML/compilation/x64.config"
 CONFIG_SEED_FILE = "/TuxML/compilation/tuxml.config"
+
+DEPENDENCIES_FILE = "/dependencies.txt"

@@ -4,18 +4,22 @@ import re
 import subprocess
 import shutil
 import time
-import sys
+import os
+import bz2
 
 from compilation.Logger import *
-from compilation.package_management import *
 import compilation.settings as settings
 
 
 class Compiler:
-    def __init__(self, logger, configuration, args, optional_config_file=None):
+    def __init__(self, logger, configuration, args, package_manager, optional_config_file=None):
         self.__logger = logger
         self.__nb_core = configuration['core_used']
         self.__kernel_path = configuration['kernel_path']
+        self.__configuration = configuration
+        self.__args = args
+        self.__package_manager = package_manager
+        self.__optional_config_file = optional_config_file
 
         # Variables results
         self.__compilation_success = True
@@ -23,12 +27,20 @@ class Compiler:
         self.__installed_package = list()
         self.__kernel_size = -1
         self.__kernel_compressed_size = ""
+        self.__result_dictionary = {}
 
-        file = args.config
-        if optional_config_file is not None:
-            file = optional_config_file
-        self.__linux_config_generator(args.tiny, file)
+    def run(self):
+        file = self.__args.config
+        if self.__optional_config_file is not None:
+            file = self.__optional_config_file
+        self.__linux_config_generator(self.__args.tiny, file)
         self.__do_a_compilation()
+
+        if self.__compilation_success:
+            self.__retrieve_kernel_size()
+            self.__get_compressed_kernel_size()
+
+        self.__set_result_dictionary()
 
     def __do_a_compilation(self):
         start_compilation_timer = time.time()
@@ -41,8 +53,8 @@ class Compiler:
             start_installation_timer = time.time()
 
             success, missing_files, missing_package = self.__log_analyser()
-            retry = success and self.__install_missing(missing_files,
-                                                       missing_package)
+            retry = success and self.__package_manager.fix_missing_dependencies(
+                missing_files, missing_package)
 
             stop_installation_timer = time.time()
             install_time_cpt += \
@@ -175,13 +187,39 @@ class Compiler:
                 "Unable to find the missing package(s).", color=COLOR_ERROR)
         return success, files, packages
 
-    def __install_missing(self, files, packages):
-        return build_dependencies(files, packages) and \
-               install_package(self.__logger, packages)
-
     def is_successful(self):
         return self.__compilation_success
 
     def get_compilation_dictionary(self):
+        return self.__result_dictionary
+
+    def __retrieve_kernel_size(self):
+        full_filename = "{}/vmlinux".format(self.__kernel_path)
+        if os.path.isfile(full_filename):
+            self.__kernel_size = os.path.getsize(full_filename)
+
+    def __get_compressed_kernel_size(self):
         # TODO
         pass
+
+    def __set_result_dictionary(self):
+        # TODO : complete this dictionary
+        self.__result_dictionary = {
+            "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S",
+                                              time.localtime(time.time())),
+            "compilation_time": self.__compilation_time,
+            "config_file": bz2.compress(
+                open("{}/.config".format(self.__kernel_path), "rb").read()),
+            "stdout_log_file": bz2.compress(
+                open(self.__logger.get_stdout_file(), "rb").read()),
+            "stderr_log_file": bz2.compress(
+                open(self.__logger.get_stderr_file(), "rb").read()),
+            "user_output_file": bz2.compress(
+                open(self.__logger.get_user_output_file(), "rb").read()),
+            "compiled_kernel_size": self.__kernel_size,
+            "compressed_compiled_kernel_size": self.__kernel_compressed_size,
+            "dependencies": "",  # TODO
+            "number_cpu_core_used": self.__nb_core,
+            "compiled_kernel_version":
+                self.__configuration['kernel_version_compilation']
+        }
