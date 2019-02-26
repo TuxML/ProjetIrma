@@ -58,6 +58,9 @@ class PackageManager:
             return False
 
     def fix_missing_dependencies(self, missing_files, missing_packages):
+        self.__logger.timed_print_output(
+            "Fixing missing file(s)/package(s) dependencies."
+        )
         new_packages = list()
 
         # Getting new package for each missing file.
@@ -66,9 +69,8 @@ class PackageManager:
                 output = subprocess.check_output(
                     args="apt-file search {}".format(file),
                     shell=True,
-                    universal_newlines=True,
                     stderr=self.__logger.get_stderr_pipe()
-                )
+                ).decode(errors="replace")
                 lines = output.splitlines()
 
                 # We could have multiple package proposed. In this case, we
@@ -107,7 +109,7 @@ class PackageManager:
                         break
                 if not package_found:
                     # Not the proper way, but we avoid recopying code with this.
-                    raise subprocess.CalledProcessError
+                    raise subprocess.CalledProcessError(0, '')
             except subprocess.CalledProcessError:
                 self.__logger.timed_print_output(
                     "Unable to find the missing package for missing file : "
@@ -137,7 +139,13 @@ class PackageManager:
                 new_packages.append(package)
 
         # We now install all the new_packages.
-        return self.install_package(new_packages)
+        ret = self.install_package(new_packages)
+        if ret:
+            self.__logger.timed_print_output(
+                "Missing file(s)/package(s) dependencies should have "
+                "been fixed."
+            )
+        return ret
 
     def get_package_list_copy(self):
         return self.__package_list.copy()
