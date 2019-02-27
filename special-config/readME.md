@@ -53,4 +53,7 @@ config OPT5:
 In this case, the option `CONFIG_X86_NEED_RELOCS` is use to propagate the options [`CONFIG_RANDOMIZE_BASE`](https://cateee.net/lkddb/web-lkddb/RANDOMIZE_BASE.html) `|| ( `[`CONFIG_X86_32`](https://cateee.net/lkddb/web-lkddb/X86_32.html)` &&`[`CONFIG_RELOCATABLE`](https://cateee.net/lkddb/web-lkddb/RELOCATABLE.html) `)`
 wich are options that are used to randomize the physical address where the kernel is decompressed and the virtual address where the kernel is mapped. This is a security feature that increase the size of the kernel binary [by 10%.](https://github.com/torvalds/linux/blob/master/arch/x86/Kconfig) That why we want this option set to N.
 
-The test of this option does not make sense because of the way the randconfig and Kconfig algorithm are implemented. However as user, we would expect this option to be settable and to propagate the set value to the dependances.
+The test of this option does not make sense because of the way the randconfig and Kconfig algorithm are implemented. However, as user, we would expect this option to be settable and to propagate the set value to the dependances.
+
+###  Kasan option and conditional
+[`KASan or Kernel Address SANitizer`](https://cateee.net/lkddb/web-lkddb/KASAN.html) is a runtime memory debugger design to find out-of-bound access and use-after-free bugs. It consumes about 1/8 of the available memory and slowdown the performances by a factor 3. In our case we do not want this option to be activated in our kernel config file.
