@@ -81,7 +81,6 @@ def run(logger, configuration, environment, args, package_manager, optional_conf
                         optional_config_file)
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
-    logger.print_output(compilation_result)
 
 
 if __name__ == "__main__":

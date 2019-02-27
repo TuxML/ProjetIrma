@@ -60,7 +60,8 @@ class Compiler:
             install_time_cpt += \
                 stop_installation_timer - start_installation_timer
             if retry:
-                self.__logger("Restarting compilation", color=COLOR_SUCCESS)
+                self.__logger.timed_print_output("Restarting compilation",
+                                                 color=COLOR_SUCCESS)
                 self.__logger.reset_stdout_pipe()
                 self.__logger.reset_stderr_pipe()
             else:
@@ -106,9 +107,10 @@ class Compiler:
                 "Tiny config with preset values here : {} .".format(
                     settings.TINY_CONFIG_SEED_FILE))
             subprocess.run(
-                args="KCONFIG_ALLCONFIG={} make -C {} tinyconfig".format(
+                args="KCONFIG_ALLCONFIG={} make -C {} tinyconfig -j{}".format(
                     settings.TINY_CONFIG_SEED_FILE,
-                    self.__kernel_path
+                    self.__kernel_path,
+                    self.__nb_core
                 ),
                 shell=True,
                 stdout=subprocess.DEVNULL,
@@ -120,9 +122,10 @@ class Compiler:
                 "Random config with preset values here : {} .".format(
                     settings.CONFIG_SEED_FILE))
             subprocess.run(
-                args="KCONFIG_ALLCONFIG={} make -C {} randconfig".format(
+                args="KCONFIG_ALLCONFIG={} make -C {} randconfig -j{}".format(
                     settings.CONFIG_SEED_FILE,
-                    self.__kernel_path
+                    self.__kernel_path,
+                    self.__nb_core
                 ),
                 shell=True,
                 stdout=subprocess.DEVNULL,
@@ -133,7 +136,7 @@ class Compiler:
     def __compile(self):
         self.__logger.timed_print_output("Compilation in progress")
         failure = subprocess.call(
-            args="make -C {} -j{} | ts -s".format(
+            args="make -C {} -j{}".format(
                 self.__kernel_path,
                 self.__nb_core
             ),
@@ -166,17 +169,17 @@ class Compiler:
             for line in err_logs:
                 if re.search("fatal error", line):
                     # case "file.c:48:19: fatal error: <file.h>: No such file or directory"
-                    files.append(line.split(":")[4])
+                    files.append(line.split(":")[4].strip())
                 elif re.search("Command not found", line):
                     # case "make[4]: <command> : command not found"
-                    packages.append(line.split(":")[1])
+                    packages.append(line.split(":")[1].strip())
                 elif re.search("not found", line):
                     if len(line.split(":")) == 4:
                         # case "/bin/sh: 1: <command>: not found"
-                        files.append(line.split(":")[2])
+                        packages.append(line.split(":")[2].strip())
                     else:
                         # ./scripts/gcc-plugin.sh: 11: ./scripts/gcc-plugin.sh: <package>: not found
-                        packages.append(line.split(":")[3])
+                        packages.append(line.split(":")[3].strip())
 
         success = len(files) > 0 or len(packages) > 0
         if success:

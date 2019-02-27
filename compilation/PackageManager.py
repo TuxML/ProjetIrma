@@ -122,16 +122,12 @@ class PackageManager:
         # list.
         # Note that we double check every package to be sure that it's not
         # already installed and mean something corrupted occur.
+        # TODO: what if the program is already present? like an error while calling it?
         for package in missing_packages:
-            if package in self.__package_list or not subprocess.call(
-                    args="dpkg-query -l | grep {}".format(file),
-                    shell=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-            ):
+            if package in self.__package_list:
                 self.__logger.timed_print_output(
-                    "Fatal error : a package is called missing while he is "
-                    "already present!",
+                    "Fatal error : '{}' is called missing while he is "
+                    "already present!".format(package),
                     color=COLOR_ERROR
                 )
                 return False
@@ -143,7 +139,8 @@ class PackageManager:
         if ret:
             self.__logger.timed_print_output(
                 "Missing file(s)/package(s) dependencies should have "
-                "been fixed."
+                "been fixed.",
+                color=COLOR_SUCCESS
             )
         return ret
 
