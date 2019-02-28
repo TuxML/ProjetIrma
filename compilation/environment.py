@@ -39,10 +39,10 @@ from compilation.settings import TUXML_VERSION
 # @brief Returns a dictionary containing system details
 def __get_system_details():
     system = {
-        "os": platform.system(),
-        "distribution": platform.linux_distribution()[0],
-        "distrib_version": platform.linux_distribution()[1],
-        "kernel": platform.release()
+        "system_kernel": platform.system(),
+        "linux_distribution": platform.linux_distribution()[0],
+        "linux_distribution_version": platform.linux_distribution()[1],
+        "system_kernel_version": platform.release()
     }
     return system
 
@@ -75,16 +75,17 @@ def __get_ram_size():
     return psutil.virtual_memory().total//1024
 
 
-## __get_cpu_freq()
+## __get_max_cpu_freq()
 # @author PICARD Michaël
 # @version 1
 # @brief Retrieve and return the current frequencies of the 1st cpu
-def __get_cpu_freq():
-    # But for computation power, we have a problem : with cpuinfo, we get the
-    # actual computation power used right now, but this value change over time!
-    # It will probably be wiser to get the min and the max value?
-    frequencies = psutil.cpu_freq()
-    return int(frequencies.current)
+def __get_max_cpu_freq():
+    output = subprocess.check_output(
+        args="lshw -class processor | grep capacity",
+        shell=True,
+        universal_newlines=True
+    )
+    return output.strip().split(' ')[1]
 
 
 ## __get_cpu_name()
@@ -105,12 +106,12 @@ def __get_cpu_name():
 # @version 2
 def __get_hardware_details():
     hw = {
-        "cpu": __get_cpu_name(),
-        "cpu_freq": __get_cpu_freq(),
-        "ram": __get_ram_size(),
-        "arch": platform.machine(),
+        "cpu_brand_name": __get_cpu_name(),
+        "cpu_max_frequency": __get_max_cpu_freq(),
+        "ram_size": __get_ram_size(),
+        "architecture": platform.machine(),
         "cpu_cores": os.cpu_count(),
-        "mechanical_drive": __is_mechanical_disk()
+        "mechanical_disk": __is_mechanical_disk()
     }
     return hw
 
@@ -144,11 +145,8 @@ def __get_software_details():
         "tuxml_version": TUXML_VERSION,
         "libc_version": __get_libc_version(),
         "gcc_version": __get_gcc_version(),
-        # "core_used": os.cpu_count(),  # Temporary
-        # "incremental_mod": "0",
-        # "git_branch": "",
-        # "docker_image": ""
     }
+    software.update(__get_system_details())
     return software
 
 
@@ -157,7 +155,6 @@ def __get_software_details():
 # @version 2
 def get_environment_details():
     env = {
-        "system": __get_system_details(),
         "hardware": __get_hardware_details(),
         "software": __get_software_details()
     }
