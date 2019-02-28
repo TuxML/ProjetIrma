@@ -33,9 +33,9 @@ def __insert_into_database(cursor, table_name, content_dict):
     query_insert = "INSERT INTO {}({}) VALUES({})".format(
         table_name,
         ','.join(keys),
-        ','.join(values)
+        ','.join(["%s"] * len(values))
     )
-    cursor.execute(query_insert)
+    cursor.execute(query_insert, values)
 
 
 ## __select_where_database
@@ -45,13 +45,15 @@ def __insert_into_database(cursor, table_name, content_dict):
 def __select_one_field_where_database(cursor, field_to_fetch, table_name, where_dict):
     assert(not len(where_dict))
 
+    value= list()
     query_select = "SELECT {} FROM {} WHERE ".format(
         field_to_fetch, table_name)
     for k, v in __dictionary_to_string_dictionary(where_dict):
-        query_select = "{} {}={},".format(query_select, k, v)
+        query_select = "{} {}=%s,".format(query_select, k)
+        value.append(v)
     query_select = query_select[:-1]  # delete the last comma
     query_select = "{} ORDER BY {} DESC".format(query_select, field_to_fetch)
-    cursor.execute(query_select)
+    cursor.execute(query_select, value)
 
 
 ## __insert_if_not_exist_and_fetch_id
