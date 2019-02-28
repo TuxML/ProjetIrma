@@ -7,6 +7,7 @@
 import argparse
 import subprocess
 import os
+import shutil
 
 __COMPRESSED_IMAGE = "tuxml/tartuxml"
 __IMAGE = "tuxml/tuxml"
@@ -260,7 +261,6 @@ def check_precondition_and_warning(args):
 
     # not implemented yet
     if args.linux4_version is not None \
-            or args.logs is not None \
             or args.fetch_kernel is not None\
             or args.incremental > 0:
         raise NotImplementedError(
@@ -293,8 +293,6 @@ def check_precondition_and_warning(args):
     if args.unit_testing:
         print("You will unit test the project, which will not compile any "
               "kernel and could have disabled a few of your option choice.")
-    if args.silent:
-        print("You have enable the silent mode.")
     set_prompt_color()
 
 
@@ -491,6 +489,8 @@ def compilation(image, args):
             args.silent,
             args.number_cpu
         )
+        if args.logs is not None:
+            fetch_logs(container_id, args.logs, args.silent)
         delete_docker_container(container_id)
     if not args.silent:
         feedback_user(args.nbcontainer, args.incremental)
@@ -509,6 +509,26 @@ def run_unit_testing(image):
         shell=True
     )
     delete_docker_container(container_id)
+
+
+## fetch_logs
+# @author PICARD Michaël
+# @version 1
+# @brief Fetch all the logs from the container and save them into the directory
+def fetch_logs(container_id, directory, silent=False):
+    if not silent:
+        print("\nFetching logs from the docker... ", flush=True, end='')
+    cmd = "{}docker cp {}:/TuxML/logs {}".format(__sudo_right, container_id,
+                                                 directory)
+    subprocess.run(args=cmd, shell=True, stdout=subprocess.DEVNULL)
+    file_list = os.listdir("{}/logs".format(directory))
+    for file in file_list:
+        shutil.move(
+            os.path.join("{}/logs".format(directory), file),
+            os.path.join(directory, file))
+    os.removedirs("{}/logs".format(directory))
+    if not silent:
+        print("Done", flush=True)
 
 
 if __name__ == "__main__":
