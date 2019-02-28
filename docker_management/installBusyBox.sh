@@ -31,7 +31,7 @@ cd $TOP/build/initramfs/busybox-x86
 mkdir -pv {bin,sbin,etc,proc,sys,usr/{bin,sbin}}
 cp -av $TOP/build/busybox-x86/_install/* .
 
-cp /init $TOP/build/initramfs/busybox-x86
-chmod +x init
+chmod +x /init
+mv /init $TOP/build/initramfs/busybox-x86/init
 # Generate initramfs
 find . -print0 | cpio --null -ov --format=newc | gzip -9 > $TOP/build/initramfs-busybox-x86.cpio.gz

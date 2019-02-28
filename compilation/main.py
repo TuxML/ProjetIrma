@@ -4,9 +4,9 @@ import argparse
 
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
-from compilation.PackageManager import PackageManager
-from compilation.Logger import Logger
-from compilation.Compiler import Compiler
+from compilation.package_manager import PackageManager
+from compilation.logger import Logger
+from compilation.compiler import Compiler
 import compilation.settings as settings
 
 
@@ -81,6 +81,9 @@ def run(logger, configuration, environment, args, package_manager, optional_conf
                         optional_config_file)
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
+    logger.timed_print_output("Size : {}".format(compilation_result['compiled_kernel_size']))
+    logger.timed_print_output("Compressed size : {}".format(compilation_result['compressed_compiled_kernel_size']))
+
 
 
 if __name__ == "__main__":
