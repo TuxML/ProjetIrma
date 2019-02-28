@@ -1,9 +1,9 @@
-TUXML_VERSION = "pre-alpha v0.2"
+TUXML_VERSION = "pre-alpha v2.0"
 
 IP_BDD = "148.60.11.195"
 USERNAME_BDD = "script2"
 PASSWORD_USERNAME_BDD = "ud6cw3xNRKnrOz6H"
-NAME_BDD = "IrmaDB_prod"
+NAME_BDD = "IrmaDB_result"
 
 LOG_DIRECTORY = "/TuxML/logs"
 OUTPUT_FILE = "{}/user_output.log".format(LOG_DIRECTORY)

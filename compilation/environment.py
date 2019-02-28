@@ -110,7 +110,7 @@ def __get_hardware_details():
         "cpu_max_frequency": __get_max_cpu_freq(),
         "ram_size": __get_ram_size(),
         "architecture": platform.machine(),
-        "cpu_cores": os.cpu_count(),
+        "number_cpu_core": os.cpu_count(),
         "mechanical_disk": __is_mechanical_disk()
     }
     return hw

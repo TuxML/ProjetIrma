@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 
 import argparse
+import os
+import shutil
 
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
 from compilation.package_manager import PackageManager
 from compilation.logger import Logger
 from compilation.compiler import Compiler
+from compilation.database_management import stub_insert_new_data_into_database
 import compilation.settings as settings
 
 
@@ -76,14 +79,40 @@ def retrieve_and_display_configuration(logger, args):
 # @brief Do all the test, from compilation to sending the result to the database
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
-def run(logger, configuration, environment, args, package_manager, optional_config_file=None):
+def run(logger, configuration, environment, args, package_manager,
+        optional_config_file=None, cid_before=None):
     compiler = Compiler(logger, configuration, args, package_manager,
                         optional_config_file)
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
-    logger.timed_print_output("Size : {}".format(compilation_result['compiled_kernel_size']))
-    logger.timed_print_output("Compressed size : {}".format(compilation_result['compressed_compiled_kernel_size']))
 
+    boot_result = None
+    if compiler.is_successful():
+        # todo
+        pass
+
+    cid = stub_insert_new_data_into_database(
+        compilation_result,
+        environment['hardware'],
+        environment['software'],
+        cid_incremental=cid_before,
+        boot=boot_result
+    )
+
+    archive_log(cid)
+
+    return cid
+
+
+def archive_log(cid):
+    directory = "{}/{}".format(settings.LOG_DIRECTORY, cid)
+    os.makedirs(directory)
+    file_list = [file for file in os.listdir(settings.LOG_DIRECTORY)
+                 if os.path.isfile(os.path.join(settings.LOG_DIRECTORY, file))]
+    for file in file_list:
+        shutil.move(
+            os.path.join(settings.LOG_DIRECTORY, file),
+            os.path.join(directory, file))
 
 
 if __name__ == "__main__":
@@ -95,4 +124,5 @@ if __name__ == "__main__":
     environment = retrieve_and_display_environment(logger)
     configuration = retrieve_and_display_configuration(logger, args)
 
+    # Do a compilation, do the test and send result
     run(logger, configuration, environment, args, package_manager)
