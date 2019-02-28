@@ -2,12 +2,14 @@
 # @author PICARD Michaël
 
 import os
+import compilation.settings as settings
 
 
 def __get_kernel_version_and_path():
-    kernel_version = "4.13.3"
-    kernel_path = "/TuxML/linux-{}".format(kernel_version)
-    return kernel_version, kernel_path
+    with open(settings.KERNEL_VERSION_FILE, "r") as version_file:
+        kernel_version = version_file.read().strip()
+        kernel_path = "/TuxML/linux-{}".format(kernel_version)
+        return kernel_version, kernel_path
 
 
 def __get_cpu_cores_to_use(nb_cpu_core):

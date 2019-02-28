@@ -2,14 +2,14 @@
 
 import subprocess
 
-from compilation.Logger import COLOR_SUCCESS, COLOR_ERROR
+from compilation.logger import COLOR_SUCCESS, COLOR_ERROR
 
 
 class PackageManager:
     def __init__(self, logger, dependencies_file):
         self.__logger = logger
         with open(dependencies_file, "r") as dependencies:
-            self.__package_list = [x for y in dependencies.read().splitlines()
+            self.__package_list = [x.strip() for y in dependencies.read().splitlines()
                                    for x in y.split(' ')]
 
     def update_system(self):

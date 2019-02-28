@@ -7,7 +7,7 @@ import time
 import os
 import bz2
 
-from compilation.Logger import *
+from compilation.logger import *
 import compilation.settings as settings
 
 
