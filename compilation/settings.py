@@ -15,3 +15,6 @@ CONFIG_SEED_FILE = "/TuxML/compilation/tuxml.config"
 
 DEPENDENCIES_FILE = "/dependencies.txt"
 KERNEL_VERSION_FILE = "/kernel_version.txt"
+
+KERNEL_COMPRESSION_TYPE = ["GZIP", "BZIP2", "LZMA", "XZ", "LZO", "LZ4"]
+KERNEL_COMPRESSION_EXTENSIONS = [".gz", ".bz2", ".lzma", ".xz", ".lzo", ".lz4"]

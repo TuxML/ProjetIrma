@@ -88,7 +88,7 @@ def run(logger, configuration, environment, args, package_manager,
 
     boot_result = None
     if compiler.is_successful():
-        # todo
+        # todo: BootChecker
         pass
 
     cid = stub_insert_new_data_into_database(

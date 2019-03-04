@@ -22,12 +22,21 @@ class Compiler:
         self.__optional_config_file = optional_config_file
 
         # Variables results
-        self.__compilation_success = True
+        self.__compilation_success = False
         self.__compilation_time = 0
-        self.__installed_package = list()
         self.__kernel_size = -1
         self.__kernel_compressed_size = ""
         self.__result_dictionary = {}
+
+        # Presetting of __kernel_compressed_size
+        for compression in settings.KERNEL_COMPRESSION_TYPE:
+            for typ in ["-bzimage", "-vmlinux", ""]:
+                self.__kernel_compressed_size = "{}{}{} : -1 , ".format(
+                    self.__kernel_compressed_size,
+                    compression,
+                    typ
+                )
+        self.__kernel_compressed_size = self.__kernel_compressed_size[:-3]
 
     def run(self):
         file = self.__args.config
@@ -37,7 +46,8 @@ class Compiler:
         self.__do_a_compilation()
 
         if self.__compilation_success:
-            self.__retrieve_kernel_size()
+            self.__kernel_size = self.__retrieve_kernel_size(
+                "{}/vmlinux".format(self.__kernel_path))
             self.__get_compressed_kernel_size()
 
         self.__set_result_dictionary()
@@ -196,15 +206,126 @@ class Compiler:
     def get_compilation_dictionary(self):
         return self.__result_dictionary
 
-    def __retrieve_kernel_size(self):
-        full_filename = "{}/vmlinux".format(self.__kernel_path)
-        if os.path.isfile(full_filename):
-            self.__kernel_size = os.path.getsize(full_filename)
+    @staticmethod
+    def __retrieve_kernel_size(compiled_kernel_path):
+        if os.path.exists(compiled_kernel_path):
+            return os.path.getsize(compiled_kernel_path)
+        return -1
 
     def __get_compressed_kernel_size(self):
-        # TODO
-        pass
+        self.__logger.timed_print_output("Computing compressed kernel size.")
 
+        # saving the configuration file
+        with open("{}/.config".format(self.__kernel_path), "rb") as config:
+            basic_config = config.read()
+
+        self.__kernel_compressed_size = ""
+        for i in range(len(settings.KERNEL_COMPRESSION_TYPE)):
+            compression = settings.KERNEL_COMPRESSION_TYPE[i]
+            extension = settings.KERNEL_COMPRESSION_EXTENSIONS[i]
+
+            self.__enable_only_one_compression_option(compression)
+            subprocess.run(
+                args="make -C {} -j{}".format(
+                    self.__kernel_path,
+                    self.__nb_core
+                ),
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            # bzImage
+            self.__kernel_compressed_size = "{}{}-bzImage : {} , ".format(
+                self.__kernel_compressed_size,
+                compression,
+                self.__retrieve_kernel_size(
+                    "{}/arch/x86/boot/bzImage".format(
+                        self.__kernel_path))
+            )
+            # vmlinux
+            self.__kernel_compressed_size = "{}{}-vmlinux : {} , ".format(
+                self.__kernel_compressed_size,
+                compression,
+                self.__retrieve_kernel_size(
+                    "{}/arch/x86/boot/compressed/vmlinux".format(
+                        self.__kernel_path))
+            )
+            # compressed
+            path = "{}/arch/x86/boot/compressed".format(self.__kernel_path)
+            size = -1
+            for file in os.listdir(path):
+                if os.path.isfile(os.path.join(path, file)) and file.endswith(extension):
+                    size = self.__retrieve_kernel_size(os.path.join(path, file))
+                    break
+            self.__kernel_compressed_size = "{}{} : {} , ".format(
+                self.__kernel_compressed_size,
+                compression,
+                size
+            )
+        self.__kernel_compressed_size = self.__kernel_compressed_size[:-3]
+
+        # reset the configuration file to its earlier state
+        with open("{}/.config".format(self.__kernel_path), "wb") as config:
+            config.write(basic_config)
+            config.flush()
+            subprocess.run(
+                args="make -C {} -j{}".format(
+                    self.__kernel_path,
+                    self.__nb_core
+                ),
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+        self.__logger.timed_print_output(
+            "Successfully retrieve compressed kernel size.",
+            color=COLOR_SUCCESS
+        )
+
+    ## __enable_only_one_compression_option
+    # @author POLES Malo, PICARD Michaël
+    # @version 2
+    # @brief Enable one of the compression option.
+    # @details The given compression_type have to be one of the
+    # settings.KERNEL_COMPRESSION_TYPE. (And it's check at the beginning.)
+    def __enable_only_one_compression_option(self, compression_type):
+        assert compression_type in settings.KERNEL_COMPRESSION_TYPE, \
+            "{} isn't in {}!".format(compression_type,
+                                     settings.KERNEL_COMPRESSION_TYPE)
+
+        for c in settings.KERNEL_COMPRESSION_TYPE:
+            self.__rewrite_option_config(
+                "CONFIG_KERNEL_{}=y".format(c),
+                "# CONFIG_KERNEL_{} is not set".format(c))
+            self.__rewrite_option_config(
+                "CONFIG_KERNEL_{}=m".format(c),
+                "# CONFIG_KERNEL_{} is not set".format(c))
+        self.__rewrite_option_config(
+            "# CONFIG_KERNEL_{} is not set".format(compression_type),
+            "CONFIG_KERNEL_{}=y".format(compression_type)
+        )
+
+    ## __rewrite_option_config
+    # @author POLES Malo, PICARD Michaël
+    # @version 2
+    # @brief Rewrite one option of the linux configuration file.
+    def __rewrite_option_config(self, before, after):
+        return not bool(subprocess.check_call(
+            args="sed 's|{}|{}|' -i {}/.config".format(
+                before,
+                after,
+                self.__kernel_path
+            ),
+            shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        ))
+
+    ## __set_result_dictionary
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Build the result dictionary by retrieving all its entry.
     def __set_result_dictionary(self):
         self.__result_dictionary = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S",
