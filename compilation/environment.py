@@ -77,15 +77,19 @@ def __get_ram_size():
 
 ## __get_max_cpu_freq()
 # @author PICARD Michaël
-# @version 1
-# @brief Retrieve and return the current frequencies of the 1st cpu
+# @version 3
+# @brief Retrieve and return the max frequencies of the 1st cpu, in MHz
 def __get_max_cpu_freq():
-    output = subprocess.check_output(
-        args="lshw -class processor | grep capacity",
-        shell=True,
-        universal_newlines=True
-    )
-    return output.strip().split(' ')[1]
+    cpu_info_max_freq = "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq"
+    if os.path.exists(cpu_info_max_freq):
+        with open(cpu_info_max_freq) as cpu_max_freq:
+            return int(cpu_max_freq.read().strip())/1000
+    else:
+        with open("/proc/cpuinfo") as cpuinfo:
+            for line in cpuinfo:
+                if line.startswith('cpu MHz'):
+                    return int(line.split(':')[1].strip())
+        raise EnvironmentError("No cpu max frequencies has been retrieved!")
 
 
 ## __get_cpu_name()
