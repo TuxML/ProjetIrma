@@ -6,7 +6,7 @@ from compilation.settings import IP_BDD, USERNAME_BDD, PASSWORD_USERNAME_BDD,\
     NAME_BDD
 
 
-## fetch_cursor_to_database
+## fetch_connection_to_database
 # @author Picard Michaël
 # @version 1
 # @brief Connect yourself to your database, and return a cursor on it.
