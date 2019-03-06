@@ -1,0 +1,49 @@
+From 7cac9bab3de49c03e1edce71d5d4b631d7464b74 Mon Sep 17 00:00:00 2001
+From: Ulf Magnusson <ulfalizer@gmail.com>
+Date: Tue, 9 Jun 2015 13:01:34 +0200
+Subject: [PATCH] Kconfiglib scripts/kconfig/Makefile patch
+
+---
+ scripts/kconfig/Makefile | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+index 4a7bd2192073..448cd1cb9314 100644
+--- a/scripts/kconfig/Makefile
++++ b/scripts/kconfig/Makefile
+@@ -27,2 +27,32 @@ gconfig: $(obj)/gconf
+ 
++PHONY += scriptconfig iscriptconfig kmenuconfig dumpvarsconfig
++
++PYTHONCMD   ?= python
++kpythonpath := PYTHONPATH=$(srctree)/Kconfiglib:$$PYTHONPATH
++kpython     := $(kpythonpath) $(PYTHONCMD)
++kpython3    := $(kpythonpath) python3
++
++ifneq ($(filter scriptconfig,$(MAKECMDGOALS)),)
++ifndef SCRIPT
++$(error Use "make scriptconfig SCRIPT=<path to script> [SCRIPT_ARG=<argument>]")
++endif
++endif
++
++scriptconfig:
++	$(Q)$(kpython) $(SCRIPT) $(Kconfig) $(if $(SCRIPT_ARG),"$(SCRIPT_ARG)")
++
++iscriptconfig:
++	$(Q)$(kpython) -i -c \
++	  "import kconfiglib; \
++	   import sys; \
++	   kconf = kconfiglib.Kconfig(sys.argv[4 if '$(PYTHONCMD)'.startswith('ipython') else 1]); \
++	   print('A Kconfig instance \'kconf\' for the architecture $(ARCH) has been created.')" \
++	  $(Kconfig)
++
++kmenuconfig:
++	$(Q)$(kpython3) $(srctree)/Kconfiglib/menuconfig.py $(Kconfig)
++
++dumpvarsconfig:
++	$(Q)$(kpython) $(srctree)/Kconfiglib/examples/dumpvars.py $(Kconfig)
++
+ menuconfig: $(obj)/mconf
+-- 
+2.17.1
+
