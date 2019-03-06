@@ -60,7 +60,9 @@ The test of this option does not make sense because of the way the randconfig an
 
 However this option is interesting because it introduces a new type of options, the conditional option. A conditional option is a boolean option that enable another set of options.
 
-In our case the conditional is [`HAVE_ARCH_KASAN`](https://cateee.net/lkddb/web-lkddb/HAVE_ARCH_KASAN.html) that enable Kasan's options if set to true. However our tests shows that, like a 'blind option', this conditional can't be set directly in the .config file. Wich means that if we set options that depends on [`HAVE_ARCH_KASAN`] directly in the .config file we can't be sure that they will remain set after the randconfig algorithm, because we cannot set `HAVE_ARCH_KASAN` in the .config file in the first place.
+In our case the conditional is [`HAVE_ARCH_KASAN`](https://cateee.net/lkddb/web-lkddb/HAVE_ARCH_KASAN.html) that enable Kasan's options if set to true. Conditional options add a new degree of dependancy in classical options. An option can be dependant from several others options and be dependant of a conditional option too. That means that both 'types' of dependancy have to be set at the right value to allow an option to be in the final .config. 
+
+The problem begin when we try to pre set options in the .config file. We've already seen that if dependance are not met for an option we pre set, this option will not be in the final .config file. The behavior is the same with conditional options. If we pre set an option and we don't specify the conditional value, this option might not be present in the final .config.
 
 We conducted further test using another conditional option [`USB_SERIAL`](https://github.com/torvalds/linux/blob/v4.20/drivers/usb/serial/Kconfig) and we observed the same behavior. 
 
@@ -68,4 +70,13 @@ The main difference between `blind options` and `conditional options` is that `b
 
 ### Conclusion
 
-To conclude we can say that creating .config file using randconfig while pre-setting options seems to lead to behavior that are not predictable. It also seems that thoses behavior are more or less random on their own, wich means that we can't assume anything when generating .config this way. And we should check every .config file before using them. One workaround that limit thoses behavior is to explicitly set every options and dependances manualy, but even with this technique, we can't assume that they will remains set after the randconfig algorithm is use.
+To conclude we can say that randconfig on his own work well, generating .config that work everytime.
+
+However if we try to pre set options, we need,as users, to be very explicit on every dependances thoses pre set options have, and to specify them aswell. 
+
+This means we can't assume anything on randconfig's behavior when we try to pre set options.
+
+We have two solutions to counter this behavior.
+We can set a check phase after the generation of a .config by randconfig + pre set options. This check will have to look for evey options we have pre set, if they are not in the .config we discard the .config file and retry to create another .config with randconfig + pre set options. This solution is really simple to implement but also inefficient because we are relying on the idea that randconfig will finaly output a .config file that respect our pre set options. More options we pre set equal more time to get a 'good' .config file.
+
+The other solution is to do the work upstream. We can use a script that will look, for every options we pre set, for the dependances of this option and include them in the file among the other pre set options. This solution is more elegant but also harder to perform.
