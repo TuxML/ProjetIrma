@@ -60,9 +60,11 @@ The test of this option does not make sense because of the way the randconfig an
 
 However this option is interesting because it introduces a new type of options, the conditional option. A conditional option is a boolean option that enable another set of options.
 
-In our case the conditional is [`HAVE_ARCH_KASAN`](https://cateee.net/lkddb/web-lkddb/HAVE_ARCH_KASAN.html) that enable Kasan's options if set to true. However our tests shows that, like a 'blind option', this conditional can't be set directly in the .config file. Wich means that if we set options that depends on [`HAVE_ARCH_KASAN`] directly in the .config file we can't be sure that they will remain set after the randconfig algorithm, because we cannot set [`HAVE_ARCH_KASAN`] in the .config file in the first place.
+In our case the conditional is [`HAVE_ARCH_KASAN`](https://cateee.net/lkddb/web-lkddb/HAVE_ARCH_KASAN.html) that enable Kasan's options if set to true. However our tests shows that, like a 'blind option', this conditional can't be set directly in the .config file. Wich means that if we set options that depends on [`HAVE_ARCH_KASAN`] directly in the .config file we can't be sure that they will remain set after the randconfig algorithm, because we cannot set `HAVE_ARCH_KASAN` in the .config file in the first place.
 
 We conducted further test using another conditional option [`USB_SERIAL`](https://github.com/torvalds/linux/blob/v4.20/drivers/usb/serial/Kconfig) and we observed the same behavior. 
+
+The main difference between `blind options` and `conditional options` is that `blind options` are used to propagate options in Kconfig files while `conditional options` are used to enable access to more options.
 
 ### Conclusion
 
