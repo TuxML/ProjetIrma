@@ -404,11 +404,11 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
         specific_configuration = "--tiny"
     elif config is not None:
         specific_configuration = "--config /TuxML/.config"
-        subprocess.call(
+        assert(not subprocess.call(
             args="docker cp {}/{} {}:/TuxML/.config".format(
                 os.getcwd(), config, container_id),
             shell=True
-        )
+        ))
     if silent:
         silent = "--silent"
     else:
