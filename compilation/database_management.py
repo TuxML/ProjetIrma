@@ -2,14 +2,11 @@
 
 import MySQLdb
 
-from compilation.settings import IP_BDD, USERNAME_BDD, PASSWORD_USERNAME_BDD,\
-    NAME_BDD
-
 
 ## fetch_connection_to_database
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
-# @brief Connect yourself to your database, and return a cursor on it.
+# @brief Connect yourself to your database, and return a connection on it.
 def fetch_connection_to_database(host, user, password, database_name):
     return MySQLdb.connect(
         host=host,
@@ -20,7 +17,7 @@ def fetch_connection_to_database(host, user, password, database_name):
 
 
 ## __insert_into_database
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
 # @brief Insert a new row into the database
 def __insert_into_database(connection, cursor, table_name, content_dict):
@@ -40,7 +37,7 @@ def __insert_into_database(connection, cursor, table_name, content_dict):
 
 
 ## __select_where_database
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
 # @brief Select on the database, using the where_dict with equality test.
 def __select_one_field_where_database(cursor, field_to_fetch, table_name, where_dict):
@@ -58,7 +55,7 @@ def __select_one_field_where_database(cursor, field_to_fetch, table_name, where_
 
 
 ## __insert_if_not_exist_and_fetch_id
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
 # @brief Return the id of a row, even if it has be insert into the method.
 # @details Try to fetch an id corresponding to the dictionary content. If it
@@ -82,7 +79,7 @@ def __insert_if_not_exist_and_fetch_id(connection, cursor, dictionary, id_name, 
 
 
 ## insert_if_not_exist_and_fetch_hardware
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
 # @brief If not exist, insert a new hardware configuration. Fetch the
 # corresponding hid.
@@ -92,7 +89,7 @@ def insert_if_not_exist_and_fetch_hardware(connection, cursor, hardware):
 
 
 ## insert_if_not_exist_and_fetch_software
-# @author Picard Michaël
+# @author PICARD Michaël
 # @version 1
 # @brief If not exist, insert a new software configuration. Fetch the
 # corresponding sid.
@@ -101,6 +98,10 @@ def insert_if_not_exist_and_fetch_software(connection, cursor, software):
                                               'software_environment')
 
 
+## insert_and_fetch_compilation
+# @author PICARD Michaël
+# @version 1
+# @brief Insert new compilation result. Fetch the corresponding cid.
 def insert_and_fetch_compilation(connection, cursor, compilation):
     __insert_into_database(connection, cursor, 'compilations', compilation)
     # Since the compilation_time is too precise compare to the database
@@ -116,15 +117,28 @@ def insert_and_fetch_compilation(connection, cursor, compilation):
     return cid
 
 
+## insert_and_fetch_compilation
+# @author PICARD Michaël
+# @version 1
+# @brief Insert new relation between two compilation (incrementals_compilation).
 def insert_incrementals_compilation(connection, cursor, incrementals):
     __insert_into_database(connection, cursor, 'incrementals_compilations_relation',
                            incrementals)
 
 
+## insert_and_fetch_compilation
+# @author PICARD Michaël
+# @version 1
+# @brief Insert new boot result.
 def insert_boot_result(connection, cursor, boot):
     __insert_into_database(connection, cursor, 'boot', boot)
 
 
+## __dictionary_to_string_dictionary
+# @author PICARD Michaël
+# @version 1
+# @brief Convert a random dictionary to a dictionary which value are string.
+# @todo Is it exhaustive?
 def __dictionary_to_string_dictionary(origin_dictionary):
     new_dictionary = dict()
     for k, v in origin_dictionary.items():
@@ -137,24 +151,3 @@ def __dictionary_to_string_dictionary(origin_dictionary):
             v = str(v)
         new_dictionary[k] = v
     return new_dictionary
-
-
-def stub_insert_new_data_into_database(compilation, hardware, software,
-                                       cid_incremental=None, boot=None):
-    connection = fetch_connection_to_database(IP_BDD, USERNAME_BDD,
-                                              PASSWORD_USERNAME_BDD, NAME_BDD)
-    cursor = connection.cursor()
-
-    hid = insert_if_not_exist_and_fetch_hardware(connection, cursor, hardware)
-    sid = insert_if_not_exist_and_fetch_software(connection, cursor, software)
-    compilation['hid'] = str(hid)
-    compilation['sid'] = str(sid)
-    cid = insert_and_fetch_compilation(connection, cursor, compilation)
-    if cid_incremental is not None:
-        insert_incrementals_compilation(
-            connection, cursor,
-            {'cid': str(cid), 'cid_base': str(cid_incremental)})
-    if boot is not None:
-        boot['cid'] = str(cid)
-        insert_boot_result(connection, cursor, boot)
-    return cid

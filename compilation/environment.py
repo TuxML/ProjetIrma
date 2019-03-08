@@ -2,28 +2,9 @@
 # @author LE FLEM Erwan, LEBRETON Mickaël, PICARD Michaël
 # @version 2
 # @brief python3 methods to get data about compilation environment
-# @details This file contains method to get data about compilation environment :
-# - system :
-#   + os
-#   + distribution
-#   + distrib_version
-#   + kernel => os_kernel_version
-# - hardware :
-#   + cpu
-#   + cpu_freq
-#   + cpu_cores
-#   + ram
-#   + architecture
-#   + mechanical_drive : Boolean
-# - libs :
-#   + libc_version
-#   + gcc_version
-#   + tuxml_version
-# - others :
-#   + core_used ? Should be the same as the number of core that the machine got,
-#       so we make a duplicate here?
-#   + branch ? empty, so not needed? docker_image useless also?
-#   + incremental_mod ? shouldn't be in the environnement details, isn't it?
+# @details Each key of each dictionary correspond to a field in the database.
+# check the last report about the database for more info (or check the
+# database).
 
 import platform
 import os
@@ -65,8 +46,8 @@ def __is_mechanical_disk():
 
 
 ## __get_ram_size
-# @author PICARD Michaël
-# @version 1
+# @author LE FLEM Erwan, PICARD Michaël
+# @version 2
 # @brief Retrieve the ram size in kB
 # @return a string corresponding to the size of the ram, in kB
 def __get_ram_size():
@@ -93,7 +74,7 @@ def __get_max_cpu_freq():
 
 
 ## __get_cpu_name()
-# @author PICARD Michaël
+# @author LE FLEM Erwan, PICARD Michaël
 # @version 2
 # @brief Retrieve and return the brand name of the cpu
 # @raises EnvironmentError if the cpu model name hasn't been retrieved
@@ -108,6 +89,7 @@ def __get_cpu_name():
 ## __get_hardware_details()
 # @author LE FLEM Erwan, PICARD Michaël
 # @version 2
+# @brief Returns a dictionary containing hardware details
 def __get_hardware_details():
     hw = {
         "cpu_brand_name": __get_cpu_name(),
@@ -144,6 +126,11 @@ def __get_gcc_version():
         ).split(" ")[2][:-1]
 
 
+## __get_software_details
+# @author LE FLEM Erwan, LEBRETON Mickaël, PICARD Michaël
+# @version 2
+# @brief Returns a dictionary containing software details
+# @details It also include systeme details, since it's still software.
 def __get_software_details():
     software = {
         "tuxml_version": TUXML_VERSION,
@@ -157,6 +144,7 @@ def __get_software_details():
 ## get_environment_details
 # @author LEBRETON Mickaël, PICARD Michaël
 # @version 2
+# @brief Return a dictionary about the compilation environment.
 def get_environment_details():
     env = {
         "hardware": __get_hardware_details(),
@@ -169,7 +157,8 @@ def get_environment_details():
 ## print_environment_details
 # @author LEBRETON Mickaël, PICARD Michaël
 # @version 2
-# @brief Using the print_method, pretty_print the environment details.
+# @brief Using the print_method, pretty print the environment details.
+# @todo It's in a simple state. It can be improve to have a more stable output.
 def print_environment_details(environment_details, print_method=print):
     for primary_key in environment_details:
         print_method("    ==> {}".format(primary_key))

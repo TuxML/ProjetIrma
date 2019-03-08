@@ -5,13 +5,26 @@ import subprocess
 from compilation.logger import COLOR_SUCCESS, COLOR_ERROR
 
 
+## PackageManager
+# @author PICARD Michaël
+# @version 1
+# @brief PackageManager object manage all package related method. It update the
+# system package manager, install new package, search for package to install
+# when dependencies and more importantly, keep a list of all the installed
+# package into the container.
 class PackageManager:
+    # @param dependencies_file Path to the file containing all the installed
+    # packages.
     def __init__(self, logger, dependencies_file):
         self.__logger = logger
         with open(dependencies_file, "r") as dependencies:
             self.__package_list = [x.strip() for y in dependencies.read().splitlines()
                                    for x in y.split(' ')]
 
+    ## update_system
+    # @author LE FLEM Erwan, LEBRETON Mickaël, MERZOUK Fahim, PICARD Michaël
+    # @version 2
+    # @brief Update package list and upgrade package who need it.
     def update_system(self):
         self.__logger.timed_print_output("Updating packages repositories and "
                                          "upgrading packages.")
@@ -27,6 +40,12 @@ class PackageManager:
             color=COLOR_SUCCESS
         )
 
+    ## install_package
+    # @author LE FLEM Erwan, LEBRETON Mickaël, MERZOUK Fahim, PICARD Michaël
+    # @version 2
+    # @brief Install a list of package and add them to the list of installed
+    # package.
+    # @return True if successful.
     def install_package(self, package_list):
         self.__logger.timed_print_output(
             "Installing package(s) : {}".format(" ".join(package_list)))
@@ -43,6 +62,12 @@ class PackageManager:
         )
         return True
 
+    ## __install_one_package
+    # @author LE FLEM Erwan, LEBRETON Mickaël, MERZOUK Fahim, PICARD Michaël
+    # @version 2
+    # @brief Install a package and add it to the list of installed
+    # package.
+    # @return True if successful.
     def __install_one_package(self, package):
         try:
             subprocess.run(
@@ -57,6 +82,12 @@ class PackageManager:
         except subprocess.CalledProcessError:
             return False
 
+    ## fix_missing_dependencies
+    # @author LE FLEM Erwan, LEBRETON Mickaël, MERZOUK Fahim, PICARD Michaël
+    # @version 2
+    # @brief Given a list of missing files and missing_packages, try to fix
+    # missing dependencies.
+    # @return True if successful.
     def fix_missing_dependencies(self, missing_files, missing_packages):
         self.__logger.timed_print_output(
             "Fixing missing file(s)/package(s) dependencies."
@@ -144,5 +175,10 @@ class PackageManager:
             )
         return ret
 
+    ## get_package_list_copy
+    # @author PICARD Michaël
+    # @version 1
+    # @brief return the list of installed packages
+    # @return list(str)
     def get_package_list_copy(self):
         return self.__package_list.copy()

@@ -11,6 +11,13 @@ from compilation.logger import *
 import compilation.settings as settings
 
 
+## Compiler
+# @author PICARD Michaël
+# @version 1
+# @brief Compiler object is a wrapper to do a compilation.
+# @details Compiler object handle everything related to a compilation.
+# To use it, create it, call the method run once and you can retrieve all the
+# compilation result with is_successful and and get_compilation_dictionary.
 class Compiler:
     def __init__(self, logger, configuration, args, package_manager, optional_config_file=None):
         self.__logger = logger
@@ -38,6 +45,11 @@ class Compiler:
                 )
         self.__kernel_compressed_size = self.__kernel_compressed_size[:-3]
 
+    ## run
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Call it once to do the whole compilation process.
+    # @details Thread like method.
     def run(self):
         file = self.__args.config
         if self.__optional_config_file is not None:
@@ -52,6 +64,10 @@ class Compiler:
 
         self.__set_result_dictionary()
 
+    ## __do_a_compilation
+    # @author LEBRETON Mickaël, PICARD Michaël
+    # @version 2
+    # @brief Run a compilation, with autofix and timer.
     def __do_a_compilation(self):
         start_compilation_timer = time.time()
         install_time_cpt = 0
@@ -107,6 +123,10 @@ class Compiler:
                 color=COLOR_ERROR
             )
 
+    ## __linux_config_generator
+    # @author LEBRETON Mickaël, PICARD Michaël
+    # @version 2
+    # @brief Generate .config in the kernel folder, in order to compile with it.
     def __linux_config_generator(self, tiny, specific_config):
         if specific_config is not None:
             self.__logger.timed_print_output("Using specific KCONFIG file.")
@@ -143,6 +163,13 @@ class Compiler:
                 check=True
             )
 
+    ## __compile
+    # @author LEBRETON Mickaël, PICARD Michaël
+    # @version 2
+    # @brief Run a compilation and return is successful or not.
+    # @details The main difference here is that this method don't count time
+    # spend nor try to fix if the compilation fail. It just call the make and
+    # return if the make is successful or not.
     def __compile(self):
         self.__logger.timed_print_output("Compilation in progress")
         failure = subprocess.call(
@@ -200,18 +227,39 @@ class Compiler:
                 "Unable to find the missing package(s).", color=COLOR_ERROR)
         return success, files, packages
 
+    ## is_successful
+    # @author PICARD Michaël
+    # @version 1
     def is_successful(self):
         return self.__compilation_success
 
+    ## get_compilation_dictionary
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Return a dictionary containing all the data about compilation.
+    # @details All the key represent each field (minus cid) of the bdd.
     def get_compilation_dictionary(self):
         return self.__result_dictionary
 
+    ## __retrieve_kernel_size
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Retrieve the kernel size
+    # @details Check if the path exist, if yes, returns its size. If not, return
+    # -1. Note that this method name is such, because this method is only use to
+    # retrieve size of a kernel. But it could have been name __retrieve_size.
     @staticmethod
     def __retrieve_kernel_size(compiled_kernel_path):
         if os.path.exists(compiled_kernel_path):
             return os.path.getsize(compiled_kernel_path)
         return -1
 
+    ## __get_compressed_kernel_size
+    # @author LE MASLE Alexis, PICARD Michaël
+    # @version 2
+    # @brief Get the size of the 18 differents compressed kernels
+    # @return A string representing the result. The string is formatted like
+    # "<compressed_kernel> : <size>"(" , <compressed_kernel> : <size>")*
     def __get_compressed_kernel_size(self):
         self.__logger.timed_print_output("Computing compressed kernel size.")
 

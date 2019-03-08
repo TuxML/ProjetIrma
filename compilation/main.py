@@ -9,10 +9,14 @@ from compilation.configuration import create_configuration, print_configuration
 from compilation.package_manager import PackageManager
 from compilation.logger import Logger
 from compilation.compiler import Compiler
-from compilation.database_management import stub_insert_new_data_into_database
+from compilation.database_management import fetch_connection_to_database, insert_if_not_exist_and_fetch_hardware, insert_if_not_exist_and_fetch_software, insert_and_fetch_compilation, insert_incrementals_compilation, insert_boot_result
 import compilation.settings as settings
 
 
+## parser
+# @author PICARD Michaël
+# @version 1
+# @brief Parse the commandline and return the parsed argument.
 def parser():
     parser = argparse.ArgumentParser(
         description=""  # TODO: Fill the description
@@ -50,6 +54,10 @@ def parser():
     return parser.parse_args()
 
 
+## create_logger
+# @author PICARD Michaël
+# @version 1
+# @brief Create the logger object and return it.
 def create_logger(silent):
     return Logger(
         settings.OUTPUT_FILE,
@@ -59,6 +67,10 @@ def create_logger(silent):
     )
 
 
+## retrieve_and_display_environment
+# @author PICARD Michaël
+# @version 1
+# @brief Retrieve and display the environment dictionary.
 def retrieve_and_display_environment(logger):
     logger.timed_print_output("Getting environment details.")
     environment = get_environment_details()
@@ -66,6 +78,10 @@ def retrieve_and_display_environment(logger):
     return environment
 
 
+## retrieve_and_display_configuration
+# @author PICARD Michaël
+# @version 1
+# @brief Retrieve and display the configuration dictionary.
 def retrieve_and_display_configuration(logger, args):
     logger.timed_print_output("Getting configuration details.")
     configuration = create_configuration(args)
@@ -91,12 +107,13 @@ def run(logger, configuration, environment, args, package_manager,
         # todo: BootChecker
         pass
 
-    cid = stub_insert_new_data_into_database(
+    cid = insert_result_into_database(
+        logger,
         compilation_result,
         environment['hardware'],
         environment['software'],
-        cid_incremental=cid_before,
-        boot=boot_result
+        cid_before,
+        boot_result
     )
 
     archive_log(cid)
@@ -104,15 +121,64 @@ def run(logger, configuration, environment, args, package_manager,
     return cid
 
 
+## archive_log
+# @author PICARD Michaël
+# @version 1
+# @brief Retrieve the logs file, create a directory named <cid>, and put the log
+# in the created directory.
 def archive_log(cid):
     directory = "{}/{}".format(settings.LOG_DIRECTORY, cid)
     os.makedirs(directory)
     file_list = [file for file in os.listdir(settings.LOG_DIRECTORY)
                  if os.path.isfile(os.path.join(settings.LOG_DIRECTORY, file))]
     for file in file_list:
-        shutil.move(
+        shutil.copy2(
             os.path.join(settings.LOG_DIRECTORY, file),
             os.path.join(directory, file))
+
+
+## insert_result_into_database
+# @author PICARD Michaël
+# @version 1
+# @brief Send the sample result onto the data.
+def insert_result_into_database(logger, compilation, hardware, software,
+                                cid_incremental=None, boot=None):
+    logger.timed_print_output("Sending result to database.")
+    connection = fetch_connection_to_database(
+        settings.IP_BDD,
+        settings.USERNAME_BDD,
+        settings.PASSWORD_USERNAME_BDD,
+        settings.NAME_BDD)
+    cursor = connection.cursor()
+
+    hid = insert_if_not_exist_and_fetch_hardware(connection, cursor, hardware)
+    sid = insert_if_not_exist_and_fetch_software(connection, cursor, software)
+    compilation['hid'] = str(hid)
+    compilation['sid'] = str(sid)
+    cid = insert_and_fetch_compilation(connection, cursor, compilation)
+    if cid_incremental is not None:
+        insert_incrementals_compilation(
+            connection, cursor,
+            {'cid': str(cid), 'cid_base': str(cid_incremental)})
+    if boot is not None:
+        boot['cid'] = str(cid)
+        insert_boot_result(connection, cursor, boot)
+
+    logger.timed_print_output("Successfully send result with cid : {}".format(
+        cid))
+    return cid
+
+
+## remove_logs_file
+# @author PICARD Michaël
+# @version 1
+# @brief Remove logs files, but not the logs that are "archived" ie put in a
+# subdirectory.
+def remove_logs_file():
+    file_list = [file for file in os.listdir(settings.LOG_DIRECTORY)
+                 if os.path.isfile(os.path.join(settings.LOG_DIRECTORY, file))]
+    for file in file_list:
+        os.remove(os.path.join(settings.LOG_DIRECTORY, file))
 
 
 if __name__ == "__main__":
@@ -126,3 +192,7 @@ if __name__ == "__main__":
 
     # Do a compilation, do the test and send result
     run(logger, configuration, environment, args, package_manager)
+
+    # Cleaning the container
+    del logger
+    remove_logs_file()
