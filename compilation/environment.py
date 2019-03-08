@@ -88,7 +88,7 @@ def __get_max_cpu_freq():
         with open("/proc/cpuinfo") as cpuinfo:
             for line in cpuinfo:
                 if line.startswith('cpu MHz'):
-                    return int(line.split(':')[1].strip())
+                    return int(line.split(':')[1].split('.')[0].strip())
     raise EnvironmentError("No cpu max frequencies has been retrieved!")
 
 
