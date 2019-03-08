@@ -311,7 +311,7 @@ def parser():
     parser.add_argument(
         "-u",
         "--update",
-        help="Download the image from the directory",
+        help="Download the image from the repository",
         action="store_true"
     )
 
