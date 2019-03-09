@@ -7,7 +7,7 @@ import shutil
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
 from compilation.package_manager import PackageManager
-from compilation.logger import Logger
+from compilation.logger import Logger, COLOR_SUCCESS
 from compilation.compiler import Compiler
 from compilation.database_management import fetch_connection_to_database, insert_if_not_exist_and_fetch_hardware, insert_if_not_exist_and_fetch_software, insert_and_fetch_compilation, insert_incrementals_compilation, insert_boot_result
 import compilation.settings as settings
@@ -165,7 +165,7 @@ def insert_result_into_database(logger, compilation, hardware, software,
         insert_boot_result(connection, cursor, boot)
 
     logger.timed_print_output("Successfully send result with cid : {}".format(
-        cid))
+        cid), color=COLOR_SUCCESS)
     return cid
 
 

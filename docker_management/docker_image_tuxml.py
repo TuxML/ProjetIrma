@@ -124,7 +124,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
         image=NAME_BASE_IMAGE,
         path=tmp_location)
 
-    if tmp_location != os.path.dirname(os.path.abspath(__file__)):
+    if os.path.abspath(tmp_location) != os.path.dirname(os.path.abspath(__file__)):
         os.remove("{}/installBusyBox.sh".format(tmp_location))
         os.remove("{}/init".format(tmp_location))
 
