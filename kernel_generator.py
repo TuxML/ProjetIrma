@@ -251,6 +251,7 @@ def check_precondition_and_warning(args):
         raise NotImplementedError(
             "You can't compile with a negative or null number of cpu."
         )
+
     if args.unit_testing:
         args.incremental = 0
         args.tiny = None
