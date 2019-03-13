@@ -9,6 +9,8 @@ from compilation.settings import BOOTING_KERNEL_PATH, INITRAMFS_PATH, \
     MAX_TIME_BOOT
 
 
+## BootChecker
+# @author PICARD Michaël
 class BootChecker:
     def __init__(self, logger, configuration):
         self.__logger = logger
@@ -26,19 +28,14 @@ class BootChecker:
 
         boot_process = self.__bootprocess_create()
 
-        cancel = False
         timer_begin = time()
         while (time() - timer_begin) < MAX_TIME_BOOT:
             if self.__have_finished():
                 break
             sleep(1)
-        else:
-            cancel = True
 
         boot_process.kill()
         self.__boot_time = self.__get_result()
-        if cancel and self.__boot_time == -1:
-            self.__boot_time = -2
         if self.__boot_time == -2:
             self.__logger.timed_print_output(
                 "Test took too much time (over {} seconds). "
@@ -79,7 +76,9 @@ class BootChecker:
             for line in output.read().splitlines():
                 if "Boot took" in line:
                     return float(line.split(' ')[2])
-            return -1
+                if "Kernel panic" in line:
+                    return -1
+            return -2
 
     def __set_result_dictionary(self):
         self.__result_dictionary = {
