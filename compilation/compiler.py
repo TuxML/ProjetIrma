@@ -1,4 +1,4 @@
-# @file Compilator.py
+# @file compiler.py
 
 import re
 import subprocess

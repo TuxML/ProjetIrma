@@ -526,7 +526,7 @@ def fetch_logs(container_id, directory, silent=False):
         shutil.move(
             os.path.join("{}/logs".format(directory), file),
             os.path.join(directory, file))
-    os.removedirs("{}/logs".format(directory))
+    os.rmdir("{}/logs".format(directory))
     if not silent:
         print("Done", flush=True)
 

@@ -9,6 +9,7 @@ from compilation.configuration import create_configuration, print_configuration
 from compilation.package_manager import PackageManager
 from compilation.logger import Logger, COLOR_SUCCESS
 from compilation.compiler import Compiler
+from compilation.boot_checker import BootChecker
 from compilation.database_management import fetch_connection_to_database, insert_if_not_exist_and_fetch_hardware, insert_if_not_exist_and_fetch_software, insert_and_fetch_compilation, insert_incrementals_compilation, insert_boot_result
 import compilation.settings as settings
 
@@ -63,6 +64,7 @@ def create_logger(silent):
         settings.OUTPUT_FILE,
         settings.STDOUT_FILE,
         settings.STDERR_FILE,
+        settings.BOOT_FILE,
         silent
     )
 
@@ -104,8 +106,11 @@ def run(logger, configuration, environment, args, package_manager,
 
     boot_result = None
     if compiler.is_successful():
-        # todo: BootChecker
-        pass
+        boot_checker = BootChecker(logger, configuration)
+        boot_checker.run()
+        boot_result = boot_checker.get_boot_dictionary()
+    else:
+        logger.reset_boot_pipe()
 
     cid = insert_result_into_database(
         logger,

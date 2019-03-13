@@ -1,4 +1,4 @@
-## @file PackageManager.py
+## @file package_manager.py
 
 import subprocess
 

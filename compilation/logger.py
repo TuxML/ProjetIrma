@@ -23,13 +23,15 @@ _COLOR_TIME = "\033[38;5;12m"
 # but not display.
 class Logger:
     def __init__(self, user_output_file, stdout_file, stderr_file,
-                 silent=False):
+                 boot_file, silent=False):
         self.__user_output_file = user_output_file
         self.__stdout_file = stdout_file
         self.__stderr_file = stderr_file
+        self.__boot_file = boot_file
         self.__output = open(user_output_file, mode='w')
         self.__stdout = open(stdout_file, mode='w')
         self.__stderr = open(stderr_file, mode='w')
+        self.__boot = open(boot_file, mode='w')
         self.__silent = silent
 
     ## get_stdout_pipe
@@ -45,6 +47,13 @@ class Logger:
     # @brief Return the file descriptor for the standard error
     def get_stderr_pipe(self):
         return self.__stderr
+
+    ## get_boot_pipe
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Return the file descriptor for the boot output
+    def get_boot_pipe(self):
+        return self.__boot
 
     ## print_output
     # @author PICARD Michaël
@@ -104,6 +113,14 @@ class Logger:
         self.__stderr.close()
         self.__stderr = open(self.__stderr_file, 'w')
 
+    ## reset_boot_pipe
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Clear the boot file.
+    def reset_boot_pipe(self):
+        self.__stderr.close()
+        self.__stderr = open(self.__boot_file, 'w')
+
     ## get_stdout_file
     # @author PICARD Michaël
     # @version 1
@@ -125,8 +142,16 @@ class Logger:
     def get_user_output_file(self):
         return self.__user_output_file
 
+    ## get_boot_file
+    # @author PICARD Michaël
+    # @version 1
+    # @brief Return the path of the boot file.
+    def get_boot_file(self):
+        return self.__boot_file
+
     # Assure that when deleting logger object, all file are closed.
     def __del__(self):
         self.__output.close()
         self.__stdout.close()
         self.__stderr.close()
+        self.__boot.close()
