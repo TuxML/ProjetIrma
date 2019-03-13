@@ -1,0 +1,125 @@
+FF.F.FF...F....FF.F..FF.F..
+======================================================================
+FAIL: test_archkasan (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 276, in test_archkasan
+    self.assert_spe_shouldsuccessbutfail("CONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20) # AM: for me it should be a success! (I am seeing no dependency)
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_archkasan_withX86_64 (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 279, in test_archkasan_withX86_64
+    self.assert_spe_shouldsuccessbutfail("CONFIG_X86_64=y\nCONFIG_HAVE_ARCH_KASAN=y", iter_randconfig=20)  # AM: for me it should be a success!
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_blind_option (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 253, in test_blind_option
+    self.assert_spe_shouldsuccessbutfail ("CONFIG_X86_NEED_RELOCS=y") # AM: for me it should be a success!
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_bt_qcomsd (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 344, in test_bt_qcomsd
+    self.assert_spe_shouldsuccessbutfail("CONFIG_NET=y\nCONFIG_RFKILL=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_bt_qcomsd_explicit (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 347, in test_bt_qcomsd_explicit
+    self.assert_spe_shouldsuccessbutfail("CONFIG_NET=y\nCONFIG_RFKILL=y\nCONFIG_S390=n\nCONFIG_BT=y\nCONFIG_RPMSG=y\nCONFIG_QCOM_WCNSS_CTRL=y\nCONFIG_BT_QCOMSMD=y") # with the infamous RFKILL || !RFKILL  # 0.53  (ratio of options whose values differ from pre-settings)
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_dvb_usb_mb (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 331, in test_dvb_usb_mb
+    self.assert_spe_shouldsuccessbutfail("CONFIG_USB_ARCH_HAS_HCD=y\nCONFIG_MEDIA_SUPPORT=y\nCONFIG_MEDIA_DIGITAL_TV_SUPPORT=y\nCONFIG_DVB_CORE=y\nCONFIG_USB=y\nCONFIG_I2C=y\nCONFIG_RC_CORE=y\nCONFIG_DVB_USB=y\nCONFIG_DVB_USB_DIBUSB_MB=y", iter_randconfig=10)
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_proper_usb_serial (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 297, in test_proper_usb_serial
+    self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_TTY=y\nCONFIG_USB_SUPPORT=y\nCONFIG_USB_SERIAL=y")
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_qcom_ctrl (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 370, in test_qcom_ctrl
+    self.assert_spe_success("CONFIG_COMPILE_TEST=y\nCONFIG_RPMSG=y\nCONFIG_QCOM_WCNSS_CTRL=y")
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 203, in assert_spe_success
+    self.assertEqual(rep['nberrors'].sum(), 0.0)
+AssertionError: 8 != 0.0
+
+======================================================================
+FAIL: test_rpmsg (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 361, in test_rpmsg
+    self.assert_spe_shouldsuccessbutfail("CONFIG_RPMSG=y") # the root cause of failure above
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_strange_tty (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 313, in test_strange_tty
+    self.assert_spe_shouldfailbutsuccess("CONFIG_TTY=y", iter_randconfig=50) # high budget
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 221, in assert_spe_shouldfailbutsuccess
+    self.assertTrue(False, "should fail but success")
+AssertionError: False is not true : should fail but success
+
+======================================================================
+FAIL: test_tty_hci (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 323, in test_tty_hci
+    self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_SERIAL_DEV_BUS=y\nCONFIG_NVMEM=y\nCONFIG_TTY=y\nCONFIG_BT_HCIUART=y")
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+======================================================================
+FAIL: test_usb_opticon_with_serial (kconfig_checker.TestRandconfigSpeMethods)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 290, in test_usb_opticon_with_serial
+    self.assert_spe_shouldsuccessbutfail("CONFIG_EXPERT=y\nCONFIG_TTY=y\nCONFIG_USB_SUPPORT=y\nCONFIG_USB_SERIAL=y\nCONFIG_USB_SERIAL_OPTICON=y", iter_randconfig=20) # AM: for me it should be a success since all dependencies are made explicit
+  File "/Users/macher1/Documents/RESEARCH/INPROGRESS/tuxml-irma/ProjetIrma/special-config/kconfig_checker.py", line 216, in assert_spe_shouldsuccessbutfail
+    self.assertTrue(False, "should success but fail")
+AssertionError: False is not true : should success but fail
+
+----------------------------------------------------------------------
+Ran 27 tests in 971.718s
+
+FAILED (failures=12)
