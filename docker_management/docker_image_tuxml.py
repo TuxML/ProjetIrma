@@ -11,6 +11,8 @@
 import argparse
 import subprocess
 import os
+import shutil
+
 from settings_image_tuxml import *
 
 
@@ -89,24 +91,21 @@ def create_sub_image_tuxml_compressed(tmp_location):
     get_linux_kernel(LINUX_KERNEL, tmp_location)
     # we need to ensure that the Dockerfile, installBusyBox.sh and init are in
     # the same directory
-    subprocess.run(
-        args="cp {}/installBusyBox.sh {}/installBusyBox.sh".format(
-            os.path.dirname(os.path.abspath(__file__)),
-            tmp_location
-        ),
-        shell=True,
-        stdout=subprocess.DEVNULL
-    )
-    subprocess.run(
-        args="cp {}/init {}/init".format(
-            os.path.dirname(os.path.abspath(__file__)),
-            tmp_location
-        ),
-        shell=True,
-        stdout=subprocess.DEVNULL
-    )
+    # same for dependencies_tree_fixer.py
+    if os.path.abspath(tmp_location) != os.path.dirname(
+            os.path.abspath(__file__)):
+        shutil.copy2(
+            "{}/installBusyBox.sh".format(
+                os.path.dirname(os.path.abspath(__file__))),
+            "{}/installBusyBox.sh".format(tmp_location))
+        shutil.copy2(
+            "{}/init".format(os.path.dirname(os.path.abspath(__file__))),
+            "{}/init".format(tmp_location))
+        shutil.copy2(
+            "{}/dependencies_tree_fixer.py".format(os.path.dirname(os.path.abspath(__file__))),
+            "{}/dependencies_tree_fixer.py".format(tmp_location))
 
-    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
+    content = "{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(
         CONTENT_BASE_IMAGE['DEBIAN_VERSION'],
         CONTENT_BASE_IMAGE['MKDIR_TUXML'],
         CONTENT_BASE_IMAGE['LINUX_TAR'],
@@ -115,7 +114,8 @@ def create_sub_image_tuxml_compressed(tmp_location):
         CONTENT_BASE_IMAGE['RUN_DEP'],
         CONTENT_BASE_IMAGE['RUN_DEP_FILE'],
         CONTENT_BASE_IMAGE['RUN_PIP'],
-        CONTENT_BASE_IMAGE['CPRUN_BB']
+        CONTENT_BASE_IMAGE['CPRUN_BB'],
+        CONTENT_BASE_IMAGE['ADD_DEP']
     )
     create_dockerfile(
         content=content,
@@ -127,6 +127,7 @@ def create_sub_image_tuxml_compressed(tmp_location):
     if os.path.abspath(tmp_location) != os.path.dirname(os.path.abspath(__file__)):
         os.remove("{}/installBusyBox.sh".format(tmp_location))
         os.remove("{}/init".format(tmp_location))
+        os.remove("{}/dependencies_tree_fixer.py".format(tmp_location))
 
 
 ## create_image_tuxml_compressed
