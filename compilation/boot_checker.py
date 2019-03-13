@@ -11,6 +11,9 @@ from compilation.settings import BOOTING_KERNEL_PATH, INITRAMFS_PATH, \
 
 ## BootChecker
 # @author PICARD Michaël
+# @author ROYON CHALENDARD Julien
+# @author HAMON Cyril
+# @author SAFFRAY Paul
 class BootChecker:
     def __init__(self, logger, configuration):
         self.__logger = logger
