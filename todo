@@ -1,3 +1,0 @@
-Ecrire une documentation pour les utilisateurs s'ils veulent éxécuter le scriptBootKernel.sh
-Renvoyer la sortie dans un fichier log jusqu'à vérifier le temps de boot "boot in x seconds" or "kernel panic"
-Dans tous les cas il faut tuer le processus, car le boot n'est pas encore optimal
