@@ -24,7 +24,7 @@ def __insert_into_database(connection, cursor, table_name, content_dict):
     assert(len(content_dict))
 
     keys, values = list(), list()
-    for k, v in __dictionary_to_string_dictionary(content_dict).items():
+    for k, v in content_dict.items():
         keys.append(k)
         values.append(v)
     query_insert = "INSERT INTO {}({}) VALUES({})".format(
@@ -46,7 +46,7 @@ def __select_one_field_where_database(cursor, field_to_fetch, table_name, where_
     value = list()
     query_select = "SELECT {} FROM {} WHERE".format(
         field_to_fetch, table_name)
-    for k, v in __dictionary_to_string_dictionary(where_dict).items():
+    for k, v in where_dict.items():
         query_select = "{} {}=%s and".format(query_select, k)
         value.append(v)
     query_select = query_select[:-4]  # delete the last and
@@ -132,22 +132,3 @@ def insert_incrementals_compilation(connection, cursor, incrementals):
 # @brief Insert new boot result.
 def insert_boot_result(connection, cursor, boot):
     __insert_into_database(connection, cursor, 'boot', boot)
-
-
-## __dictionary_to_string_dictionary
-# @author PICARD Michaël
-# @version 1
-# @brief Convert a random dictionary to a dictionary which value are string.
-# @todo Is it exhaustive?
-def __dictionary_to_string_dictionary(origin_dictionary):
-    new_dictionary = dict()
-    for k, v in origin_dictionary.items():
-        if type(v) is bool:
-            v = int(v)
-        if v is None:
-            v = ''
-
-        if type(v) is not str:  # Default
-            v = str(v)
-        new_dictionary[k] = v
-    return new_dictionary
