@@ -68,6 +68,7 @@ class Logger:
                 flush=True
             )
         self.__output.write("{}{}".format(message, end))
+        self.__output.flush()
 
     ## timed_print_output
     # @author PICARD Michaël
@@ -96,6 +97,7 @@ class Logger:
             )
         self.__output.write("{}{}{}{}".format(
             date, calling_function, message, end))
+        self.__output.flush()
 
     ## reset_stdout_pipe
     # @author PICARD Michaël
