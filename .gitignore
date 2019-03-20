@@ -1,2 +1,4 @@
 linux*.tar.xz
 */__pycache__
+.idea
+.code
