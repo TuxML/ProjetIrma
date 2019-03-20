@@ -33,11 +33,11 @@ def __get_cpu_cores_to_use(nb_cpu_core):
 # @author PICARD Michaël
 # @version 1
 # @brief Return a dictionary about some setting made by the user.
-def create_configuration(args):
+def create_configuration(nb_cpu_cores, incremental_mod):
     kernel_version, kernel_path = __get_kernel_version_and_path()
     configuration = {
-        "core_used": __get_cpu_cores_to_use(int(args.cpu_cores)),
-        "incremental_mod": args.incremental != 0,
+        "core_used": __get_cpu_cores_to_use(nb_cpu_cores),
+        "incremental_mod": incremental_mod,
         "kernel_version_compilation": kernel_version,
         "kernel_path": kernel_path
     }

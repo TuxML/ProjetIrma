@@ -86,7 +86,7 @@ def retrieve_and_display_environment(logger):
 # @brief Retrieve and display the configuration dictionary.
 def retrieve_and_display_configuration(logger, args):
     logger.timed_print_output("Getting configuration details.")
-    configuration = create_configuration(args)
+    configuration = create_configuration(int(args.cpu_cores), args.incremental != 0)
     print_configuration(configuration, logger.print_output)
     return configuration
 
