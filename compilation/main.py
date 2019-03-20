@@ -99,8 +99,18 @@ def retrieve_and_display_configuration(logger, args):
 # it should be called multiple time for multiple compilation.
 def run(logger, configuration, environment, args, package_manager,
         optional_config_file=None, cid_before=None):
-    compiler = Compiler(logger, configuration, args, package_manager,
-                        optional_config_file)
+    file = args.config
+    if optional_config_file is not None:
+        file = optional_config_file
+    compiler = Compiler(
+        logger=logger,
+        package_manager=package_manager,
+        nb_core=args.cpu_cores,
+        kernel_path=configuration['kernel_path'],
+        kernel_version=configuration['kernel_version_compilation'],
+        tiny=args.tiny,
+        config_file=file
+    )
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
 
