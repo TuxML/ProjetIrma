@@ -116,7 +116,7 @@ def run(logger, configuration, environment, args, package_manager,
 
     boot_result = None
     if compiler.is_successful():
-        boot_checker = BootChecker(logger, configuration)
+        boot_checker = BootChecker(logger, configuration['kernel_path'])
         boot_checker.run()
         boot_result = boot_checker.get_boot_dictionary()
     else:
