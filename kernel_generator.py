@@ -11,6 +11,7 @@ import shutil
 
 __COMPRESSED_IMAGE = "tuxml/tartuxml"
 __IMAGE = "tuxml/tuxml"
+__DEFAULT_V4 = "13.3"
 # __sudo_right: internal global variable whose goal is to use sudo if the user
 # isn't in the docker group.
 __sudo_right = ""
@@ -328,8 +329,6 @@ def docker_image_update(tag):
         if before_digest != after_digest:
             print("Update found, uncompressing...")
             set_prompt_color()
-            if docker_image_exist(__IMAGE, tag):
-                docker_image_rm(__IMAGE, tag)
             docker_uncompress_image(tag)
         elif not docker_image_exist(__IMAGE, tag):
             print("No update but {}:{} doesn't exist. "
@@ -351,6 +350,64 @@ def docker_image_update(tag):
     return have_been_updated
 
 
+## docker_image_auto_cleaner
+# @author PICARD Michaël
+# @version 1
+# @brief Will clean all image build with the given tag.
+# @details
+def docker_image_auto_cleaner(tag, old_digest=None):
+    # https://docs.docker.com/engine/reference/commandline/rmi/
+    # TODO:
+    # 1. List all image to be deleted
+    # 2. Remove them
+    # 3. Remove the old tartuxml.
+    pass
+
+
+## docker_build_v4_image
+# @author PICARD Michaël
+# @version 1
+# @brief It will download and create an image with a different linux v4 inside.
+# @details It will build only if it need to. If not, it will just return the
+# image tag.
+# @pre The __IMAGE:tag image already exist.
+# @return The corresponding tag.
+def docker_build_v4_image(tag, v4):
+    tagv4 = "{}-v4.{}".format(tag, v4)
+    if not docker_image_exist(__IMAGE, tagv4):
+        linux_kernel = "linux-v4.{}.tar.xz".format(v4)
+        get_linux_kernel(linux_kernel)
+        docker_file_content = "FROM {0}:{1}\n" \
+                              "COPY {2} /TuxML/{2}\n" \
+                              "RUN echo \"4.{3}\" > /kernel_version.txt\n" \
+                              "RUN tar xf /TuxML/{2} -C /TuxML && " \
+                              "rm /TuxML/{2}".format(__IMAGE, tag, linux_kernel,
+                                                     v4)
+        create_dockerfile(docker_file_content)
+        docker_build(__IMAGE, tagv4)
+        os.remove("Dockerfile")
+        os.remove(linux_kernel)
+    return tagv4
+
+
+##get_linux_kernel
+# @author POLES Malo, PICARD Michaël
+# @version 3
+# @brief Download the linux kernel at the current location
+# @param name Specify version of kernel we want. MUST BE A v4.x version.
+def get_linux_kernel(name, path=None):
+    if path is not None:
+        os.chdir(path)
+    name += ".tar.xz"
+    list_dir = os.listdir('.')
+    if name not in list_dir:
+        print("Linux kernel not found, downloading...")
+        wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
+        subprocess.run(args=wget_cmd, shell=True, check=True)
+    else:
+        print("Linux kernel found.")
+
+
 ## docker_image_exist
 # @author Picard Michaël
 # @version 1
@@ -369,19 +426,6 @@ def docker_image_exist(image, tag=None):
         ).splitlines())
     except subprocess.CalledProcessError:
         return False
-
-
-## docker_image_rm
-# @author Picard Michaël
-# @version 1
-# @brief Delete a docker image.
-# Will throw if the image doesn't exist or if it is use in another image or
-# container.
-def docker_image_rm(image, tag=None):
-    cmd = "{}docker image rm {}".format(__sudo_right, image)
-    if tag is not None:
-        cmd = "{}:{}".format(cmd, tag)
-    subprocess.run(args=cmd, shell=True, stdout=subprocess.DEVNULL)
 
 
 def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
