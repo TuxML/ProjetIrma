@@ -420,7 +420,7 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
         cpu_cores = ""
 
     subprocess.call(
-        args="docker exec -t {} /TuxML/compilation/main.py {} {} {} {} | ts -s".format(
+        args="docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} | ts -s'".format(
             container_id,
             incremental,
             specific_configuration,
