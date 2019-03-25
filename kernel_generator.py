@@ -209,10 +209,6 @@ def parser():
              "Will still display the feature warning."
     )
     parser.add_argument(
-        "--fetch_kernel",
-        help="Optional. Fetch linux kernel from the docker container."
-    )
-    parser.add_argument(
         "--unit_testing",
         action="store_true",
         help="Optional. Run the unit testing of the compilation script. Prevent"
@@ -257,13 +253,10 @@ def check_precondition_and_warning(args):
         args.tiny = None
         args.config = None
         args.linux4_version = None
-        args.fetch_kernel = None
         args.silent = None
 
     # not implemented yet
-    if args.linux4_version is not None \
-            or args.fetch_kernel is not None\
-            or args.incremental > 0:
+    if args.linux4_version is not None or args.incremental > 0:
         raise NotImplementedError(
             "Currently unsupported."
         )
