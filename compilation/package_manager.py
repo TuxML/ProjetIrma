@@ -29,7 +29,7 @@ class PackageManager:
         self.__logger.timed_print_output("Updating packages repositories and "
                                          "upgrading packages.")
         subprocess.run(
-            "apt-get update && apt-file update && apt-get upgrade -y",
+            "apt-get update && apt-file update",
             shell=True,
             check=True,
             stdout=subprocess.DEVNULL,
