@@ -1,2 +1,2 @@
 linux*.tar.xz
-*/__pycache__
+*__pycache__
