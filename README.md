@@ -7,6 +7,7 @@ As we cannot compile, measure, and observe all combinations of options (aka conf
 You can easily loan your machine and contribute if you want, just copy and paste the line below!
 
 <img align="right" width="100" height="100" src="miscellaneous/informations/tuxml_logo_small.png" alt="TuxML's Logo"/>
+
 The TuxML's goal is to develop tools, mainly based on Docker and Python, to massively compile and gather data about thousand of configuration kernels.
 TuxML name come from the combination of [Tux](https://en.wikipedia.org/wiki/Tux_(mascot)), the mascot of the Linux Kernel, and ML for statistical machine learning.
 
