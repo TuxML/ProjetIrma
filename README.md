@@ -20,7 +20,7 @@ mkdir -p ~/TuxML ; cd ~/TuxML ; wget https://github.com/TuxML/ProjetIrma/release
 
 Copy this command and run it in a terminal. It will create a folder "TuxML" in your home and sent compilation results to our database.
 You can modify the 10 to an other number (it's the number of kernels your machine will compile).
-The python script propose other option that you can use, see [this page for more](https://github.com/TuxML/ProjetIrma/wiki).
+The python script propose other option that you can use, see [this page for more](https://github.com/TuxML/ProjetIrma/wiki/User_documentation#python-script-entry-point--kernel_generatorpy).
 
 ## I want to know more about the project!
 
