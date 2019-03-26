@@ -284,7 +284,7 @@ def check_precondition_and_warning(args):
         args.silent = None
 
     # not implemented yet
-    if args.incremental > 0:  # args.linux4_version != __DEFAULT_V4 or
+    if args.incremental > 0:
         raise NotImplementedError(
             "Currently unsupported."
         )
@@ -367,7 +367,7 @@ def docker_image_update(tag):
             have_been_updated = False
     except NotImplementedError:
         set_prompt_color("Red")
-        print("An error occured when updating. Force update...")
+        print("An error occured when updating. Cleaning and force update...")
         set_prompt_color()
         if id_image_base is not None:
             docker_image_auto_cleaner(tag, id_image_base)
