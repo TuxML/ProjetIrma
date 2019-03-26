@@ -97,19 +97,16 @@ def retrieve_and_display_configuration(logger, args):
 # @brief Do all the test, from compilation to sending the result to the database
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
-def run(logger, configuration, environment, args, package_manager,
-        optional_config_file=None, cid_before=None):
-    file = args.config
-    if optional_config_file is not None:
-        file = optional_config_file
+def run(logger, configuration, environment, package_manager, tiny=False,
+        config_file=None, cid_before=None):
     compiler = Compiler(
         logger=logger,
         package_manager=package_manager,
-        nb_core=args.cpu_cores,
+        nb_core=configuration['core_used'],
         kernel_path=configuration['kernel_path'],
         kernel_version=configuration['kernel_version_compilation'],
-        tiny=args.tiny,
-        config_file=file
+        tiny=tiny,
+        config_file=config_file
     )
     compiler.run()
     compilation_result = compiler.get_compilation_dictionary()
@@ -168,15 +165,15 @@ def insert_result_into_database(logger, compilation, hardware, software,
 
     hid = insert_if_not_exist_and_fetch_hardware(connection, cursor, hardware)
     sid = insert_if_not_exist_and_fetch_software(connection, cursor, software)
-    compilation['hid'] = str(hid)
-    compilation['sid'] = str(sid)
+    compilation['hid'] = hid
+    compilation['sid'] = sid
     cid = insert_and_fetch_compilation(connection, cursor, compilation)
     if cid_incremental is not None:
         insert_incrementals_compilation(
             connection, cursor,
-            {'cid': str(cid), 'cid_base': str(cid_incremental)})
+            {'cid': cid, 'cid_base': cid_incremental, 'incremental_level': 1})
     if boot is not None:
-        boot['cid'] = str(cid)
+        boot['cid'] = cid
         insert_boot_result(connection, cursor, boot)
 
     logger.timed_print_output("Successfully send result with cid : {}".format(
@@ -206,7 +203,14 @@ if __name__ == "__main__":
     configuration = retrieve_and_display_configuration(logger, args)
 
     # Do a compilation, do the test and send result
-    run(logger, configuration, environment, args, package_manager)
+    run(
+        logger=logger,
+        configuration=configuration,
+        environment=environment,
+        package_manager=package_manager,
+        tiny=args.tiny,
+        config_file=args.config
+    )
 
     # Cleaning the container
     del logger
