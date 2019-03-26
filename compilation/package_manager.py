@@ -26,8 +26,7 @@ class PackageManager:
     # @version 2
     # @brief Update package list and upgrade package who need it.
     def update_system(self):
-        self.__logger.timed_print_output("Updating packages repositories and "
-                                         "upgrading packages.")
+        self.__logger.timed_print_output("Updating packages repositories.")
         subprocess.run(
             "apt-get update && apt-file update",
             shell=True,
