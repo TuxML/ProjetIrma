@@ -102,6 +102,33 @@ def get_digest_docker_image(image, tag=None):
     return result[1]
 
 
+## get_id_docker_image
+# @author PICARD Michaël
+# @version 2
+# @brief Return the id of selected docker image
+# @param image
+# @param tag
+def get_id_docker_image(image, tag=None):
+    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
+    if tag is not None:
+        image = "{}:{}".format(image, tag)
+        cmd = "{}:{}".format(cmd, "{{.Tag}}")
+    cmd = "{}{} {} | grep \"{}\"".format(__sudo_right, cmd, "{{.ID}}\"",
+                                         image)
+    try:
+        result = subprocess.check_output(
+            args=cmd,
+            shell=True,
+            universal_newlines=True
+        )
+    except subprocess.CalledProcessError as ex:
+        raise NotImplementedError("No ID found") from ex
+    if len(result) == 0:
+        raise NotImplementedError("Image not found.")
+    result = result.splitlines()[0].split(" ")
+    return result[1]
+
+
 ## docker_build
 # @author DIDOT Gwendal, PICARD Michaël
 # @version 2
@@ -198,6 +225,7 @@ def parser():
              "Note that its local, will take some time to download the kernel "
              "after compiling, and that the image use to compile it will be "
              "deleted afterward.",
+        default=__DEFAULT_V4
     )
     parser.add_argument(
         "--logs",
@@ -253,11 +281,10 @@ def check_precondition_and_warning(args):
         args.incremental = 0
         args.tiny = None
         args.config = None
-        args.linux4_version = None
         args.silent = None
 
     # not implemented yet
-    if args.linux4_version is not None or args.incremental > 0:
+    if args.incremental > 0:  # args.linux4_version != __DEFAULT_V4 or
         raise NotImplementedError(
             "Currently unsupported."
         )
@@ -282,9 +309,6 @@ def check_precondition_and_warning(args):
     if args.config is not None:
         print("You are using your specific configuration : {}".format(
             args.config))
-    if args.fetch_kernel is not None:
-        print("You will retrieve the kernel after the compilation phase, if it"
-              " succeed.")
     if args.unit_testing:
         print("You will unit test the project, which will not compile any "
               "kernel and could have disabled a few of your option choice.")
@@ -319,16 +343,19 @@ def docker_uncompress_image(tag):
 def docker_image_update(tag):
     set_prompt_color("Purple")
     have_been_updated = True
+    id_image_base = None
     try:
         print("Trying to update docker image...")
+        id_image_base = get_id_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         before_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color()
         docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
         after_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color("Purple")
         if before_digest != after_digest:
-            print("Update found, uncompressing...")
+            print("Update found, cleaning old image and uncompressing...")
             set_prompt_color()
+            docker_image_auto_cleaner(tag, id_image_base)
             docker_uncompress_image(tag)
         elif not docker_image_exist(__IMAGE, tag):
             print("No update but {}:{} doesn't exist. "
@@ -342,6 +369,8 @@ def docker_image_update(tag):
         set_prompt_color("Red")
         print("An error occured when updating. Force update...")
         set_prompt_color()
+        if id_image_base is not None:
+            docker_image_auto_cleaner(tag, id_image_base)
         docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
         docker_uncompress_image(tag)
     set_prompt_color("Purple")
@@ -354,14 +383,26 @@ def docker_image_update(tag):
 # @author PICARD Michaël
 # @version 1
 # @brief Will clean all image build with the given tag.
-# @details
-def docker_image_auto_cleaner(tag, old_digest=None):
-    # https://docs.docker.com/engine/reference/commandline/rmi/
-    # TODO:
-    # 1. List all image to be deleted
-    # 2. Remove them
-    # 3. Remove the old tartuxml.
-    pass
+# @details Will throw if a container use the found image.
+# @pre An image with a tag containing the tag argument exist.
+def docker_image_auto_cleaner(tag, old_image_id=None):
+    tag_list = subprocess.check_output(
+        args="docker image ls {} --format {} | grep {}".format(
+            __IMAGE,
+            "{{.Tag}}",
+            tag
+        ),
+        shell=True,
+        universal_newlines=True
+    ).splitlines()
+    image_list = ["{}:{}".format(__IMAGE, x) for x in tag_list]
+    if old_image_id is not None:
+        image_list.append(old_image_id)
+    subprocess.run(
+        args="docker image rm {}".format(" ".join(image_list)),
+        shell=True,
+        check=True
+    )
 
 
 ## docker_build_v4_image
@@ -375,18 +416,28 @@ def docker_image_auto_cleaner(tag, old_digest=None):
 def docker_build_v4_image(tag, v4):
     tagv4 = "{}-v4.{}".format(tag, v4)
     if not docker_image_exist(__IMAGE, tagv4):
-        linux_kernel = "linux-v4.{}.tar.xz".format(v4)
-        get_linux_kernel(linux_kernel)
+        set_prompt_color("Purple")
+        print("Building specific image for linux v4.{} ...".format(v4))
+        set_prompt_color()
+        linux_kernel = "linux-4.{}.tar.xz".format(v4)
+        get_linux_kernel(linux_kernel[:-7])
         docker_file_content = "FROM {0}:{1}\n" \
                               "COPY {2} /TuxML/{2}\n" \
                               "RUN echo \"4.{3}\" > /kernel_version.txt\n" \
-                              "RUN tar xf /TuxML/{2} -C /TuxML && " \
-                              "rm /TuxML/{2}".format(__IMAGE, tag, linux_kernel,
-                                                     v4)
+                              "RUN tar xf /TuxML/{2} -C /TuxML && rm /TuxML/{2}\n" \
+                              "RUN rm -rf /TuxML/linux-4.13.3".format(
+            __IMAGE, tag, linux_kernel, v4)
         create_dockerfile(docker_file_content)
         docker_build(__IMAGE, tagv4)
         os.remove("Dockerfile")
-        os.remove(linux_kernel)
+        set_prompt_color("Purple")
+        print("Building done.")
+        set_prompt_color()
+    else:
+        set_prompt_color("Purple")
+        print("Specific image for linux v4.{} already exist. "
+              "Nothing to do.".format(v4))
+        set_prompt_color()
     return tagv4
 
 
@@ -541,6 +592,7 @@ def run_unit_testing(image):
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
+    print()  # Just visual sugar
     subprocess.call(
         args="docker exec -t {} py.test /TuxML/tests "
              "--cov=\"/TuxML/compilation\" -p no:warnings".format(container_id),
@@ -588,6 +640,9 @@ if __name__ == "__main__":
         print("The base docker image doesn't exist! Building it...")
         set_prompt_color()
         docker_uncompress_image(tag)
+
+    if args.linux4_version != __DEFAULT_V4:
+        tag = docker_build_v4_image(tag, args.linux4_version)
 
     # Setting image name to run (useful later with linux4_version)
     image = "{}:{}".format(__IMAGE, tag)
