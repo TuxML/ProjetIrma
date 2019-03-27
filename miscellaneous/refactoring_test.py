@@ -28,20 +28,6 @@ def fetch_cursor_to_database(host, user, password, database_name):
     ).cursor()
 
 
-def __dictionary_to_string_dictionary(origin_dictionary):
-    new_dictionary = dict()
-    for k, v in origin_dictionary.items():
-        if type(v) is bool:
-            v = int(v)
-        if v is None:
-            v = ''
-
-        if type(v) is not str:  # Default
-            v = str(v)
-        new_dictionary[k] = v
-    return new_dictionary
-
-
 ## select_fields_with_where_equal_condition
 # @author PICARD Michaël
 # @version 1
@@ -62,8 +48,7 @@ def select_fields_with_where_equal_condition(cursor, field_list, table_name,
     if not(len(field_list)):
         where_condition = "1"
     else:
-        for k, v in __dictionary_to_string_dictionary(
-                cond_where_directory).items():
+        for k, v in cond_where_directory.items():
             where_condition = "{}{}=%s and ".format(where_condition, k)
             argument_query.append(v)
         where_condition = where_condition[:-5]
