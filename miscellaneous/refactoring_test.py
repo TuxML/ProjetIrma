@@ -180,7 +180,7 @@ if __name__ == '__main__':
             cid_result,
             get_size_from_database_prod(cid_prod) ==
             get_size_from_database_result(cid_result)
-        ))
+        ), flush=True)
         clear_directory(logs_path)
 
     silent_remove(config_path)
