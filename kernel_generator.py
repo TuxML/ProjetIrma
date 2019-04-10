@@ -346,7 +346,7 @@ def docker_image_update(tag):
     id_image_base = None
     try:
         print("Trying to update docker image...")
-        id_image_base = get_id_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
+        # id_image_base = get_id_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         before_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color()
         docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
