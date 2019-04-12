@@ -340,5 +340,6 @@ if __name__ == "__main__":
                 print("Whole rebuild canceled.\n")
         create_tuxml_archive(args.location)
         # TODO: Removing of old image, in order to have a clean docker image registry
+        # check kernel_generator.py:docker_image_auto_cleaner for more.
         create_image_tuxml_compressed(args.location, args.tag, args.dependencies)
         create_big_image_tuxml_uncompressed(args.location, tag=args.tag)

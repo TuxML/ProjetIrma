@@ -129,6 +129,31 @@ def get_id_docker_image(image, tag=None):
     return result[1]
 
 
+## get_list_image_docker
+# @author PICARD Michaël
+# @version 1
+# @brief Return a list of image corresponding to the given id.
+def get_list_image_docker(id_image):
+    list_image = list()
+    cmd = "docker image ls --format \"{}:{} {}\" | grep {}".format(
+        "{{.Repository}}",
+        "{{.Tag}}",
+        "{{.ID}}",
+        id_image
+    )
+    try:
+        result = subprocess.check_output(
+            args="{}{}".format(__sudo_right, cmd),
+            shell=True,
+            universal_newlines=True
+        )
+    except subprocess.CalledProcessError as ex:
+        return list_image
+    for line in result.splitlines():
+        list_image.append(line.split(" ")[0])
+    return list_image
+
+
 ## docker_build
 # @author DIDOT Gwendal, PICARD Michaël
 # @version 2
@@ -338,7 +363,7 @@ def docker_uncompress_image(tag):
 
 ## docker_image_update
 # @author PICARD Michaël
-# @version 1
+# @version 4
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
     set_prompt_color("Purple")
@@ -346,7 +371,7 @@ def docker_image_update(tag):
     id_image_base = None
     try:
         print("Trying to update docker image...")
-        # id_image_base = get_id_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
+        id_image_base = get_id_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         before_digest = get_digest_docker_image(image=__COMPRESSED_IMAGE, tag=tag)
         set_prompt_color()
         docker_pull(image=__COMPRESSED_IMAGE, tag=tag)
@@ -387,7 +412,8 @@ def docker_image_update(tag):
 # @pre An image with a tag containing the tag argument exist.
 def docker_image_auto_cleaner(tag, old_image_id=None):
     tag_list = subprocess.check_output(
-        args="docker image ls {} --format {} | grep {}".format(
+        args="{}docker image ls {} --format {} | grep {}".format(
+            __sudo_right,
             __IMAGE,
             "{{.Tag}}",
             tag
@@ -396,13 +422,23 @@ def docker_image_auto_cleaner(tag, old_image_id=None):
         universal_newlines=True
     ).splitlines()
     image_list = ["{}:{}".format(__IMAGE, x) for x in tag_list]
-    if old_image_id is not None:
-        image_list.append(old_image_id)
     subprocess.run(
-        args="docker image rm {}".format(" ".join(image_list)),
+        args="{}docker image rm {}".format(__sudo_right, " ".join(image_list)),
         shell=True,
         check=True
     )
+
+    if old_image_id is not None:
+        reference_image_id = list()
+        for name in get_list_image_docker(old_image_id):
+            if "<none>" not in name:
+                reference_image_id.append(name)
+        if len(reference_image_id) == 0:
+            subprocess.run(
+                args="{}docker rmi -f {}".format(__sudo_right, old_image_id),
+                shell=True,
+                check=True
+            )
 
 
 ## docker_build_v4_image
@@ -482,7 +518,7 @@ def docker_image_exist(image, tag=None):
 def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
     # Starting the container
     container_id = subprocess.check_output(
-        args="docker run -i -d {}".format(image),
+        args="{}docker run -i -d {}".format(__sudo_right, image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
@@ -494,8 +530,8 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
     elif config is not None:
         specific_configuration = "--config /TuxML/.config"
         subprocess.call(
-            args="docker cp {} {}:/TuxML/.config".format(
-                config, container_id),
+            args="{}docker cp {} {}:/TuxML/.config".format(
+                __sudo_right, config, container_id),
             shell=True
         )
     if silent:
@@ -508,7 +544,8 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
         cpu_cores = ""
 
     subprocess.call(
-        args="docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} | ts -s'".format(
+        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} | ts -s'".format(
+            __sudo_right,
             container_id,
             incremental,
             specific_configuration,
@@ -526,9 +563,9 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
 # @brief Stop and delete the container corresponding to the given container_id
 def delete_docker_container(container_id):
     subprocess.call(
-        "docker stop {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "{}docker stop {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
     subprocess.call(
-        "docker rm {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "{}docker rm {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
 
 
 def feedback_user(nbcontainer, nbincremental):
@@ -588,14 +625,15 @@ def compilation(image, args):
 def run_unit_testing(image):
     # Starting the container
     container_id = subprocess.check_output(
-        args="docker run -i -d {}".format(image),
+        args="{}docker run -i -d {}".format(__sudo_right, image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
     print()  # Just visual sugar
     subprocess.call(
-        args="docker exec -t {} py.test /TuxML/tests "
-             "--cov=\"/TuxML/compilation\" -p no:warnings".format(container_id),
+        args="{}docker exec -t {} py.test /TuxML/tests "
+             "--cov=\"/TuxML/compilation\" -p no:warnings".format(
+            __sudo_right, container_id),
         shell=True
     )
     delete_docker_container(container_id)
