@@ -15,7 +15,7 @@ To realize this :
 
 1. `git clone https://github.com/ulfalizer/Kconfiglib.git`
 2. Download a Linux kernel
-3. In the kernel directory : 
+3. In the kernel top-directory : 
 
 `patch -p1 < Kconfiglib/makefile.patch`
 
