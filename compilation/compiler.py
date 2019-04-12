@@ -19,14 +19,20 @@ import compilation.settings as settings
 # To use it, create it, call the method run once and you can retrieve all the
 # compilation result with is_successful and and get_compilation_dictionary.
 class Compiler:
-    def __init__(self, logger, configuration, args, package_manager, optional_config_file=None):
+    def __init__(self, logger, package_manager, nb_core, kernel_path,
+                 kernel_version, tiny=False, config_file=None):
+        assert(logger is not None)
+        assert(package_manager is not None)
+        if config_file is not None:
+            assert(not tiny)
+
         self.__logger = logger
-        self.__nb_core = configuration['core_used']
-        self.__kernel_path = configuration['kernel_path']
-        self.__configuration = configuration
-        self.__args = args
+        self.__nb_core = nb_core
+        self.__kernel_path = kernel_path
         self.__package_manager = package_manager
-        self.__optional_config_file = optional_config_file
+        self.__kernel_version = kernel_version
+        self.__tiny = tiny
+        self.__config_file = config_file
 
         # Variables results
         self.__compilation_success = False
@@ -51,10 +57,7 @@ class Compiler:
     # @brief Call it once to do the whole compilation process.
     # @details Thread like method.
     def run(self):
-        file = self.__args.config
-        if self.__optional_config_file is not None:
-            file = self.__optional_config_file
-        self.__linux_config_generator(self.__args.tiny, file)
+        self.__linux_config_generator(self.__tiny, self.__config_file)
         self.__do_a_compilation()
 
         if self.__compilation_success:
@@ -392,6 +395,5 @@ class Compiler:
             "dependencies": " ".join(
                 self.__package_manager.get_package_list_copy()),
             "number_cpu_core_used": self.__nb_core,
-            "compiled_kernel_version":
-                self.__configuration['kernel_version_compilation']
+            "compiled_kernel_version": self.__kernel_version
         }

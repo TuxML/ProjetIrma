@@ -1,4 +1,4 @@
-TUXML_VERSION = "pre-alpha v2.0"
+TUXML_VERSION = "v2.0"
 
 IP_BDD = "148.60.11.195"
 USERNAME_BDD = "script2"

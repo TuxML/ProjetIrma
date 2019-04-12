@@ -15,10 +15,9 @@ from compilation.settings import BOOTING_KERNEL_PATH, INITRAMFS_PATH, \
 # @author HAMON Cyril
 # @author SAFFRAY Paul
 class BootChecker:
-    def __init__(self, logger, configuration):
+    def __init__(self, logger, kernel_path):
         self.__logger = logger
-        self.__executable_path = BOOTING_KERNEL_PATH.format(
-            configuration['kernel_path'])
+        self.__executable_path = BOOTING_KERNEL_PATH.format(kernel_path)
 
         # Variables results
         self.__boot_success = False

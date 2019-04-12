@@ -1,4 +1,8 @@
 linux*.tar.xz
+<<<<<<< HEAD
 */__pycache__
 .idea
 .code
+=======
+__pycache__
+>>>>>>> e5fea1addb2511a8a7f35a6760e3071ce354b732
