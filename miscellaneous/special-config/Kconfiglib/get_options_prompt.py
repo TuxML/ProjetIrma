@@ -3,14 +3,10 @@
 import sys
 from kconfiglib import Kconfig, Symbol
 
-COUNT = 0
-
 
 def get_details(node,option_name):
     while node:
-        global COUNT
         if isinstance(node.item, Symbol):
-            COUNT += 1
             if option_name in str(node):
                 print(str(node))
                 exit(0)
