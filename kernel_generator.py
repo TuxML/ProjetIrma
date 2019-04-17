@@ -171,7 +171,13 @@ def docker_build(image=None, tag=None, path=None):
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{}{} {}".format(__sudo_right, str_build, path)
-    subprocess.call(str_build, shell=True)
+    try:
+        subprocess.check_call(str_build, shell=True)
+    except subprocess.CalledProcessError:
+        set_prompt_color("Red")
+        print("An error as occured while building the image. Retrying...")
+        set_prompt_color()
+        subprocess.check_call(str_build, shell=True)
 
 
 ## create_dockerfile
