@@ -319,7 +319,7 @@ def check_precondition_and_warning(args):
     # warning
     set_prompt_color("Orange")
     # user right : sudo or docker group
-    if "docker" not in subprocess.check_output(
+    if os.getuid() != 0 and "docker" not in subprocess.check_output(
             "groups",
             shell=True,
             universal_newlines=True):
