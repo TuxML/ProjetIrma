@@ -213,7 +213,9 @@ def parser():
     parser.add_argument(
         "nbcontainer",
         type=int,
-        help="Provide the number of container to run. Have to be over 0."
+        help="Provide the number of container to run. Have to be over 0.",
+        nargs='?',
+        default=1
     )
     parser.add_argument(
         "incremental",
