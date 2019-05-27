@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 # call: python3 get_options_prompt.py 2>/dev/null to ignore warning messages
+# you should put this script in the source folder of a kernel.
+# You may also edit the inDIR (source path that contains the Kconfig files).
 
 import sys
 from kconfiglib import Kconfig, Symbol, Choice, MENU, COMMENT, KconfigError
