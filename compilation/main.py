@@ -103,7 +103,7 @@ def retrieve_and_display_configuration(logger, args):
 # @brief Do all the test, from compilation to sending the result to the database
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
-def run(logger, configuration, environment, package_manager, boot, tiny=False,
+def run(boot, logger, configuration, environment, package_manager, tiny=False,
         config_file=None, cid_before=None):
     compiler = Compiler(
         logger=logger,
@@ -210,11 +210,11 @@ if __name__ == "__main__":
 
     # Do a compilation, do the test and send result
     run(
+        args.boot,
         logger=logger,
         configuration=configuration,
         environment=environment,
         package_manager=package_manager,
-        args.boot,
         tiny=args.tiny,
         config_file=args.config
     )
