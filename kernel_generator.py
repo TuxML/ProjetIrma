@@ -529,7 +529,7 @@ def docker_image_exist(image, tag=None):
         return False
 
 
-def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
+def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores, boot):
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
