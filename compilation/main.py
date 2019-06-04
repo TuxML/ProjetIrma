@@ -52,6 +52,12 @@ def parser():
              " the cores.",
         default=0
     )
+    parser.add_argument(
+        "--boot",
+        action="store_true",
+        help="Optional. Try to boot the kernel after compilation if the compilation "
+             "has been successful."
+    )
     return parser.parse_args()
 
 
@@ -98,7 +104,7 @@ def retrieve_and_display_configuration(logger, args):
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
 def run(logger, configuration, environment, package_manager, tiny=False,
-        config_file=None, cid_before=None):
+        config_file=None, cid_before=None, boot):
     compiler = Compiler(
         logger=logger,
         package_manager=package_manager,
@@ -112,7 +118,7 @@ def run(logger, configuration, environment, package_manager, tiny=False,
     compilation_result = compiler.get_compilation_dictionary()
 
     boot_result = None
-    if compiler.is_successful():
+    if compiler.is_successful() and boot:
         boot_checker = BootChecker(logger, configuration['kernel_path'])
         boot_checker.run()
         boot_result = boot_checker.get_boot_dictionary()
@@ -209,7 +215,8 @@ if __name__ == "__main__":
         environment=environment,
         package_manager=package_manager,
         tiny=args.tiny,
-        config_file=args.config
+        config_file=args.config,
+        args.boot
     )
 
     # Cleaning the container

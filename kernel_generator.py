@@ -232,6 +232,12 @@ def parser():
         default=0
     )
     parser.add_argument(
+        "--boot",
+        action="store_true",
+        help="Optional. Try to boot the kernel after compilation if the compilation "
+             "has been successful"
+    )
+    parser.add_argument(
         "--dev",
         action="store_true",
         help="Use the image with dev tag instead of prod's one."
@@ -550,15 +556,18 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
         cpu_cores = "--cpu_cores {}".format(cpu_cores)
     else:
         cpu_cores = ""
-
+    if boot:
+        boot = "--boot"
+    else:
+        boot = ""
     subprocess.call(
-        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} | ts -s'".format(
-            __sudo_right,
+        args="docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} | ts -s'".format(
             container_id,
             incremental,
             specific_configuration,
             silent,
-            cpu_cores
+            cpu_cores,
+            boot
         ),
         shell=True
     )
@@ -621,7 +630,8 @@ def compilation(image, args):
             args.tiny,
             args.config,
             args.silent,
-            args.number_cpu
+            args.number_cpu,
+            args.boot
         )
         if args.logs is not None:
             fetch_logs(container_id, args.logs, args.silent)
