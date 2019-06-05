@@ -80,7 +80,7 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
-    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
+    cmd = "{}docker image ls --format {}".format(__sudo_right, "\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
@@ -109,7 +109,7 @@ def get_digest_docker_image(image, tag=None):
 # @param image
 # @param tag
 def get_id_docker_image(image, tag=None):
-    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
+    cmd = "{}docker image ls --format {}".format(__sudo_right, "\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
@@ -135,7 +135,8 @@ def get_id_docker_image(image, tag=None):
 # @brief Return a list of image corresponding to the given id.
 def get_list_image_docker(id_image):
     list_image = list()
-    cmd = "docker image ls --format \"{}:{} {}\" | grep {}".format(
+    cmd = "{}docker image ls --format \"{}:{} {}\" | grep {}".format(
+        __sudo_right, 
         "{{.Repository}}",
         "{{.Tag}}",
         "{{.ID}}",
@@ -165,7 +166,7 @@ def get_list_image_docker(id_image):
 def docker_build(image=None, tag=None, path=None):
     if path is None:
         path = "."
-    str_build = "docker build".format(image)
+    str_build = "{}docker build".format(__sudo_right, image)
     if image is not None:
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
@@ -561,7 +562,8 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores, 
     else:
         boot = ""
     subprocess.call(
-        args="docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} | ts -s'".format(
+        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} | ts -s'".format(
+            __sudo_right, 
             container_id,
             incremental,
             specific_configuration,
