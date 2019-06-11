@@ -80,12 +80,13 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
-    cmd = "{}docker image ls --format {}".format(__sudo_right, "\"{{.Repository}}")
+    cmd = "docker image ls --digests --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
     cmd = "{}{} {} | grep \"{}\"".format(__sudo_right, cmd, "{{.Digest}}\"",
                                          image)
+    print("in get_digest_docker_image : ", cmd)
     try:
         result = subprocess.check_output(
             args=cmd,
@@ -109,7 +110,7 @@ def get_digest_docker_image(image, tag=None):
 # @param image
 # @param tag
 def get_id_docker_image(image, tag=None):
-    cmd = "{}docker image ls --format {}".format(__sudo_right, "\"{{.Repository}}")
+    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
@@ -135,8 +136,7 @@ def get_id_docker_image(image, tag=None):
 # @brief Return a list of image corresponding to the given id.
 def get_list_image_docker(id_image):
     list_image = list()
-    cmd = "{}docker image ls --format \"{}:{} {}\" | grep {}".format(
-        __sudo_right, 
+    cmd = "docker image ls --format \"{}:{} {}\" | grep {}".format(
         "{{.Repository}}",
         "{{.Tag}}",
         "{{.ID}}",
@@ -166,7 +166,7 @@ def get_list_image_docker(id_image):
 def docker_build(image=None, tag=None, path=None):
     if path is None:
         path = "."
-    str_build = "{}docker build".format(__sudo_right, image)
+    str_build = "docker build".format(image)
     if image is not None:
         str_build = "{} -t {}".format(str_build, image)
         if tag is not None:
@@ -260,6 +260,10 @@ def parser():
              "--tiny argument."
     )
     parser.add_argument(
+        "--seed",
+        help="Give a path to a specific seed options file. These options will be activated before the others are randomly chosen. The file will replace tuxml.config "
+    )
+    parser.add_argument(
         "--linux4_version",
         help="Optional. Give a specific linux4 version to compile. "
              "Note that its local, will take some time to download the kernel "
@@ -336,6 +340,7 @@ def check_precondition_and_warning(args):
             "groups",
             shell=True,
             universal_newlines=True):
+        global __sudo_right
         __sudo_right = "sudo "
         print("You aren't in the docker group, hence you will be ask superuser"
               " access.")
@@ -349,6 +354,8 @@ def check_precondition_and_warning(args):
     if args.config is not None:
         print("You are using your specific configuration : {}".format(
             args.config))
+    if args.seed is not None:
+        print("You are using your specific set of seed options")
     if args.unit_testing:
         print("You will unit test the project, which will not compile any "
               "kernel and could have disabled a few of your option choice.")
@@ -530,7 +537,7 @@ def docker_image_exist(image, tag=None):
         return False
 
 
-def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores, boot):
+def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_cores, boot):
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
@@ -549,6 +556,12 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores, 
                 __sudo_right, config, container_id),
             shell=True
         )
+    elif seed is not None:
+        subprocess.call(
+            args="{}docker cp {} {}:/TuxML/compilation/tuxml.config".format(
+                __sudo_right, seed, container_id),
+            shell=True
+        )
     if silent:
         silent = "--silent"
     else:
@@ -563,7 +576,7 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores, 
         boot = ""
     subprocess.call(
         args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} | ts -s'".format(
-            __sudo_right, 
+            __sudo_right,
             container_id,
             incremental,
             specific_configuration,
@@ -625,12 +638,12 @@ def compilation(image, args):
             set_prompt_color("Light_Blue")
             print("\n=============== Docker number ", i, " ===============")
             set_prompt_color()
-
         container_id = run_docker_compilation(
             image,
             args.incremental,
             args.tiny,
             args.config,
+            args.seed,
             args.silent,
             args.number_cpu,
             args.boot
