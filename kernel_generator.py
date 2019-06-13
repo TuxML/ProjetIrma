@@ -86,7 +86,6 @@ def get_digest_docker_image(image, tag=None):
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
     cmd = "{}{} {} | grep \"{}\"".format(__sudo_right, cmd, "{{.Digest}}\"",
                                          image)
-    print("in get_digest_docker_image : ", cmd)
     try:
         result = subprocess.check_output(
             args=cmd,

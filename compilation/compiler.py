@@ -151,10 +151,10 @@ class Compiler:
                 check=True
             )
         else:
-            self.__logger.timed_print_output(
+            self.__logger.print_output(
                 "Random config based on the following preset values : ")
             with open(settings.CONFIG_SEED_FILE, 'r') as seed_list:
-                print(seed_list.read())
+                self.__logger.print_output(seed_list.read())
             subprocess.run(
                 args="KCONFIG_ALLCONFIG={} make -C {} randconfig -j{}".format(
                     settings.CONFIG_SEED_FILE,
