@@ -286,8 +286,8 @@ def parser():
     parser.add_argument(
         '-t',
         '--tag',
-        help="Tag of the image you want to generate/build/push. Default to "
-             "\"dev\"",
+        help="Tag of the image you want to generate/build/push/pull."
+	     " Default to \"dev\"",
         default="dev"
     )
     parser.add_argument(
