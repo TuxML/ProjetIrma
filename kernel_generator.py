@@ -372,7 +372,7 @@ def docker_uncompress_image(tag):
     content = "{}\n" \
               "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz\n" \
               "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz\n" \
-              "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
+              "RUN apt-get update && apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
     create_dockerfile(content=content, path=".")
     docker_build(
         image=__IMAGE,
