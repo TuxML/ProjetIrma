@@ -55,3 +55,4 @@ Please check our [wiki](https://github.com/TuxML/ProjetIrma/wiki).
   - Malo POLES
   - Luis THOMAS
   - Alexis BONNET
+* Paul SAFFRAY (internship during 2019 summer)
