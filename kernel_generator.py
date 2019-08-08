@@ -238,6 +238,12 @@ def parser():
              "has been successful"
     )
     parser.add_argument(
+        "--checksize",
+        action="store_true",
+        help="Optional. Compute additional size measurements on the kernel and send "
+             "the results to the 'sizes' table (can be heavy)."
+    )
+    parser.add_argument(
         "--dev",
         action="store_true",
         help="Use the image with dev tag instead of prod's one."
@@ -536,7 +542,7 @@ def docker_image_exist(image, tag=None):
         return False
 
 
-def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_cores, boot):
+def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_cores, boot, check_size):
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
@@ -573,15 +579,20 @@ def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_c
         boot = "--boot"
     else:
         boot = ""
+    if check_size:
+        check_size = "--check_size"
+    else:
+        check_size = ""
     subprocess.call(
-        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} | ts -s'".format(
+        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} {}| ts -s'".format(
             __sudo_right,
             container_id,
             incremental,
             specific_configuration,
             silent,
             cpu_cores,
-            boot
+            boot,
+            check_size
         ),
         shell=True
     )
@@ -645,7 +656,8 @@ def compilation(image, args):
             args.seed,
             args.silent,
             args.number_cpu,
-            args.boot
+            args.boot,
+            args.checksize
         )
         if args.logs is not None:
             fetch_logs(container_id, args.logs, args.silent)

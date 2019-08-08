@@ -125,3 +125,10 @@ def insert_incrementals_compilation(connection, cursor, incrementals):
 # @brief Insert new boot result.
 def insert_boot_result(connection, cursor, boot):
     __insert_into_database(connection, cursor, 'boot', boot)
+
+## insert_sizes
+# @author SAFFRAY Paul
+# @version 1
+# @brief Insert additional size results.
+def insert_sizes(connection, cursor, sizes):
+    __insert_into_database(connection, cursor, 'sizes', sizes)
