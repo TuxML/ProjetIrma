@@ -43,7 +43,7 @@ class Compiler:
 
         # Presetting of __kernel_compressed_size
         for compression in settings.KERNEL_COMPRESSION_TYPE:
-            for typ in ["-bzimage", "-vmlinux", ""]:
+            for typ in ["-bzImage", "-vmlinux", ""]:
                 self.__kernel_compressed_size = "{}{}{} : -1 , ".format(
                     self.__kernel_compressed_size,
                     compression,
