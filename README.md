@@ -16,11 +16,11 @@ The TuxML name comes from the combination of [Tux](https://en.wikipedia.org/wiki
 Requirements : `Python3` and `Docker` are needed (do not forget to start the docker service usually with `sudo service docker start`).
 
 ```bash
-mkdir -p TuxML ; cd TuxML ; wget https://raw.githubusercontent.com/TuxML/ProjetIrma/dev/kernel_generator.py ; python3 kernel_generator.py 10
+wget https://raw.githubusercontent.com/TuxML/ProjetIrma/dev/kernel_generator.py ; python3kernel_generator.py --dev 1
 ```
 
-Copy this command and run it in a terminal. It will create a folder "TuxML" in your homedir and send compilation results to our database.
-You can modify the 10 parameter to any other number (it's the number of kernels your machine will compile).
+Copy this command and run it in a terminal. It will send compilation results to our database.
+You can modify the 1 parameter to any other number (it's the number of kernels your machine will compile).
 The python script gives you some other options that you can use, see [this page for more](https://github.com/TuxML/ProjetIrma/wiki/User_documentation#python-script-entry-point--kernel_generatorpy).
 
 For a more up-to-date version of TUXML, please consider the **dev branch**
