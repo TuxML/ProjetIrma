@@ -43,7 +43,7 @@ class Compiler:
 
         # Presetting of __kernel_compressed_size
         for compression in settings.KERNEL_COMPRESSION_TYPE:
-            for typ in ["-bzimage", "-vmlinux", ""]:
+            for typ in ["-bzImage", "-vmlinux", ""]:
                 self.__kernel_compressed_size = "{}{}{} : -1 , ".format(
                     self.__kernel_compressed_size,
                     compression,
@@ -151,9 +151,10 @@ class Compiler:
                 check=True
             )
         else:
-            self.__logger.timed_print_output(
-                "Random config with preset values here : {} .".format(
-                    settings.CONFIG_SEED_FILE))
+            self.__logger.print_output(
+                "Random config based on the following preset values : ")
+            with open(settings.CONFIG_SEED_FILE, 'r') as seed_list:
+                self.__logger.print_output(seed_list.read())
             subprocess.run(
                 args="KCONFIG_ALLCONFIG={} make -C {} randconfig -j{}".format(
                     settings.CONFIG_SEED_FILE,

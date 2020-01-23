@@ -165,7 +165,7 @@ if __name__ == '__main__':
             config_file.write(config)
             config_file.flush()
 
-        cmd_compiler = "{}/../kernel_generator.py 1 --dev --local --logs {} " \
+        cmd_compiler = "{}/../kernel_generator.py 1 --logs {} " \
                        "--config {}".format(script_path, logs_path, config_path)
         subprocess.run(
             args=cmd_compiler,
@@ -180,7 +180,7 @@ if __name__ == '__main__':
             cid_result,
             get_size_from_database_prod(cid_prod) ==
             get_size_from_database_result(cid_result)
-        ))
+        ), flush=True)
         clear_directory(logs_path)
 
     silent_remove(config_path)

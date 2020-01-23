@@ -80,7 +80,7 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
-    cmd = "docker image ls --format {}".format("\"{{.Repository}}")
+    cmd = "docker image ls --digests --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
         cmd = "{}:{}".format(cmd, "{{.Tag}}")
@@ -129,6 +129,31 @@ def get_id_docker_image(image, tag=None):
     return result[1]
 
 
+## get_list_image_docker
+# @author PICARD Michaël
+# @version 1
+# @brief Return a list of image corresponding to the given id.
+def get_list_image_docker(id_image):
+    list_image = list()
+    cmd = "docker image ls --format \"{}:{} {}\" | grep {}".format(
+        "{{.Repository}}",
+        "{{.Tag}}",
+        "{{.ID}}",
+        id_image
+    )
+    try:
+        result = subprocess.check_output(
+            args="{}{}".format(__sudo_right, cmd),
+            shell=True,
+            universal_newlines=True
+        )
+    except subprocess.CalledProcessError as ex:
+        return list_image
+    for line in result.splitlines():
+        list_image.append(line.split(" ")[0])
+    return list_image
+
+
 ## docker_build
 # @author DIDOT Gwendal, PICARD Michaël
 # @version 2
@@ -146,7 +171,13 @@ def docker_build(image=None, tag=None, path=None):
         if tag is not None:
             str_build = "{}:{}".format(str_build, tag)
     str_build = "{}{} {}".format(__sudo_right, str_build, path)
-    subprocess.call(str_build, shell=True)
+    try:
+        subprocess.check_call(str_build, shell=True)
+    except subprocess.CalledProcessError:
+        set_prompt_color("Red")
+        print("An error as occured while building the image. Retrying...")
+        set_prompt_color()
+        subprocess.check_call(str_build, shell=True)
 
 
 ## create_dockerfile
@@ -188,7 +219,9 @@ def parser():
     parser.add_argument(
         "nbcontainer",
         type=int,
-        help="Provide the number of container to run. Have to be over 0."
+        help="Provide the number of container to run. Have to be over 0.",
+        nargs='?',
+        default=1
     )
     parser.add_argument(
         "incremental",
@@ -197,6 +230,18 @@ def parser():
              "compilation. Have to be 0 or over.",
         nargs='?',
         default=0
+    )
+    parser.add_argument(
+        "--boot",
+        action="store_true",
+        help="Optional. Try to boot the kernel after compilation if the compilation "
+             "has been successful"
+    )
+    parser.add_argument(
+        "--checksize",
+        action="store_true",
+        help="Optional. Compute additional size measurements on the kernel and send "
+             "the results to the 'sizes' table (can be heavy)."
     )
     parser.add_argument(
         "--dev",
@@ -218,6 +263,10 @@ def parser():
         "--config",
         help="Give a path to specific configuration file. Incompatible with "
              "--tiny argument."
+    )
+    parser.add_argument(
+        "--seed",
+        help="Give a path to a specific seed options file. These options will be activated before the others are randomly chosen. The file will replace tuxml.config "
     )
     parser.add_argument(
         "--linux4_version",
@@ -292,10 +341,11 @@ def check_precondition_and_warning(args):
     # warning
     set_prompt_color("Orange")
     # user right : sudo or docker group
-    if "docker" not in subprocess.check_output(
+    if os.getuid() != 0 and "docker" not in subprocess.check_output(
             "groups",
             shell=True,
             universal_newlines=True):
+        global __sudo_right
         __sudo_right = "sudo "
         print("You aren't in the docker group, hence you will be ask superuser"
               " access.")
@@ -309,6 +359,8 @@ def check_precondition_and_warning(args):
     if args.config is not None:
         print("You are using your specific configuration : {}".format(
             args.config))
+    if args.seed is not None:
+        print("You are using your specific set of seed options")
     if args.unit_testing:
         print("You will unit test the project, which will not compile any "
               "kernel and could have disabled a few of your option choice.")
@@ -326,7 +378,7 @@ def docker_uncompress_image(tag):
     content = "{}\n" \
               "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz\n" \
               "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz\n" \
-              "RUN apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
+              "RUN apt-get update && apt-get install -qq -y --no-install-recommends $(cat /dependencies.txt)".format(content)
     create_dockerfile(content=content, path=".")
     docker_build(
         image=__IMAGE,
@@ -338,7 +390,7 @@ def docker_uncompress_image(tag):
 
 ## docker_image_update
 # @author PICARD Michaël
-# @version 1
+# @version 4
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
     set_prompt_color("Purple")
@@ -387,7 +439,8 @@ def docker_image_update(tag):
 # @pre An image with a tag containing the tag argument exist.
 def docker_image_auto_cleaner(tag, old_image_id=None):
     tag_list = subprocess.check_output(
-        args="docker image ls {} --format {} | grep {}".format(
+        args="{}docker image ls {} --format {} | grep {}".format(
+            __sudo_right,
             __IMAGE,
             "{{.Tag}}",
             tag
@@ -396,13 +449,23 @@ def docker_image_auto_cleaner(tag, old_image_id=None):
         universal_newlines=True
     ).splitlines()
     image_list = ["{}:{}".format(__IMAGE, x) for x in tag_list]
-    if old_image_id is not None:
-        image_list.append(old_image_id)
     subprocess.run(
-        args="docker image rm {}".format(" ".join(image_list)),
+        args="{}docker image rm {}".format(__sudo_right, " ".join(image_list)),
         shell=True,
         check=True
     )
+
+    if old_image_id is not None:
+        reference_image_id = list()
+        for name in get_list_image_docker(old_image_id):
+            if "<none>" not in name:
+                reference_image_id.append(name)
+        if len(reference_image_id) == 0:
+            subprocess.run(
+                args="{}docker rmi -f {}".format(__sudo_right, old_image_id),
+                shell=True,
+                check=True
+            )
 
 
 ## docker_build_v4_image
@@ -479,10 +542,10 @@ def docker_image_exist(image, tag=None):
         return False
 
 
-def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
+def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_cores, boot, check_size):
     # Starting the container
     container_id = subprocess.check_output(
-        args="docker run -i -d {}".format(image),
+        args="{}docker run -i -d {}".format(__sudo_right, image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
@@ -494,8 +557,14 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
     elif config is not None:
         specific_configuration = "--config /TuxML/.config"
         subprocess.call(
-            args="docker cp {} {}:/TuxML/.config".format(
-                config, container_id),
+            args="{}docker cp {} {}:/TuxML/.config".format(
+                __sudo_right, config, container_id),
+            shell=True
+        )
+    elif seed is not None:
+        subprocess.call(
+            args="{}docker cp {} {}:/TuxML/compilation/tuxml.config".format(
+                __sudo_right, seed, container_id),
             shell=True
         )
     if silent:
@@ -506,14 +575,24 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
         cpu_cores = "--cpu_cores {}".format(cpu_cores)
     else:
         cpu_cores = ""
-
+    if boot:
+        boot = "--boot"
+    else:
+        boot = ""
+    if check_size:
+        check_size = "--check_size"
+    else:
+        check_size = ""
     subprocess.call(
-        args="docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} | ts -s'".format(
+        args="{}docker exec -t {} /bin/bash -c '/TuxML/compilation/main.py {} {} {} {} {} {}| ts -s'".format(
+            __sudo_right,
             container_id,
             incremental,
             specific_configuration,
             silent,
-            cpu_cores
+            cpu_cores,
+            boot,
+            check_size
         ),
         shell=True
     )
@@ -526,9 +605,9 @@ def run_docker_compilation(image, incremental, tiny, config, silent, cpu_cores):
 # @brief Stop and delete the container corresponding to the given container_id
 def delete_docker_container(container_id):
     subprocess.call(
-        "docker stop {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "{}docker stop {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
     subprocess.call(
-        "docker rm {}".format(container_id), shell=True, stdout=subprocess.DEVNULL)
+        "{}docker rm {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
 
 
 def feedback_user(nbcontainer, nbincremental):
@@ -569,14 +648,16 @@ def compilation(image, args):
             set_prompt_color("Light_Blue")
             print("\n=============== Docker number ", i, " ===============")
             set_prompt_color()
-
         container_id = run_docker_compilation(
             image,
             args.incremental,
             args.tiny,
             args.config,
+            args.seed,
             args.silent,
-            args.number_cpu
+            args.number_cpu,
+            args.boot,
+            args.checksize
         )
         if args.logs is not None:
             fetch_logs(container_id, args.logs, args.silent)
@@ -588,14 +669,15 @@ def compilation(image, args):
 def run_unit_testing(image):
     # Starting the container
     container_id = subprocess.check_output(
-        args="docker run -i -d {}".format(image),
+        args="{}docker run -i -d {}".format(__sudo_right, image),
         shell=True
     ).decode('UTF-8')
     container_id = container_id.split("\n")[0]
     print()  # Just visual sugar
     subprocess.call(
-        args="docker exec -t {} py.test /TuxML/tests "
-             "--cov=\"/TuxML/compilation\" -p no:warnings".format(container_id),
+        args="{}docker exec -t {} py.test /TuxML/tests "
+             "--cov=\"/TuxML/compilation\" -p no:warnings".format(
+            __sudo_right, container_id),
         shell=True
     )
     delete_docker_container(container_id)

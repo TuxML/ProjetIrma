@@ -67,9 +67,7 @@ def __insert_if_not_exist_and_fetch_id(connection, cursor, dictionary, id_name, 
     result = cursor.fetchone()
     if result is None:
         __insert_into_database(connection, cursor, table_name, dictionary)
-        __select_one_field_where_database(cursor, id_name, table_name,
-                                          dictionary)
-        result = cursor.fetchone()
+        result = cursor.lastrowid
         if result is None:
             raise NotImplementedError(
                 "Can't fetch {}.{} from database.".format(table_name, id_name))
@@ -104,12 +102,7 @@ def insert_if_not_exist_and_fetch_software(connection, cursor, software):
 # @brief Insert new compilation result. Fetch the corresponding cid.
 def insert_and_fetch_compilation(connection, cursor, compilation):
     __insert_into_database(connection, cursor, 'compilations', compilation)
-    # Since the compilation_time is too precise compare to the database
-    # capacity, we remove it from the fetch command, in order to actually get
-    # the cid.
-    compilation.pop('compilation_time')
-    __select_one_field_where_database(cursor, 'cid', 'compilations', compilation)
-    cid = cursor.fetchone()
+    cid = cursor.lastrowid
     if cid is None:
         raise NotImplementedError("Can't fetch compilations.cid from database.")
     if type(cid) is tuple:
@@ -132,3 +125,10 @@ def insert_incrementals_compilation(connection, cursor, incrementals):
 # @brief Insert new boot result.
 def insert_boot_result(connection, cursor, boot):
     __insert_into_database(connection, cursor, 'boot', boot)
+
+## insert_sizes
+# @author SAFFRAY Paul
+# @version 1
+# @brief Insert additional size results.
+def insert_sizes(connection, cursor, sizes):
+    __insert_into_database(connection, cursor, 'sizes', sizes)

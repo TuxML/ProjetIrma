@@ -47,5 +47,5 @@ CONTENT_BIG_IMAGE = {
     'PREVIMG_VERSION': "FROM " + NAME_IMAGE,
     'LINUX_UNTAR': "RUN tar xf /TuxML/linux-4.13.3.tar.xz -C /TuxML && rm /TuxML/linux-4.13.3.tar.xz",
     'TUXML_UNTAR': "RUN tar xf /TuxML/TuxML.tar.xz -C /TuxML && rm /TuxML/TuxML.tar.xz",
-    'RUN_DEP_FILE': "RUN apt-get install -y --no-install-recommends $(cat /dependencies.txt)"
+    'RUN_DEP_FILE': "RUN apt-get update && apt-get install -y --no-install-recommends $(cat /dependencies.txt)"
 }

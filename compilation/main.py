@@ -3,6 +3,8 @@
 import argparse
 import os
 import shutil
+import subprocess
+import bz2
 
 from compilation.environment import get_environment_details, print_environment_details
 from compilation.configuration import create_configuration, print_configuration
@@ -10,7 +12,7 @@ from compilation.package_manager import PackageManager
 from compilation.logger import Logger, COLOR_SUCCESS
 from compilation.compiler import Compiler
 from compilation.boot_checker import BootChecker
-from compilation.database_management import fetch_connection_to_database, insert_if_not_exist_and_fetch_hardware, insert_if_not_exist_and_fetch_software, insert_and_fetch_compilation, insert_incrementals_compilation, insert_boot_result
+from compilation.database_management import fetch_connection_to_database, insert_if_not_exist_and_fetch_hardware, insert_if_not_exist_and_fetch_software, insert_and_fetch_compilation, insert_incrementals_compilation, insert_boot_result, insert_sizes
 import compilation.settings as settings
 
 
@@ -52,6 +54,18 @@ def parser():
              " the cores.",
         default=0
     )
+    parser.add_argument(
+        "--boot",
+        action="store_true",
+        help="Optional. Try to boot the kernel after compilation if the compilation "
+             "has been successful."
+    )
+    parser.add_argument(
+        "--check_size",
+        action="store_true",
+        help="Optional. Compute additional size measurements on the kernel and send "
+             "the results to the 'sizes' table (can be heavy)."
+    )
     return parser.parse_args()
 
 
@@ -91,13 +105,28 @@ def retrieve_and_display_configuration(logger, args):
     return configuration
 
 
+
+## retrieve_sizes
+# @author SAFFRAY Paul
+# @version 1
+# @brief Retrieve the additional sizes with more specific commands
+def retrieve_sizes(path):
+    sizes_result = {}
+    sizes_result['size_vmlinux'] = subprocess.run(['size {}/vmlinux'.format(path)], shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+    sizes_result['nm_size_vmlinux'] = bz2.compress(
+                                    subprocess.run(["nm --size -r {}/vmlinux | sed 's/^[0]*//'".format(path)], shell=True, stdout=subprocess.PIPE).stdout)
+    sizes_result['size_builtin'] = bz2.compress(
+                                    subprocess.run(['size {}/*/built-in.o'.format(path)], shell=True, stdout=subprocess.PIPE).stdout)
+    return sizes_result
+
+
 ## run
 # @author Picard Michaël
 # @version 1
 # @brief Do all the test, from compilation to sending the result to the database
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
-def run(logger, configuration, environment, package_manager, tiny=False,
+def run(boot, check_size, logger, configuration, environment, package_manager, tiny=False,
         config_file=None, cid_before=None):
     compiler = Compiler(
         logger=logger,
@@ -112,20 +141,25 @@ def run(logger, configuration, environment, package_manager, tiny=False,
     compilation_result = compiler.get_compilation_dictionary()
 
     boot_result = None
+    size_result = None
     if compiler.is_successful():
-        boot_checker = BootChecker(logger, configuration['kernel_path'])
-        boot_checker.run()
-        boot_result = boot_checker.get_boot_dictionary()
-    else:
-        logger.reset_boot_pipe()
+        if check_size:
+            size_result=retrieve_sizes(configuration['kernel_path'])
+        if boot:
+            boot_checker = BootChecker(logger, configuration['kernel_path'])
+            boot_checker.run()
+            boot_result = boot_checker.get_boot_dictionary()
+        else:
+            logger.reset_boot_pipe()
 
     cid = insert_result_into_database(
         logger,
         compilation_result,
         environment['hardware'],
         environment['software'],
+        size_result,
         cid_before,
-        boot_result
+        boot_result,
     )
 
     archive_log(cid)
@@ -154,7 +188,7 @@ def archive_log(cid):
 # @version 1
 # @brief Send the sample result onto the data.
 def insert_result_into_database(logger, compilation, hardware, software,
-                                cid_incremental=None, boot=None):
+                                sizes=None, cid_incremental=None, boot=None):
     logger.timed_print_output("Sending result to database.")
     connection = fetch_connection_to_database(
         settings.IP_BDD,
@@ -175,8 +209,11 @@ def insert_result_into_database(logger, compilation, hardware, software,
     if boot is not None:
         boot['cid'] = cid
         insert_boot_result(connection, cursor, boot)
+    if sizes is not None:
+        sizes['cid'] = cid
+        insert_sizes(connection, cursor, sizes)
 
-    logger.timed_print_output("Successfully send result with cid : {}".format(
+    logger.timed_print_output("Successfully sent results with cid : {}".format(
         cid), color=COLOR_SUCCESS)
     return cid
 
@@ -204,6 +241,8 @@ if __name__ == "__main__":
 
     # Do a compilation, do the test and send result
     run(
+        args.boot,
+        args.check_size,
         logger=logger,
         configuration=configuration,
         environment=environment,
