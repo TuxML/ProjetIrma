@@ -16,7 +16,7 @@ The TuxML name comes from the combination of [Tux](https://en.wikipedia.org/wiki
 Requirements : `Python3` and `Docker` are needed (do not forget to start the docker service usually with `sudo service docker start`).
 
 ```bash
-wget https://raw.githubusercontent.com/TuxML/ProjetIrma/dev/kernel_generator.py ; python3kernel_generator.py --dev 1
+wget https://raw.githubusercontent.com/TuxML/ProjetIrma/dev/kernel_generator.py ; python3 kernel_generator.py --dev 1
 ```
 
 Copy this command and run it in a terminal. It will send compilation results to our database.
@@ -31,7 +31,7 @@ Please check our [wiki](https://github.com/TuxML/ProjetIrma/wiki).
 
 ## Contributors' list
 
-* Mathieu Acher (University Rennes 1, INRIA, CNRS, IRISA), scientific leader
+* [Mathieu Acher](http://www.mathieuacher.com/) (University Rennes 1, INRIA, CNRS, IRISA), scientific leader
 * [DiverSE team (INRIA/IRISA research team)](http://www.diverse-team.fr/)
 * [ANR VaryVary project](https://varyvary.github.io/)
 * Master 1's team of 2017-2018 :
