@@ -3,8 +3,11 @@
 
 The goal of TuxML is to predict properties of Linux Kernel configurations (e.g., does the kernel compile? what's its size? does it boot?). 
 The Linux Kernel provides nearly 15000 configuration options: there is an infinity of different kernels. 
-As we cannot compile, measure, and observe all combinations of options (aka configurations), we're trying to learn Linux kernel properties out of samples of configurations.
-You can easily loan your machine and contribute if you want, just copy and paste the line below!
+As we cannot compile, measure, and observe all combinations of options (aka configurations), we're trying to learn Linux kernel properties out of samples of configurations. See talk at Embedded Linux Conference Europe in 2019:
+
+[![Alt text](https://img.youtube.com/vi/UBghs-cwQX4/0.jpg)](https://www.youtube.com/watch?v=UBghs-cwQX4)
+
+**You can easily loan your machine and contribute if you want, just copy and paste the line below!**
 
 <img align="right" width="100" height="100" src="miscellaneous/informations/tuxml_logo_small.png" alt="TuxML's Logo"/>
 
