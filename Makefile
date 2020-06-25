@@ -22,6 +22,7 @@ clean:
 sourcedoc:
 	$(SPHINXAPIDOC) -o $(SOURCEDOC) . --append-syspath
 	$(SPHINXAPIDOC) -o $(SOURCEDOC) ./* --append-syspath
+	printf ".. toctree::\n\t:glob:\n\n\t*" > $(SOURCEDOC)/index.rst
 
 doc: author sourcedoc
 	$(SPHINXBUILD) -c $(CONFIGPATH) -b html $(SOURCEDOC) $(DOC)
