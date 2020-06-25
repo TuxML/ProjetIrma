@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-## @file kernel_generator.py
-# @author LE MASLE Alexis, PICARD Michaël
-# @version 2
-
+"""
+:author: LE MASLE Alexis, PICARD Michaël
+:version: 2
+"""
 import argparse
 import subprocess
 import os
@@ -37,6 +37,15 @@ __sudo_right = ""
 # - Purple
 # - Light_Purple
 def set_prompt_color(color="Default"):
+    """Set the prompt output color. By default, it reset it to the default
+    color.
+
+    :param color: the color to set, defaults to Default, Gray, Black,\
+    Red, Ligh_Red, Green, Light_Green, Orange, Light_Orange, Blue,\
+    Light_Blue, Purple, Light_Purple 
+    :type color: str
+
+    """
     colors = {
         "Default": "\033[0m",  # Default color
         "Gray": "\033[38;5;7m",  # Debug
@@ -66,6 +75,14 @@ def set_prompt_color(color="Default"):
 # @brief Ask a confirmation, and return the answer as boolean
 # @return Boolean
 def ask_for_confirmation():
+    """ Ask a confirmation, and return the answer as boolean
+
+    :author: POLES Malo, PICARD Michaël
+    :version: 2
+    :return: the input confirmation
+    :rtype: boolean
+    
+    """
     answer = input().lower()
     while answer != 'n' and answer != 'y':
         print("y/n")
@@ -80,6 +97,15 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
+    """Return the digest of selected docker image
+
+    :author: PICARD Michaël
+    :param image: docker image
+    :type image: str
+    :param tag: docker tag
+    :type tag: str
+    :return: digest of selected docker image
+    """
     cmd = "docker image ls --digests --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
