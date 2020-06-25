@@ -5,6 +5,7 @@ AUTHOR=Projet Irma
 # PYTHONPATH=./src
 # export PYTHONPATH
 SPHINXBUILD=/usr/bin/sphinx-build
+SPHINXAPIDOC=sphinx-apidoc
 CONFIGPATH=.
 SOURCEDOC=sourcedoc
 DOC=doc
@@ -15,9 +16,14 @@ clean:
 	rm -f *~ */*~
 	rm -rf __pycache__ src/__pycache__
 	rm -rf $(DOC)
+	rm -rf $(SOURCEDOC)
 	rm -f $(PROJECT).zip
 
-doc: author
+sourcedoc:
+	$(SPHINXAPIDOC) -o $(SOURCEDOC) . --append-syspath
+	$(SPHINXAPIDOC) -o $(SOURCEDOC) ./* --append-syspath
+
+doc: author sourcedoc
 	$(SPHINXBUILD) -c $(CONFIGPATH) -b html $(SOURCEDOC) $(DOC)
 
 archive: clean
