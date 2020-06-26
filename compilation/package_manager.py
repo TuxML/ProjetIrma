@@ -1,4 +1,7 @@
-## @file package_manager.py
+"""
+:author: LE FLEM Erwan, LEBRETON Mickaël, MERZOUK Fahim, PICARD Michaël
+:version: 2
+"""
 
 import subprocess
 
@@ -13,6 +16,19 @@ from compilation.logger import COLOR_SUCCESS, COLOR_ERROR
 # when dependencies and more importantly, keep a list of all the installed
 # package into the container.
 class PackageManager:
+    """Manageùent of all package related methods. It updates the system
+    package manager, installs new package, search for package to
+    install and dependencies. 
+    
+    .. note:: ``PackageManager`` keeps a list of all the installed\
+    package into the container.
+
+    :param logger: log manager
+    :type logger: `Logger <logger.html>`_
+    :param dependencies_file: path to the file containing all the\
+    installed packages
+    :type dependencies_file: str
+    """
     # @param dependencies_file Path to the file containing all the installed
     # packages.
     def __init__(self, logger, dependencies_file):
@@ -26,6 +42,9 @@ class PackageManager:
     # @version 2
     # @brief Update package list and upgrade package who need it.
     def update_system(self):
+        """Update package list and upgrade if in need
+
+        """
         self.__logger.timed_print_output("Updating packages repositories.")
         subprocess.run(
             "apt-get update && apt-file update",
@@ -46,6 +65,13 @@ class PackageManager:
     # package.
     # @return True if successful.
     def install_package(self, package_list):
+        """Install a package and add it to the list of installed packages.
+
+        :param package_list: packages to install
+        :type package_list: list
+        :return: either the package was installed successfully or not
+        :rtype: bool
+        """
         self.__logger.timed_print_output(
             "Installing package(s) : {}".format(" ".join(package_list)))
         for package in package_list:
@@ -68,6 +94,13 @@ class PackageManager:
     # package.
     # @return True if successful.
     def __install_one_package(self, package):
+        """Install a package and add it to the list of installed packages
+
+        :param package: 
+        :type package:
+        :return: either the package was installed successfully or not
+        :rtype: bool
+        """
         try:
             subprocess.run(
                 "apt-get -y install {}".format(package),
@@ -88,6 +121,15 @@ class PackageManager:
     # missing dependencies.
     # @return True if successful.
     def fix_missing_dependencies(self, missing_files, missing_packages):
+        """ Fix missing dependencies
+        
+        :param missing_files: files that are missing
+        :type missing_files: list
+        :param missing_packages: packages that are missing 
+        :type missing_packages: list
+        :return: either the dependencies were fixed or not
+        :rtype: bool
+        """
         self.__logger.timed_print_output(
             "Fixing missing file(s)/package(s) dependencies."
         )
@@ -115,16 +157,17 @@ class PackageManager:
                         continue  # Not the right file
                     if package in self.__package_list:
                         continue  # Already installed
-                    # Because of the linux self management package dependencies,
-                    # we can't be 100% sure that our package is already here. So
-                    # we verify with a subprocess call.
-                    # A call returning 1 mean that the package isn't
-                    # installed.
-                    # Note that if it is already installed, we could have add it
-                    # to the __package_list, but we choose to don't do it,
-                    # because it will be present, whether we check it or not and
-                    # this could mess with the database. This behaviour could be
-                    # changed later.
+
+                    # Because of the linux self management package
+                    # dependencies, we can't be 100% sure that our
+                    # package is already here. So we verify with a
+                    # subprocess call.  A call returning 1 mean that
+                    # the package isn't installed.  Note that if it is
+                    # already installed, we could have add it to the
+                    # __package_list, but we choose to don't do it,
+                    # because it will be present, whether we check it
+                    # or not and this could mess with the
+                    # database. This behaviour could be changed later.
                     if subprocess.call(
                         args="dpkg-query -l | grep {}".format(package),
                         shell=True,
@@ -138,7 +181,8 @@ class PackageManager:
                         package_found = True
                         break
                 if not package_found:
-                    # Not the proper way, but we avoid recopying code with this.
+                    # Not the proper way, but we avoid recopying code
+                    # with this.
                     raise subprocess.CalledProcessError(0, '')
             except subprocess.CalledProcessError:
                 self.__logger.timed_print_output(
@@ -148,11 +192,14 @@ class PackageManager:
                 )
                 return False
 
-        # Adding all the missing_packages if not already in the new_packages
-        # list.
-        # Note that we double check every package to be sure that it's not
-        # already installed and mean something corrupted occur.
-        # TODO: what if the program is already present? like an error while calling it?
+        # Adding all the missing_packages if not already in the
+        # new_packages list.
+        
+        # Note that we double check every package to be sure that it's
+        # not already installed and mean something corrupted occur.
+
+        # TODO: what if the program is already present? like an error
+        # while calling it?
         for package in missing_packages:
             if package in self.__package_list:
                 self.__logger.timed_print_output(
@@ -180,4 +227,9 @@ class PackageManager:
     # @brief return the list of installed packages
     # @return list(str)
     def get_package_list_copy(self):
+        """Gives the list of installed packages
+
+        :return: installed packages
+        :rtype: list
+        """
         return self.__package_list.copy()
