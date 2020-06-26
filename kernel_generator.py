@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-"""
-:mod: `kernel_generator` TuxML entrypoint program
+""":mod: `kernel_generator` TuxML entrypoint program
 :author: LE MASLE Alexis, PICARD Michaël, DIDOT Gwendal
 :version: 2
 """
@@ -285,7 +284,9 @@ def parser():
     value. Check\
     `argparse <https://docs.python.org/3/library/argparse.html>`_\
     for more info.
-    :rtype: argparse.Namespace
+    :rtype: `argparse.Namespace`_
+    
+    .. _argparse.Namespace: https://docs.python.org/3.8/library/argparse.html#argparse.Namespace
     """
     parser = argparse.ArgumentParser(
         description=""  # TODO: Fill the description
@@ -390,7 +391,9 @@ def check_precondition_and_warning(args):
     if needed.
 
     :param args: parsed command line arguments
-    :type args: argparse.Namespace
+    :type args: `argparse.Namespace`_
+
+    .. _args.Namespace: https://docs.python.org/3.8/library/argparse.html#argparse.Namespace
     """ 
     # precondition
     if args.nbcontainer <= 0:
@@ -581,7 +584,7 @@ def docker_build_v4_image(tag, v4):
     """Download and create an image with different Linux kernel versions
     inside. Builds only if in need, otherwise return the image tag.
 
-    :pre-condition: __IMAGE:tag image exists
+    :pre-condition: ``__IMAGE:tag`` image exists
     :param tag: docker tag
     :type tag: str
     :param v4: Linux v4 version. If you need 4.14.152, you need to write\
@@ -764,7 +767,7 @@ def delete_docker_container(container_id):
     container_id
 
     :param container_id: id of the container
-    :type id: str
+    :type container_id: str
     """
     subprocess.call(
         "{}docker stop {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
@@ -773,6 +776,13 @@ def delete_docker_container(container_id):
 
 
 def feedback_user(nbcontainer, nbincremental):
+    """ Print on standard output a feedback to the user
+
+    :param nbcontainer: number of used containers
+    :type nbcontainer: int
+    :param nbincremental: number of steps for incremental compilation
+    :type nbincremenntal: int
+    """
     total_of_compilation = nbcontainer * (nbincremental + 1)
 
     set_prompt_color("Light_Blue")
@@ -805,6 +815,13 @@ def feedback_user(nbcontainer, nbincremental):
 
 
 def compilation(image, args):
+    """Runs the compilation on the specified number of container.W
+
+    :param image: docker image
+    :type image: str
+    :param args: parsed argument options
+    :type args: `argparse.Namespace`_
+    """
     for i in range(args.nbcontainer):
         if not args.silent:
             set_prompt_color("Light_Blue")
@@ -829,6 +846,11 @@ def compilation(image, args):
 
 
 def run_unit_testing(image):
+    """Runs unit tests of TuxML on the image
+
+    :param image: docker image
+    :type image: str
+    """
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
@@ -850,6 +872,16 @@ def run_unit_testing(image):
 # @version 1
 # @brief Fetch all the logs from the container and save them into the directory
 def fetch_logs(container_id, directory, silent=False):
+    """Fetch all the logs from the container and save them into the
+    directory
+
+    :param container_id: id of the container
+    :type container_id: str
+    :param directory: directory to save the logs in
+    :type directory: str
+    :param silent: not verbose. Default False
+    :type silent: bool
+    """
     if not silent:
         print("\nFetching logs from the docker... ", flush=True, end='')
     cmd = "{}docker cp {}:/TuxML/logs {}".format(__sudo_right, container_id,
