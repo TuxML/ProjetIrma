@@ -1,5 +1,5 @@
-PROJECT=Projet Irma
-AUTHOR=Projet Irma
+PROJECT=TuxML
+AUTHOR=Projet Irma, DiverSE
 # Variables below are already defined in conf.py
 # See lines 24 to 28 of conf.py
 # PYTHONPATH=./src
