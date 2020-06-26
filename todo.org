@@ -1,17 +1,18 @@
 #+TITLE: TODOs
 
-* TODO Documentation [50%]
+* IN_PROGRESS Documentation [50%]
   - [X] Sphinx integration
+  - [ ] Add entrypoint doc for each source code directories
   - [-] Re-write modules' docstrings [33%]
     + [X] kernel_generator.py
-    + [ ] compilation/ [0%]
+    + [-] compilation/ [28%]
       - [ ] boo_checker.py
       - [ ] compiler.py
       - [ ] database_management.py
       - [ ] environment.py
-      - [ ] logger.py
+      - [X] logger.py
       - [ ] main.py
-      - [ ] package_manager.py
+      - [X] package_manager.py
     + [ ] docker_management [0%]
       - [ ] dependencies_tree_fixer.py
       - [ ] docker_image_tuxml.py
