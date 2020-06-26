@@ -1,8 +1,8 @@
 #+TITLE: TODOs
 
-* IN_PROGRESS Documentation [50%]
+* IN_PROGRESS Documentation [66%]
   - [X] Sphinx integration
-  - [ ] Add entrypoint doc for each source code directories
+  - [X] Add entrypoint doc for each source code directories
   - [-] Re-write modules' docstrings [33%]
     + [X] kernel_generator.py
     + [-] compilation/ [28%]
