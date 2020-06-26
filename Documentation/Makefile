@@ -18,8 +18,13 @@ clean:
 
 sourcedoc:
 	$(SPHINXAPIDOC) -o $(SOURCEDOC) .. --append-syspath
-	$(SPHINXAPIDOC) -o $(SOURCEDOC) ../* --append-syspath
-	printf "=====\nTuxML\n=====\n\n.. toctree::\n\t:glob:\n\n\t*" > $(SOURCEDOC)/index.rst
+	mkdir compilation
+	$(SPHINXAPIDOC) -o $(SOURCEDOC)/compilation ../compilation --append-syspath
+	mkdir docker_management
+	$(SPHINXAPIDOC) -o $(SOURCEDOC)/docker_management ../docker_management --append-syspath
+	mkdir miscellaneous
+	$(SPHINXAPIDOC) -o $(SOURCEDOC)/miscellaneous ../miscellaneous --append-syspath
+	printf ".. toctree::\n\t:glob:\n\n\t*\n\t*/*" > $(SOURCEDOC)/index.rst		
 
 doc: sourcedoc
 	$(SPHINXBUILD) -c $(CONFIGPATH) -b html $(SOURCEDOC) $(DOC)
