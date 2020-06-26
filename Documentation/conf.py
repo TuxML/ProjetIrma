@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.abspath('../compilation'))
 sys.path.append(os.path.abspath('../docker_management'))
 sys.path.append(os.path.abspath('../miscellaneous'))
-sys.path.append(os.path.abspath('../tests'))
+# sys.path.append(os.path.abspath('../tests'))
 
 # -- General configuration ------------------------------------------------
 
