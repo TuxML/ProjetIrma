@@ -1,5 +1,3 @@
-PROJECT=TuxML
-AUTHOR=Projet Irma, DiverSE
 # Variables below are already defined in conf.py
 # See lines 24 to 28 of conf.py
 # PYTHONPATH=./src
@@ -10,7 +8,7 @@ CONFIGPATH=.
 SOURCEDOC=sourcedoc
 DOC=doc
 
-.PHONY: clean doc author
+.PHONY: clean doc
 
 clean:
 	rm -f *~ */*~
@@ -21,12 +19,7 @@ clean:
 sourcedoc:
 	$(SPHINXAPIDOC) -o $(SOURCEDOC) .. --append-syspath
 	$(SPHINXAPIDOC) -o $(SOURCEDOC) ../* --append-syspath
-	printf ".. toctree::\n\t:glob:\n\n\t*" > $(SOURCEDOC)/index.rst
+	printf "=====\nTuxML\n=====\n\n.. toctree::\n\t:glob:\n\n\t*" > $(SOURCEDOC)/index.rst
 
-doc: author sourcedoc
+doc: sourcedoc
 	$(SPHINXBUILD) -c $(CONFIGPATH) -b html $(SOURCEDOC) $(DOC)
-
-author:
-	sed -i -e 's/^project =.*/project = "$(PROJECT)"/g' conf.py
-	sed -i -e 's/^copyright =.*/copyright = "2019, $(AUTHOR)"/g' conf.py
-	sed -i -e 's/^author =.*/author = "$(AUTHOR)"/g' conf.py
