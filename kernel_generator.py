@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-""":mod: `kernel_generator` TuxML entrypoint program
+"""TuxML entrypoint program
+
 :author: LE MASLE Alexis, PICARD Michaël, DIDOT Gwendal
 :version: 2
 """
