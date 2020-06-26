@@ -1,3 +1,9 @@
+
+"""Management of the compiler
+
+:author: LEBRETON Mickaël, PICARD Michaël, POLES Malo, LE MASLE Alexis
+:version: 2
+"""
 # @file compiler.py
 
 import re
@@ -19,8 +25,34 @@ import compilation.settings as settings
 # To use it, create it, call the method run once and you can retrieve all the
 # compilation result with is_successful and and get_compilation_dictionary.
 class Compiler:
+    """Wrapper for the compilation. Handle everything related to compiling
+    the kernel. To use the compiler class, create a ``Compiler``
+    instance then run it with the ``run`` method. The method
+    ``is_successful`` will tell if the compilation was made
+    successfully and more info about compilation can be retrieve with
+    the method ``get_compilation_dictionary``.
+
+    :param logger: Log (output) manager
+    :type logger: `Logger <logger.html>`_
+    :param package_manager: package manager to use
+    :type package_manager: `PackageManager <package_manager.html>`_
+    :param nb_core: number of cores to use for the compilation
+    :type nb_core: int
+    :param kernel_path: path to the Linux kernel directory
+    :type kernel_path: str
+    :param kernel_version: version of the Linux kernel
+    :type kernel_version: str
+    :param tiny: tiny configuration of the Linux kernel
+    :type tiny: bool
+    :param config_file: path to the configuration file (``.config``)
+    :type config_file: str
+
+    """    
     def __init__(self, logger, package_manager, nb_core, kernel_path,
                  kernel_version, tiny=False, config_file=None):
+        """Constructor method
+
+        """
         assert(logger is not None)
         assert(package_manager is not None)
         if config_file is not None:
@@ -57,6 +89,9 @@ class Compiler:
     # @brief Call it once to do the whole compilation process.
     # @details Thread like method.
     def run(self):
+        """Generates a configuration, launch compilation and retrieve data
+        about the process.
+        """
         self.__linux_config_generator(self.__tiny, self.__config_file)
         self.__do_a_compilation()
 
@@ -72,6 +107,8 @@ class Compiler:
     # @version 2
     # @brief Run a compilation, with autofix and timer.
     def __do_a_compilation(self):
+        """Run a compilation, with autofix and timer.
+        """
         start_compilation_timer = time.time()
         install_time_cpt = 0
         self.__logger.reset_stdout_pipe()
@@ -82,8 +119,10 @@ class Compiler:
             start_installation_timer = time.time()
 
             success, missing_files, missing_package = self.__log_analyser()
-            retry = success and self.__package_manager.fix_missing_dependencies(
-                missing_files, missing_package)
+            retry = success\
+                and self.__package_manager\
+                        .fix_missing_dependencies(missing_files,
+                                                  missing_package)
 
             stop_installation_timer = time.time()
             install_time_cpt += \
