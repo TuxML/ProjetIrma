@@ -1,4 +1,4 @@
-﻿# TuxML: Machine Learning and Linux Kernel
+# TuxML: Machine Learning and Linux Kernel
 
 
 The goal of TuxML is to predict properties of Linux Kernel
