@@ -91,6 +91,7 @@ class Compiler:
     def run(self):
         """Generates a configuration, launch compilation and retrieve data
         about the process.
+
         """
         self.__linux_config_generator(self.__tiny, self.__config_file)
         self.__do_a_compilation()
@@ -108,6 +109,7 @@ class Compiler:
     # @brief Run a compilation, with autofix and timer.
     def __do_a_compilation(self):
         """Run a compilation, with autofix and timer.
+
         """
         start_compilation_timer = time.time()
         install_time_cpt = 0
@@ -170,6 +172,15 @@ class Compiler:
     # @version 2
     # @brief Generate .config in the kernel folder, in order to compile with it.
     def __linux_config_generator(self, tiny, specific_config):
+        """Generates .config in the kernel directory. (Calls tinyconfig or
+        randconfig)
+
+        :param tiny: set to True if you want a tiny Linux
+        configuration. False otherwise.
+        :type tiny: bool
+        :param specific_config: path to a .config
+        :type specific_config: str
+        """
         if specific_config is not None:
             self.__logger.timed_print_output("Using specific KCONFIG file.")
             shutil.copyfile(
@@ -214,6 +225,15 @@ class Compiler:
     # spend nor try to fix if the compilation fail. It just call the make and
     # return if the make is successful or not.
     def __compile(self):
+        """Compile a Linux kernel and returns the status of the compilation
+        (success or not). this method don't count time spend nor try
+        to fix if the compilation fail. It just call the make and
+        return if the make is successful or not.
+
+        :return: status of the compilation: True if successful, False
+        otherwise
+        :rtype: bool
+        """
         self.__logger.timed_print_output("Compilation in progress")
         failure = subprocess.call(
             args="make -C {} -j{}".format(
@@ -241,6 +261,12 @@ class Compiler:
     # @brief Analyse settings.STDERR_FILE
     # @return (status, missing_files, missing_packages)
     def __log_analyser(self):
+        """Analyses ``settings.STDERR_FILE`` (log file).
+
+        :return: Tuple like so: ``(status, missing_files,
+        missing_packages)``
+        :rtype: tuple
+        """
         self.__logger.timed_print_output(
             "Analysing {}".format(settings.STDERR_FILE))
         files, packages = list(), list()
@@ -274,6 +300,11 @@ class Compiler:
     # @author PICARD Michaël
     # @version 1
     def is_successful(self):
+        """Predicate on the status of the previous compilation
+
+        :return: either the compilation was successful or not
+        :rtype: bool
+        """
         return self.__compilation_success
 
     ## get_compilation_dictionary
@@ -282,6 +313,13 @@ class Compiler:
     # @brief Return a dictionary containing all the data about compilation.
     # @details All the key represent each field (minus cid) of the bdd.
     def get_compilation_dictionary(self):
+        """Gives all the data about the previous compilation. 
+        Each key of the dictionary represents each field of the bdd
+        (minus cid).
+
+        :return: info about the compilation
+        :rtype: dictionary
+        """
         return self.__result_dictionary
 
     ## __retrieve_kernel_size
@@ -293,6 +331,17 @@ class Compiler:
     # retrieve size of a kernel. But it could have been name __retrieve_size.
     @staticmethod
     def __retrieve_kernel_size(compiled_kernel_path):
+        """Retrieve kernel size. 
+
+        Checks if the path exists and if so, returns the size of the
+        kernel. Otherwise, returns ``-1``.
+
+        :param compiled_kernel_path: path to the compiled kernel
+        :type compiled_kernel_path: str
+        :return: size of the kernel if ``compiled_kernel_path`` does
+        exists. ``-1`` otherwise.
+        :rtype: int
+        """
         if os.path.exists(compiled_kernel_path):
             return os.path.getsize(compiled_kernel_path)
         return -1
@@ -304,6 +353,13 @@ class Compiler:
     # @return A string representing the result. The string is formatted like
     # "<compressed_kernel> : <size>"(" , <compressed_kernel> : <size>")*
     def __get_compressed_kernel_size(self):
+        """Get size of each compressed kernel using 18 types of compression.
+
+        :return: description of the result like so:
+        ``<compressed_kernel> : <size> (, <compressed_kernel> :
+        <size>)*``
+        :rtype: str
+        """
         self.__logger.timed_print_output("Computing compressed kernel size.")
 
         # saving the configuration file
@@ -381,6 +437,17 @@ class Compiler:
     # @details The given compression_type have to be one of the
     # settings.KERNEL_COMPRESSION_TYPE. (And it's check at the beginning.)
     def __enable_only_one_compression_option(self, compression_type):
+        """Enable one compression option.
+
+        :param compression_type: type of compression name
+        :type compression_type: str
+
+        .. note:: ``compression_type`` should be in
+        ``settings.KERNEL_COMPRESSION_TYPE``.
+
+        :raises AssertionError: if ``compresion_type`` not in
+        ``settings.KERNEL_COMPRESSION_TYPE``.
+        """
         assert compression_type in settings.KERNEL_COMPRESSION_TYPE, \
             "{} isn't in {}!".format(compression_type,
                                      settings.KERNEL_COMPRESSION_TYPE)
@@ -402,6 +469,13 @@ class Compiler:
     # @version 2
     # @brief Rewrite one option of the linux configuration file.
     def __rewrite_option_config(self, before, after):
+        """Rewrite an option of the .config
+
+        :param before: initial name of the option
+        :type before: str
+        :param after: the new name of the option
+        :type after: str
+        """
         return not bool(subprocess.check_call(
             args="sed 's|{}|{}|' -i {}/.config".format(
                 before,
@@ -418,6 +492,9 @@ class Compiler:
     # @version 1
     # @brief Build the result dictionary by retrieving all its entry.
     def __set_result_dictionary(self):
+        """Retrieve data about compilation and updates ``__result_dictionary``
+
+        """
         self.__result_dictionary = {
             "compilation_date": time.strftime("%Y-%m-%d %H:%M:%S",
                                               time.localtime(time.time())),
