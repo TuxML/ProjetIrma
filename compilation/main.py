@@ -21,6 +21,16 @@ import compilation.settings as settings
 # @version 1
 # @brief Parse the commandline and return the parsed argument.
 def parser():
+    """Parse the commandline argument
+
+    :return: object in which each attribute is one argument and its\
+    value. Check\
+    `argparse <https://docs.python.org/3/library/argparse.html>`_\
+    for more info.
+    :rtype: `argparse.Namespace`_
+    
+    .. _argparse.Namespace: https://docs.python.org/3.8/library/argparse.html#argparse.Namespace
+    """    
     parser = argparse.ArgumentParser(
         description=""  # TODO: Fill the description
     )
@@ -74,6 +84,14 @@ def parser():
 # @version 1
 # @brief Create the logger object and return it.
 def create_logger(silent):
+    """Creates an object logger
+
+    :return: the created object logger
+    :rtype: `Logger`_
+
+    .. _Logger: logger.html
+
+    """
     return Logger(
         settings.OUTPUT_FILE,
         settings.STDOUT_FILE,
@@ -88,6 +106,13 @@ def create_logger(silent):
 # @version 1
 # @brief Retrieve and display the environment dictionary.
 def retrieve_and_display_environment(logger):
+    """Retrieve and display the environment details
+
+    :param logger: the logger
+    :type logger: `Logger`_
+    :return: the environment
+    :rtype: dict
+    """
     logger.timed_print_output("Getting environment details.")
     environment = get_environment_details()
     print_environment_details(environment, logger.print_output)
@@ -99,6 +124,15 @@ def retrieve_and_display_environment(logger):
 # @version 1
 # @brief Retrieve and display the configuration dictionary.
 def retrieve_and_display_configuration(logger, args):
+    """Retrieve and display configuration details (of the machine)
+    
+    :param logger: the logger
+    :type logger: `Logger`_
+    :param args: parsed arguments
+    :type args: `argparse.Namespace`_
+    :return: configuration info
+    :rtype: dict
+    """
     logger.timed_print_output("Getting configuration details.")
     configuration = create_configuration(int(args.cpu_cores), args.incremental != 0)
     print_configuration(configuration, logger.print_output)
@@ -111,6 +145,16 @@ def retrieve_and_display_configuration(logger, args):
 # @version 1
 # @brief Retrieve the additional sizes with more specific commands
 def retrieve_sizes(path, kernel_version):
+    """Retrieve additional sizes
+
+    :param path: path to the compiled Linux kernel
+    :type path: str
+    :param kernel_version: version of the compiled Linux kernel to\
+    retrieve the size from
+    :type kernel_version: str
+    :return: info about the retrieved sizes
+    :rtype: dict
+    """
     sizes_result = {}
     sizes_result['size_vmlinux'] = subprocess.run(['size {}/vmlinux'.format(path)], shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
     sizes_result['nm_size_vmlinux'] = bz2.compress(
@@ -135,8 +179,38 @@ def retrieve_sizes(path, kernel_version):
 # @brief Do all the test, from compilation to sending the result to the database
 # @details It does all the job, but for one and only one compilation. Therefore,
 # it should be called multiple time for multiple compilation.
-def run(boot, check_size, logger, configuration, environment, package_manager, tiny=False,
-        config_file=None, cid_before=None):
+def run(boot, check_size, logger, configuration, environment,
+        package_manager, tiny=False, config_file=None,
+        cid_before=None):
+    """Do all the tests, from compilation to sending the results to the
+    database.
+
+    It does all the job, but for one and only one
+    compilation. Therefore, it should be called multiple time for
+    multiple compilation.
+
+    :param boot: boot the compiled kernel
+    :type boot: bool
+    :param check_size: check the size of the compiled kernel
+    :type check_size: bool
+    :param logger: logger
+    :type logger: `Logger`_
+    :param configuration: configuration info (See\
+    :py:func:`retrieve_and_display_configuration`)
+    :type configuration: dict
+    :param environment: environment info (See\
+    :py:func:`retrieve_and_display_environment`)
+    :type environment: dict
+    :param package_manager: package manager
+    :type package_manager: `PackageManager <package_manager.html>`_
+    :param tiny: use a tiny configuration or not
+    :type tiny: bool
+    :param config_file: path to a configuration file
+    :type config_file: str
+    :param cid_before:
+    :type cid_before:
+
+    """
     compiler = Compiler(
         logger=logger,
         package_manager=package_manager,

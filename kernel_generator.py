@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-## @file kernel_generator.py
-# @author LE MASLE Alexis, PICARD Michaël
-# @version 2
+"""TuxML entrypoint program
 
+:author: LE MASLE Alexis, PICARD Michaël, DIDOT Gwendal
+:version: 2
+"""
 import argparse
 import subprocess
 import os
@@ -37,6 +38,15 @@ __sudo_right = ""
 # - Purple
 # - Light_Purple
 def set_prompt_color(color="Default"):
+    """Set the prompt output color. By default, it reset it to the default
+    color.
+
+    :param color: the color to set, defaults to Default, Gray, Black,\
+    Red, Ligh_Red, Green, Light_Green, Orange, Light_Orange, Blue,\
+    Light_Blue, Purple, Light_Purple 
+    :type color: str
+
+    """
     colors = {
         "Default": "\033[0m",  # Default color
         "Gray": "\033[38;5;7m",  # Debug
@@ -66,6 +76,12 @@ def set_prompt_color(color="Default"):
 # @brief Ask a confirmation, and return the answer as boolean
 # @return Boolean
 def ask_for_confirmation():
+    """ Ask a confirmation, and return the answer as boolean
+
+    :return: the input confirmation
+    :rtype: boolean
+    
+    """
     answer = input().lower()
     while answer != 'n' and answer != 'y':
         print("y/n")
@@ -80,6 +96,15 @@ def ask_for_confirmation():
 # @param image
 # @param tag
 def get_digest_docker_image(image, tag=None):
+    """Return the digest of selected docker image
+
+    :param image: docker image
+    :type image: str
+    :param tag: docker tag
+    :type tag: str
+    :return: digest of selected docker image
+    :rtype: int
+    """
     cmd = "docker image ls --digests --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
@@ -109,6 +134,15 @@ def get_digest_docker_image(image, tag=None):
 # @param image
 # @param tag
 def get_id_docker_image(image, tag=None):
+    """Return the id of selected docker image
+
+    :param image: docker image
+    :type image: str
+    :param tag: docker tag
+    :type tag: str
+    :return: id
+    :rtype: string
+    """
     cmd = "docker image ls --format {}".format("\"{{.Repository}}")
     if tag is not None:
         image = "{}:{}".format(image, tag)
@@ -134,6 +168,13 @@ def get_id_docker_image(image, tag=None):
 # @version 1
 # @brief Return a list of image corresponding to the given id.
 def get_list_image_docker(id_image):
+    """Return a list of image corresponding to the given id.
+
+    :param id_image: id of the docker image
+    :type id_image: str
+    :return: list of image
+    :rtype: list
+    """
     list_image = list()
     cmd = "docker image ls --format \"{}:{} {}\" | grep {}".format(
         "{{.Repository}}",
@@ -163,6 +204,16 @@ def get_list_image_docker(id_image):
 # @param path The path where the Dockerfile is. Default to None, which is
 # equivalent to . (current directory).
 def docker_build(image=None, tag=None, path=None):
+    """Builds a docker image
+
+    :param image: the image name of your choice. Default to None.
+    :type image: str
+    :param tag: the tag of your choice. Default None.
+    :type tag: str
+    :param path: path to the dockerfile. Default to None, which is the\
+    same as ``.`` (current directory)
+    :type path: str
+    """    
     if path is None:
         path = "."
     str_build = "docker build".format(image)
@@ -188,6 +239,14 @@ def docker_build(image=None, tag=None, path=None):
 # @param path Where you want to save your Dockerfile. Default to None, which is
 # # equivalent to . (current directory).
 def create_dockerfile(content=None, path=None):
+    """Create and save a Dockerfile
+    
+    :param content: dockerfile content
+    :type content: str
+    :param path: path to the directory to save the dockerfile.\
+    Default to None, which is the same as ``.`` (current directory)
+    """
+    
     if path is not None:
         os.chdir(path)
     with open("Dockerfile", "w") as file:
@@ -201,6 +260,13 @@ def create_dockerfile(content=None, path=None):
 # @param image The image name that you want to pull.
 # @param tag The tag's image. Default to None.
 def docker_pull(image, tag=None):
+    """Pull a docker image
+    
+    :param image: docker image to pull
+    :type image: str
+    :param tag: docker tag. Default to None.
+    :type tag: str
+    """
     str_pull = "{}docker pull {}".format(__sudo_right, image)
     if tag is not None:
         str_pull = "{}:{}".format(str_pull, tag)
@@ -213,6 +279,16 @@ def docker_pull(image, tag=None):
 # @brief Parse the commandline argument
 # @return An object where each attribute is one argument and its value.
 def parser():
+    """Parse the commandline argument
+
+    :return: object in which each attribute is one argument and its\
+    value. Check\
+    `argparse <https://docs.python.org/3/library/argparse.html>`_\
+    for more info.
+    :rtype: `argparse.Namespace`_
+    
+    .. _argparse.Namespace: https://docs.python.org/3.8/library/argparse.html#argparse.Namespace
+    """
     parser = argparse.ArgumentParser(
         description=""  # TODO: Fill the description
     )
@@ -312,6 +388,14 @@ def parser():
 # needed.
 # @param args The parsed commandline argument.
 def check_precondition_and_warning(args):
+    """Check the precondition over commandline argument and warn the user
+    if needed.
+
+    :param args: parsed command line arguments
+    :type args: `argparse.Namespace`_
+
+    .. _args.Namespace: https://docs.python.org/3.8/library/argparse.html#argparse.Namespace
+    """ 
     # precondition
     if args.nbcontainer <= 0:
         raise ValueError("You can't run less than 1 container for compilation.")
@@ -372,6 +456,11 @@ def check_precondition_and_warning(args):
 # @version 1
 # @brief Uncompress the compressed image to create the big one.
 def docker_uncompress_image(tag):
+    """Uncompress the compressed image to create the big one.
+
+    :param tag: docker tag
+    :type tag: str
+    """
     content = "FROM {}".format(__COMPRESSED_IMAGE)
     if tag is not None:
         content = "{}:{}".format(content, tag)
@@ -393,6 +482,13 @@ def docker_uncompress_image(tag):
 # @version 4
 # @brief Update (if needed) the docker image.
 def docker_image_update(tag):
+    """Update (if needed) the docker image.
+
+    :param tag: docker tag
+    :type tag: str
+    :return: either the image has been updated or not
+    :rtype: bool
+    """
     set_prompt_color("Purple")
     have_been_updated = True
     id_image_base = None
@@ -436,8 +532,17 @@ def docker_image_update(tag):
 # @version 1
 # @brief Will clean all image build with the given tag.
 # @details Will throw if a container use the found image.
+# ^ this up here is not clear to me (G. Aaron RANDRIANAINA, 26/06/2020)
 # @pre An image with a tag containing the tag argument exist.
 def docker_image_auto_cleaner(tag, old_image_id=None):
+    """Clean all image built with the given tag.
+
+    :pre-condition: An image with the given tag should exist.
+    :param tag: docker tag
+    :type tag: str
+    :param old_image_id: docker image
+    :type old_image_id: str
+    """
     tag_list = subprocess.check_output(
         args="{}docker image ls {} --format {} | grep {}".format(
             __sudo_right,
@@ -477,6 +582,24 @@ def docker_image_auto_cleaner(tag, old_image_id=None):
 # @pre The __IMAGE:tag image already exist.
 # @return The corresponding tag.
 def docker_build_version_image(tag, version):
+    """Download and create an image with different Linux kernel versions
+    inside. Builds only if in need, otherwise return the image tag.
+
+    .. note:: replacement of docker_build_v4_image since `this commit\
+    <https://github.com/TuxML/ProjetIrma/commit/b16ac41490fd92548b9a6cb8166447f5f78ffd55>`_\
+    (generalize to any version... of course TuxML was designed for\
+    >4.8 version)
+
+    :pre-condition: ``__IMAGE:tag`` image exists
+    :param tag: docker tag
+    :type tag: str
+    :param v4: Linux v4 version. If you need 4.14.152, you need to write\
+    ``"14.152"``
+    :type v4: str
+    :return: image's tag
+    :rtype: str
+
+    """ 
     tagv = "{}-v{}".format(tag, version)
     if not docker_image_exist(__IMAGE, tagv):
         set_prompt_color("Purple")
@@ -510,6 +633,16 @@ def docker_build_version_image(tag, version):
 # @brief Download the linux kernel at the current location
 # @param name Specify version of kernel we want. MUST BE A v4.x version or a v5.x version
 def get_linux_kernel(name, path=None):
+    """Download the Linux kernel in the current directory
+
+    :param name: Linux kernel version.
+    :type name: str
+    
+    .. warning:: Linux kernel version must be v4.xx
+
+    :param path: directory to save the Linux kernel in
+    :type path: str
+    """
     if path is not None:
         os.chdir(path)
     name += ".tar.xz"
@@ -534,6 +667,15 @@ def get_linux_kernel(name, path=None):
 # @brief Check the existence of an image.
 # @return A boolean value.
 def docker_image_exist(image, tag=None):
+    """Checks if a docker image really exists
+
+    :param image: docker image to check
+    :type image: str
+    :param tag: image's tag 
+    :type tag: str
+    :return: either the docker image exists or not
+    :rtype: bool
+    """
     cmd = "{}docker image ls -q {}".format(__sudo_right, image)
     if tag is not None:
         cmd = "{}:{}".format(cmd, tag)
@@ -548,7 +690,31 @@ def docker_image_exist(image, tag=None):
         return False
 
 
-def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_cores, boot, check_size):
+def run_docker_compilation(image, incremental, tiny, config, seed,
+                           silent, cpu_cores, boot, check_size):
+    """Run a docker container to compiler a Linux kernel
+
+    :param image: docker image
+    :type image: str
+    :param incremental: steps for incremental compilation option
+    :type incremental: int
+    :param tiny: use Linux tiny configuration
+    :type tiny: bool
+    :param config: path to a configuration file
+    :type config: str
+    :param seed:  path to a seed option file
+    :type seed: str
+    :param silent: verbose option
+    :type silent: bool
+    :param cpu_cores: number of cpu cores for the compilation
+    :type cpu_cores: int
+    :param boot: boot the kernel after compilation
+    :type boot: bool
+    :param check_size: check the size information of the compiled kernel
+    :type check_size: bool
+    :return: id of the running container
+    :rtype: str
+    """
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
@@ -610,6 +776,12 @@ def run_docker_compilation(image, incremental, tiny, config, seed, silent, cpu_c
 # @version 1
 # @brief Stop and delete the container corresponding to the given container_id
 def delete_docker_container(container_id):
+    """Stop and delete the container corresponding to the given
+    container_id
+
+    :param container_id: id of the container
+    :type container_id: str
+    """
     subprocess.call(
         "{}docker stop {}".format(__sudo_right, container_id), shell=True, stdout=subprocess.DEVNULL)
     subprocess.call(
@@ -617,6 +789,13 @@ def delete_docker_container(container_id):
 
 
 def feedback_user(nbcontainer, nbincremental):
+    """ Print on standard output a feedback to the user
+
+    :param nbcontainer: number of used containers
+    :type nbcontainer: int
+    :param nbincremental: number of steps for incremental compilation
+    :type nbincremenntal: int
+    """
     total_of_compilation = nbcontainer * (nbincremental + 1)
 
     set_prompt_color("Light_Blue")
@@ -649,6 +828,13 @@ def feedback_user(nbcontainer, nbincremental):
 
 
 def compilation(image, args):
+    """Runs the compilation on the specified number of container.
+
+    :param image: docker image
+    :type image: str
+    :param args: parsed argument options
+    :type args: `argparse.Namespace`_
+    """
     for i in range(args.nbcontainer):
         if not args.silent:
             set_prompt_color("Light_Blue")
@@ -673,6 +859,11 @@ def compilation(image, args):
 
 
 def run_unit_testing(image):
+    """Runs unit tests of TuxML on the image
+
+    :param image: docker image
+    :type image: str
+    """
     # Starting the container
     container_id = subprocess.check_output(
         args="{}docker run -i -d {}".format(__sudo_right, image),
@@ -694,6 +885,16 @@ def run_unit_testing(image):
 # @version 1
 # @brief Fetch all the logs from the container and save them into the directory
 def fetch_logs(container_id, directory, silent=False):
+    """Fetch all the logs from the container and save them into the
+    directory
+
+    :param container_id: id of the container
+    :type container_id: str
+    :param directory: directory to save the logs in
+    :type directory: str
+    :param silent: not verbose. Default False
+    :type silent: bool
+    """
     if not silent:
         print("\nFetching logs from the docker... ", flush=True, end='')
     cmd = "{}docker cp {}:/TuxML/logs {}".format(__sudo_right, container_id,
