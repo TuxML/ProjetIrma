@@ -585,9 +585,10 @@ def docker_build_version_image(tag, version):
     """Download and create an image with different Linux kernel versions
     inside. Builds only if in need, otherwise return the image tag.
 
-    .. note:: replacement of docker_build_v4_image since commit
-    b16ac41490fd92548b9a6cb8166447f5f78ffd55(generalize to any
-    version... of course TuxML was designed for >4.8 version)
+    .. note:: replacement of docker_build_v4_image since `this commit\
+    <https://github.com/TuxML/ProjetIrma/commit/b16ac41490fd92548b9a6cb8166447f5f78ffd55>`_\
+    (generalize to any version... of course TuxML was designed for\
+    >4.8 version)
 
     :pre-condition: ``__IMAGE:tag`` image exists
     :param tag: docker tag
