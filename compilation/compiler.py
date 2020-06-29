@@ -110,6 +110,9 @@ class Compiler:
     def __do_a_compilation(self):
         """Run a compilation, with autofix and timer.
 
+        .. note:: *Autofix* fixes automatically dependencies of tools
+         used for the compilation
+
         """
         start_compilation_timer = time.time()
         install_time_cpt = 0
@@ -314,11 +317,13 @@ class Compiler:
     # @details All the key represent each field (minus cid) of the bdd.
     def get_compilation_dictionary(self):
         """Gives all the data about the previous compilation. 
-        Each key of the dictionary represents each field of the bdd
-        (minus cid).
+
+        Each key of the dictionary represents each field of the
+        database (minus cid).
 
         :return: info about the compilation
         :rtype: dictionary
+
         """
         return self.__result_dictionary
 
