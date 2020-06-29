@@ -149,6 +149,9 @@ def retrieve_sizes(path, kernel_version):
 
     :param path: path to the compiled Linux kernel
     :type path: str
+    :param kernel_version: version of the compiled Linux kernel to\
+    retrieve the size from
+    :type kernel_version: str
     :return: info about the retrieved sizes
     :rtype: dict
     """
