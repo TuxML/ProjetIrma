@@ -94,4 +94,7 @@ Please check our [wiki](https://github.com/TuxML/ProjetIrma/wiki).
 
 - [sphinx](https://www.sphinx-doc.org/en/master/)
 
+  Check sphinx extensions used in the [configuration
+file](https://github.com/garandria/ProjetIrma/blob/master/Documentation/conf.py#L39)
+
 - [docker](https://www.docker.com/)
