@@ -581,10 +581,13 @@ def docker_image_auto_cleaner(tag, old_image_id=None):
 # image tag.
 # @pre The __IMAGE:tag image already exist.
 # @return The corresponding tag.
-<<<<<<< HEAD
-def docker_build_v4_image(tag, v4):
+def docker_build_version_image(tag, version):
     """Download and create an image with different Linux kernel versions
     inside. Builds only if in need, otherwise return the image tag.
+
+    .. note:: replacement of docker_build_v4_image since commit
+    b16ac41490fd92548b9a6cb8166447f5f78ffd55(generalize to any
+    version... of course TuxML was designed for >4.8 version)
 
     :pre-condition: ``__IMAGE:tag`` image exists
     :param tag: docker tag
@@ -594,14 +597,10 @@ def docker_build_v4_image(tag, v4):
     :type v4: str
     :return: image's tag
     :rtype: str
+
     """ 
-    tagv4 = "{}-v4.{}".format(tag, v4)
-    if not docker_image_exist(__IMAGE, tagv4):
-=======
-def docker_build_version_image(tag, version):
     tagv = "{}-v{}".format(tag, version)
     if not docker_image_exist(__IMAGE, tagv):
->>>>>>> 96f6543bb36bb92e92b36ca0dbcbc20370773f2e
         set_prompt_color("Purple")
         print("Building specific image for linux v{} ...".format(version))
         set_prompt_color()

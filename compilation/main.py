@@ -144,8 +144,7 @@ def retrieve_and_display_configuration(logger, args):
 # @author SAFFRAY Paul
 # @version 1
 # @brief Retrieve the additional sizes with more specific commands
-<<<<<<< HEAD
-def retrieve_sizes(path):
+def retrieve_sizes(path, kernel_version):
     """Retrieve additional sizes
 
     :param path: path to the compiled Linux kernel
@@ -153,9 +152,6 @@ def retrieve_sizes(path):
     :return: info about the retrieved sizes
     :rtype: dict
     """
-=======
-def retrieve_sizes(path, kernel_version):
->>>>>>> 96f6543bb36bb92e92b36ca0dbcbc20370773f2e
     sizes_result = {}
     sizes_result['size_vmlinux'] = subprocess.run(['size {}/vmlinux'.format(path)], shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
     sizes_result['nm_size_vmlinux'] = bz2.compress(
