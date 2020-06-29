@@ -816,7 +816,7 @@ def feedback_user(nbcontainer, nbincremental):
 
 
 def compilation(image, args):
-    """Runs the compilation on the specified number of container.W
+    """Runs the compilation on the specified number of container.
 
     :param image: docker image
     :type image: str
