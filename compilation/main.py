@@ -144,6 +144,7 @@ def retrieve_and_display_configuration(logger, args):
 # @author SAFFRAY Paul
 # @version 1
 # @brief Retrieve the additional sizes with more specific commands
+<<<<<<< HEAD
 def retrieve_sizes(path):
     """Retrieve additional sizes
 
@@ -152,12 +153,24 @@ def retrieve_sizes(path):
     :return: info about the retrieved sizes
     :rtype: dict
     """
+=======
+def retrieve_sizes(path, kernel_version):
+>>>>>>> 96f6543bb36bb92e92b36ca0dbcbc20370773f2e
     sizes_result = {}
     sizes_result['size_vmlinux'] = subprocess.run(['size {}/vmlinux'.format(path)], shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
     sizes_result['nm_size_vmlinux'] = bz2.compress(
                                     subprocess.run(["nm --size -r {}/vmlinux | sed 's/^[0]*//'".format(path)], shell=True, stdout=subprocess.PIPE).stdout)
-    sizes_result['size_builtin'] = bz2.compress(
-                                    subprocess.run(['size {}/*/built-in.o'.format(path)], shell=True, stdout=subprocess.PIPE).stdout)
+
+    kversion = kernel_version.split(".") # eg 4.16 will give [4, 16]
+    major = int(kversion[0]) # 4
+    if len(kversion) >= 2:        
+        minor = int(kversion[1]) # 16
+    else:
+        minor = 0
+    if (major == 4 and minor >= 17) or major == 5: # see https://github.com/TuxML/ProjetIrma/issues/180 and https://gitlab.javinator9889.com/Javinator9889/thdkernel/commit/f49821ee32b76b1a356fab17316eb62430182ecf 
+        sizes_result['size_builtin'] = bz2.compress(subprocess.run(['size {}/*/built-in.a'.format(path)], shell=True, stdout=subprocess.PIPE).stdout)
+    else:
+        sizes_result['size_builtin'] = bz2.compress(subprocess.run(['size {}/*/built-in.o'.format(path)], shell=True, stdout=subprocess.PIPE).stdout)
     return sizes_result
 
 
@@ -215,7 +228,7 @@ def run(boot, check_size, logger, configuration, environment,
     size_result = None
     if compiler.is_successful():
         if check_size:
-            size_result=retrieve_sizes(configuration['kernel_path'])
+            size_result = retrieve_sizes(configuration['kernel_path'], configuration['kernel_version_compilation'])
         if boot:
             boot_checker = BootChecker(logger, configuration['kernel_path'])
             boot_checker.run()

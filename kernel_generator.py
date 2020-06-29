@@ -12,7 +12,7 @@ import shutil
 
 __COMPRESSED_IMAGE = "tuxml/tartuxml"
 __IMAGE = "tuxml/tuxml"
-__DEFAULT_V4 = "13.3"
+__DEFAULT_V4 = "4.13.3"
 # __sudo_right: internal global variable whose goal is to use sudo if the user
 # isn't in the docker group.
 __sudo_right = ""
@@ -345,8 +345,8 @@ def parser():
         help="Give a path to a specific seed options file. These options will be activated before the others are randomly chosen. The file will replace tuxml.config "
     )
     parser.add_argument(
-        "--linux4_version",
-        help="Optional. Give a specific linux4 version to compile. "
+        "--linux_version",
+        help="Optional. Give a specific linux version to compile (can be v4 or v5). "
              "Note that its local, will take some time to download the kernel "
              "after compiling, and that the image use to compile it will be "
              "deleted afterward.",
@@ -367,7 +367,7 @@ def parser():
         action="store_true",
         help="Optional. Run the unit testing of the compilation script. Prevent"
              " any compilation to happen. Will disable --tiny, --config, "
-             "--linux4_version, --silent, --fetch_kernel and incremental "
+             "--linux_version, --silent, --fetch_kernel and incremental "
              "feature during runtime."
     )
     parser.add_argument(
@@ -573,14 +573,15 @@ def docker_image_auto_cleaner(tag, old_image_id=None):
             )
 
 
-## docker_build_v4_image
-# @author PICARD Michaël
+## replacement of docker_build_v4_image (generalize to any version... of course TuxML was designed for >4.8 version) 
+# @author PICARD Michaël, ACHER Mathieu
 # @version 1
-# @brief It will download and create an image with a different linux v4 inside.
+# @brief It will download and create an image with a different linux v4/v5 inside.
 # @details It will build only if it need to. If not, it will just return the
 # image tag.
 # @pre The __IMAGE:tag image already exist.
 # @return The corresponding tag.
+<<<<<<< HEAD
 def docker_build_v4_image(tag, v4):
     """Download and create an image with different Linux kernel versions
     inside. Builds only if in need, otherwise return the image tag.
@@ -596,36 +597,41 @@ def docker_build_v4_image(tag, v4):
     """ 
     tagv4 = "{}-v4.{}".format(tag, v4)
     if not docker_image_exist(__IMAGE, tagv4):
+=======
+def docker_build_version_image(tag, version):
+    tagv = "{}-v{}".format(tag, version)
+    if not docker_image_exist(__IMAGE, tagv):
+>>>>>>> 96f6543bb36bb92e92b36ca0dbcbc20370773f2e
         set_prompt_color("Purple")
-        print("Building specific image for linux v4.{} ...".format(v4))
+        print("Building specific image for linux v{} ...".format(version))
         set_prompt_color()
-        linux_kernel = "linux-4.{}.tar.xz".format(v4)
+        linux_kernel = "linux-{}.tar.xz".format(version)
         get_linux_kernel(linux_kernel[:-7])
         docker_file_content = "FROM {0}:{1}\n" \
                               "COPY {2} /TuxML/{2}\n" \
-                              "RUN echo \"4.{3}\" > /kernel_version.txt\n" \
+                              "RUN echo \"{3}\" > /kernel_version.txt\n" \
                               "RUN tar xf /TuxML/{2} -C /TuxML && rm /TuxML/{2}\n" \
                               "RUN rm -rf /TuxML/linux-4.13.3".format(
-            __IMAGE, tag, linux_kernel, v4)
+                                  __IMAGE, tag, linux_kernel, version)
         create_dockerfile(docker_file_content)
-        docker_build(__IMAGE, tagv4)
+        docker_build(__IMAGE, tagv)
         os.remove("Dockerfile")
         set_prompt_color("Purple")
         print("Building done.")
         set_prompt_color()
     else:
         set_prompt_color("Purple")
-        print("Specific image for linux v4.{} already exist. "
-              "Nothing to do.".format(v4))
+        print("Specific image for linux v{} already exist. "
+              "Nothing to do.".format(version))
         set_prompt_color()
-    return tagv4
+    return tagv
 
 
 ##get_linux_kernel
 # @author POLES Malo, PICARD Michaël
 # @version 3
 # @brief Download the linux kernel at the current location
-# @param name Specify version of kernel we want. MUST BE A v4.x version.
+# @param name Specify version of kernel we want. MUST BE A v4.x version or a v5.x version
 def get_linux_kernel(name, path=None):
     """Download the Linux kernel in the current directory
 
@@ -642,8 +648,14 @@ def get_linux_kernel(name, path=None):
     name += ".tar.xz"
     list_dir = os.listdir('.')
     if name not in list_dir:
-        print("Linux kernel not found, downloading...")
-        wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
+        print("Linux kernel not found, downloading", name)
+        if name.startswith("linux-4"): 
+            wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v4.x/{}".format(name)
+        elif name.startswith("linux-5"):
+            wget_cmd = "wget https://cdn.kernel.org/pub/linux/kernel/v5.x/{}".format(name)
+        else:
+            print("Unrecognized kernel version (should be 4 or 5)", name)
+            return
         subprocess.run(args=wget_cmd, shell=True, check=True)
     else:
         print("Linux kernel found.")
@@ -918,10 +930,10 @@ if __name__ == "__main__":
         set_prompt_color()
         docker_uncompress_image(tag)
 
-    if args.linux4_version != __DEFAULT_V4:
-        tag = docker_build_v4_image(tag, args.linux4_version)
+    if args.linux_version != __DEFAULT_V4:
+        tag = docker_build_version_image(tag, args.linux_version)
 
-    # Setting image name to run (useful later with linux4_version)
+    # Setting image name to run (useful later with linux_version)
     image = "{}:{}".format(__IMAGE, tag)
 
     if args.unit_testing:
