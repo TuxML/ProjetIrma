@@ -323,7 +323,6 @@ class Compiler:
 
         :return: info about the compilation
         :rtype: dictionary
-
         """
         return self.__result_dictionary
 
