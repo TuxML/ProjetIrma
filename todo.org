@@ -5,9 +5,9 @@
   - [X] Add entrypoint doc for each source code directories
   - [-] Re-write modules' docstrings [33%]
     + [X] kernel_generator.py
-    + [-] compilation/ [28%]
+    + [-] compilation/ [42%]
       - [ ] boo_checker.py
-      - [ ] compiler.py
+      - [X] compiler.py
       - [ ] database_management.py
       - [ ] environment.py
       - [X] logger.py
