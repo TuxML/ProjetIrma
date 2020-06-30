@@ -76,7 +76,7 @@ Please check our [wiki](https://github.com/TuxML/ProjetIrma/wiki).
   - Alexis BONNET
 * Paul SAFFRAY (internship during 2019 summer)
 
-# Notes on this fork
+# Documentation
 
 ## Requirements
 
@@ -97,4 +97,23 @@ Please check our [wiki](https://github.com/TuxML/ProjetIrma/wiki).
   Check sphinx extensions used in the [configuration
 file](https://github.com/garandria/ProjetIrma/blob/master/Documentation/conf.py#L39)
 
-- [docker](https://www.docker.com/)
+## Generate documentation
+
+Run the following command from the root dir (`ProjetIrma`)
+
+```
+make doc
+```
+
+Index file of the documentation will be generated in
+`Documenetation/doc/index.html`
+
+
+You can clean the `Documentation` directory with the following command
+
+```
+make cleandoc
+```
+
+(You can check `Documentation`'s `Makefile` for more info about the
+doc generation)
